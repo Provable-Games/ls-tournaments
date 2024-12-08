@@ -61,7 +61,6 @@ const CreatedTable = () => {
               {tournaments && tournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
                   const tournamentModel = tournament.TournamentModel;
-                  const tournamentEntries = tournament.TournamentEntriesModel;
                   const tournamentPrizeKeys =
                     tournament.TournamentPrizeKeysModel;
                   return (
