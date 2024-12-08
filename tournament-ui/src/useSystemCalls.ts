@@ -14,6 +14,7 @@ import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useToast } from "@/hooks/useToast";
 import useUIStore from "@/hooks/useUIStore";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
+import { feltToString } from "@/lib/utils";
 
 export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
@@ -83,7 +84,7 @@ export const useSystemCalls = () => {
 
       toast({
         title: "Created Tournament!",
-        description: `Created tournament ${tournament.name}`,
+        description: `Created tournament ${feltToString(tournament.name)}`,
       });
 
       resetFormData();

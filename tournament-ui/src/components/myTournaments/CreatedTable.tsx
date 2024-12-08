@@ -72,7 +72,6 @@ const CreatedTable = () => {
                       name={tournamentModel?.name}
                       startTime={tournamentModel?.start_time}
                       entryPremium={tournamentModel?.entry_premium}
-                      entries={tournamentEntries?.entry_count}
                       prizeKeys={tournamentPrizeKeys?.prize_keys}
                     />
                   );

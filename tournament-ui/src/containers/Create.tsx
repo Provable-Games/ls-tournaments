@@ -486,10 +486,11 @@ const Create = () => {
             !formData.startTime ||
             !formData.endTime ||
             !formData.submissionPeriod ||
-            !formData.scoreboardSize
+            !formData.scoreboardSize ||
+            !account
           }
         >
-          Create
+          {account ? "Create" : "Connect Wallet"}
         </Button>
       </div>
     </div>

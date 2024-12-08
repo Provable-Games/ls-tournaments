@@ -11,7 +11,6 @@ interface CreatedRowProps {
   name?: any;
   startTime?: any;
   entryPremium?: any;
-  entries?: any;
   prizeKeys?: any;
 }
 
@@ -88,12 +87,12 @@ const CreatedRow = ({
       <td>{displayStartDate}</td>
       <td>{status}</td>
       <td>
-        {entryPremium === "None"
+        {!entryPremium || entryPremium === "None"
           ? "-"
           : BigInt(entryPremium.Some?.token_amount).toString()}
       </td>
       <td>
-        {entryPremium === "None"
+        {!entryPremium || entryPremium === "None"
           ? "-"
           : BigInt(entryPremium.Some?.creator_fee).toString()}
       </td>
