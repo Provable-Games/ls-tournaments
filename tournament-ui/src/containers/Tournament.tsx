@@ -101,10 +101,6 @@ const Tournament = () => {
     tournamentAddressEntityId,
     Models.TournamentStartsAddressModel
   );
-  const gamesData = state.getEntitiesByModel(
-    "tournament",
-    "TournamentGameModel"
-  );
   const adventurersTestEntities = state.getEntitiesByModel(
     "tournament",
     "AdventurerModel"
@@ -221,7 +217,11 @@ const Tournament = () => {
         feltToString(tournamentModel?.name!),
         false,
         new CairoOption(CairoOptionVariant.Some, customStartCount),
-        currentAddressStartCount + customStartCount
+        addAddressPadding(
+          bigintToHex(
+            BigInt(currentAddressStartCount) + BigInt(customStartCount)
+          )
+        )
       );
     }
   };
@@ -288,7 +288,8 @@ const Tournament = () => {
             tournamentPrizeKeys?.prize_keys?.includes(prizeModel.prize_key)
           );
         })
-        .map((entity) => entity.models.tournament.PrizesModel) ?? []
+        .map((entity) => entity.models.tournament.PrizesModel as PrizesModel) ??
+      []
     );
   }, [prizesData, tournamentPrizeKeys?.prize_keys]);
 
@@ -307,13 +308,21 @@ const Tournament = () => {
         </h1>
         {isLive ? (
           <div className="w-1/4 flex flex-row gap-5 justify-end">
-            <h2 className="text-4xl uppercase text-terminal-green/75 no-text-shadow">
-              Ends
-            </h2>
-            <Countdown
-              targetTime={endDate.getTime()}
-              countDownExpired={() => setCountDownExpired(true)}
-            />
+            {!countDownExpired ? (
+              <>
+                <h2 className="text-4xl uppercase text-terminal-green/75 no-text-shadow">
+                  Ends
+                </h2>
+                <Countdown
+                  targetTime={endDate.getTime()}
+                  countDownExpired={() => setCountDownExpired(true)}
+                />
+              </>
+            ) : (
+              <h2 className="text-4xl uppercase text-terminal-green/75 no-text-shadow">
+                Tournament Ended
+              </h2>
+            )}
           </div>
         ) : (
           <div className="w-1/4"></div>
@@ -403,7 +412,7 @@ const Tournament = () => {
           <div className="flex flex-row items-center gap-2">
             <p className="text-xl uppercase">Scoreboard Size</p>
             <p className="text-terminal-green/75 no-text-shadow text-lg uppercase">
-              {tournamentModel?.winners_count}
+              {BigInt(tournamentModel?.winners_count).toString()}
             </p>
           </div>
         </div>
@@ -490,7 +499,7 @@ const Tournament = () => {
                         ).toString()} / ${BigInt(entryAddressCount).toString()}`
                       : `${
                           tournamentScores?.top_score_ids.length ?? 0
-                        } / ${currentAddressStartCount}`}
+                        } / ${BigInt(currentAddressStartCount).toString()}`}
                   </p>
                   {(!started || isLive) && (
                     <div className="flex flex-row items-center gap-2">
@@ -543,7 +552,7 @@ const Tournament = () => {
                       type="number"
                       name="position"
                       onChange={handleChangeStartCount}
-                      max={tournamentEntriesAddressModel?.entry_count}
+                      max={Number(tournamentEntriesAddressModel?.entry_count)}
                       min={1}
                       className="p-1 m-2 w-16 h-8 2xl:text-2xl bg-terminal-black border border-terminal-green"
                     />
@@ -564,7 +573,7 @@ const Tournament = () => {
               {isSubmissionLive && (
                 <Button
                   onClick={handleSubmitScores}
-                  disabled={tournamentScores}
+                  disabled={!!tournamentScores}
                 >
                   Submit Scores
                 </Button>

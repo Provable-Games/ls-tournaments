@@ -22,7 +22,7 @@ export const useChainConnectors = (
 ) => {
   // Cartridge Controller
   const connectorIds = useMemo<Connector[]>(() => {
-    const result = chainConfig?.connectorIds?.reduce((acc, id) => {
+    const result = (chainConfig?.connectorIds ?? []).reduce((acc, id) => {
       // if (id == supportedConnetorIds.ARGENT) acc.push(argent())
       // if (id == supportedConnetorIds.BRAAVOS) acc.push(braavos())
       // if (id == supportedConnetorIds.CONTROLLER) acc.push(controller());

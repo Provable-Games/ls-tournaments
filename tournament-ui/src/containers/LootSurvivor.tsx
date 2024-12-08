@@ -4,15 +4,13 @@ import { useAccount } from "@starknet-react/core";
 import { Button } from "@/components/buttons/Button";
 import { useGetAdventurersQuery } from "@/hooks/useSdkQueries";
 import { useDojoStore } from "@/hooks/useDojoStore";
-import { useDojo } from "@/DojoContext";
 import { useSystemCalls } from "@/useSystemCalls";
 import { bigintToHex, removeFieldOrder } from "@/lib/utils";
-import AdventurerCard from "@/components/lootSurvivor/AdventurerCard";
 
 const LootSurvivor = () => {
   const { setAdventurer } = useSystemCalls();
   const { account } = useAccount();
-  const { isLoading } = useGetAdventurersQuery(account?.address ?? "0x0");
+  useGetAdventurersQuery(account?.address ?? "0x0");
   const state = useDojoStore((state) => state);
   const [scores, setScores] = useState<Record<string, number>>({});
 

@@ -1,7 +1,5 @@
 import { feltToString, formatTime } from "@/lib/utils";
-import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/buttons/Button";
 
 interface LiveRowProps {
   tournamentId?: any;
@@ -16,11 +14,7 @@ const LiveRow = ({
   endTime,
   winnersCount,
 }: LiveRowProps) => {
-  const { entities: tournamentDetails } =
-    useGetTournamentDetailsQuery(tournamentId);
   const navigate = useNavigate();
-  const tournamentEntries = tournamentDetails?.[0]?.TournamentEntriesModel;
-  const tournamentPrizeKeys = tournamentDetails?.[0]?.TournamentPrizeKeysModel;
   const currentTime = BigInt(new Date().getTime()) / 1000n;
   return (
     <tr

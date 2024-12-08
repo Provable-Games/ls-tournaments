@@ -4,6 +4,12 @@ import {
   AddStarknetChainParameters,
 } from "get-starknet-core";
 
+declare global {
+  interface Window {
+    starknet?: any;
+  }
+}
+
 // TODO: use this...
 // import { useSwitchChain } from "@starknet-react/core";
 export const useSwitchStarknetChain = (

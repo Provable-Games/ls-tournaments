@@ -3,7 +3,6 @@ import { ScreenPage } from "../hooks/useUIStore";
 import {
   InputPremium,
   InputGatedTypeEnum,
-  InputTokenDataTypeEnum,
   Premium,
   GatedTypeEnum,
   TokenDataTypeEnum,
@@ -30,8 +29,8 @@ export type FormData = {
   endTime: Date | undefined;
   submissionPeriod: number;
   scoreboardSize: number;
-  gatedType: CairoOption<GatedTypeEnum>;
-  entryFee: CairoOption<Premium>;
+  gatedType: CairoOption<InputGatedTypeEnum>;
+  entryFee: CairoOption<InputPremium>;
   prizes: Prize[];
 };
 
@@ -111,6 +110,7 @@ export type TypedCairoEnum<T> = CairoCustomEnum & {
 };
 
 export type DataTypeEnum = TypedCairoEnum<DataType>;
+export type GatedSubmissionTypeEnum = TypedCairoEnum<GatedSubmissionType>;
 
 // export type Premium = {
 //   token: string;

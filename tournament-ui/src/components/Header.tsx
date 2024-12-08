@@ -24,11 +24,11 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
     setup: { selectedChainConfig },
   } = useDojo();
 
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+
   // const displayCart = useUIStore((state) => state.displayCart);
   // const setDisplayCart = useUIStore((state) => state.setDisplayCart);
   // const displayCartButtonRef = useRef<HTMLButtonElement>(null);
-
-  const setShowProfile = useUIStore((state: any) => state.setShowProfile);
 
   // const calls = useTransactionCartStore((state) => state.calls);
   // const txInCart = calls.length > 0;
@@ -65,17 +65,21 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
           <Button
             size={"xs"}
             variant={"outline"}
-            className="self-center xl:px-5 hover:bg-terminal-green"
+            className={`self-center xl:px-5 ${
+              isMainnet ? "hover:bg-terminal-green" : ""
+            }`}
             onClick={async () => {
-              const avnuLords = `https://app.avnu.fi/en?tokenFrom=${indexAddress(
-                selectedChainConfig.ethAddress ?? ""
-              )}&tokenTo=${indexAddress(
-                selectedChainConfig.lordsAddress ?? ""
-              )}&amount=0.001`;
-              window.open(avnuLords, "_blank");
+              if (isMainnet) {
+                const avnuLords = `https://app.avnu.fi/en?tokenFrom=${indexAddress(
+                  selectedChainConfig.ethAddress ?? ""
+                )}&tokenTo=${indexAddress(
+                  selectedChainConfig.lordsAddress ?? ""
+                )}&amount=0.001`;
+                window.open(avnuLords, "_blank");
+              }
             }}
-            onMouseEnter={() => setShowLordsBuy(true)}
-            onMouseLeave={() => setShowLordsBuy(false)}
+            onMouseEnter={() => isMainnet && setShowLordsBuy(true)}
+            onMouseLeave={() => isMainnet && setShowLordsBuy(false)}
           >
             <span className="flex flex-row gap-1 items-center">
               {!showLordsBuy ? (

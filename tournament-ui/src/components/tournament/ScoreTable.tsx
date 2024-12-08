@@ -69,7 +69,6 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
               return (
                 <ScoreRow
                   key={index}
-                  gameId={gameId}
                   rank={index + 1}
                   adventurer={adventurer}
                 />

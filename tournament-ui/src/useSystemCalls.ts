@@ -173,7 +173,7 @@ export const useSystemCalls = () => {
     tournamentName: string,
     gameIds: Array<BigNumberish>
   ) => {
-    const entityId = getEntityIdFromKeys([BigInt(tournamentId)]);
+    // const entityId = getEntityIdFromKeys([BigInt(tournamentId)]);
     const transactionId = uuidv4();
 
     // state.applyOptimisticUpdate(transactionId, (draft) => {

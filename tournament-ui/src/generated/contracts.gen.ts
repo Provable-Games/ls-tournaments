@@ -8,7 +8,7 @@ import {
   CallData,
 } from "starknet";
 import * as models from "./models.gen";
-import { DataTypeEnum, Token } from "@/lib/types";
+import { DataTypeEnum, Token, GatedSubmissionTypeEnum } from "@/lib/types";
 
 export async function setupWorld(provider: DojoProvider) {
   const pragma_mock_getDataMedian = async (dataType: DataTypeEnum) => {
@@ -158,7 +158,7 @@ export async function setupWorld(provider: DojoProvider) {
   const tournament_mock_enterTournament = async (
     snAccount: Account | AccountInterface,
     tournamentId: BigNumberish,
-    gatedSubmissionType: CairoOption<models.InputGatedTypeEnum>
+    gatedSubmissionType: CairoOption<GatedSubmissionTypeEnum>
   ) => {
     try {
       return await provider.execute(

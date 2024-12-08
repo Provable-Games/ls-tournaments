@@ -20,18 +20,15 @@ import {
 } from "@/hooks/useSdkQueries";
 import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useSystemCalls } from "@/useSystemCalls";
-import { useControllerMenu } from "@/hooks/useController";
 import { useDojo } from "@/DojoContext";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   const {
-    setup: { sdk, selectedChainConfig },
+    setup: { selectedChainConfig },
   } = useDojo();
   const { account } = useAccount();
-  const { openMenu } = useControllerMenu();
   const tournament_mock = useDojoSystem("tournament_mock");
-  const eth_mock = useDojoSystem("eth_mock");
   const { getEthBalance, getLordsBalance } = useSystemCalls();
   const [tokenBalance, setTokenBalance] = useState<Record<string, bigint>>({});
 

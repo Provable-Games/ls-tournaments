@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import { Chain, mainnet } from "@starknet-react/chains";
+import { Chain } from "@starknet-react/chains";
 import { jsonRpcProvider, StarknetConfig } from "@starknet-react/core";
 import React from "react";
 import { useChainConnectors } from "../lib/connectors";

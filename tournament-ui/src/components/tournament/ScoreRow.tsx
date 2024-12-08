@@ -1,15 +1,13 @@
-import { BigNumberish } from "starknet";
 import { useDojo } from "@/DojoContext";
 import { FirstIcon, SecondIcon, ThirdIcon } from "../Icons";
 
 // First, define the props interface
 interface ScoreRowProps {
-  gameId: BigNumberish;
   rank: number;
   adventurer: any;
 }
 
-const ScoreRow = ({ gameId, rank, adventurer }: ScoreRowProps) => {
+const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();

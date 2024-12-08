@@ -13,12 +13,16 @@ export type TypedCairoEnum<T> = CairoCustomEnum & {
 };
 
 type RemoveFieldOrder<T> = T extends object
-  ? Omit<
-      {
-        [K in keyof T]: T[K] extends object ? RemoveFieldOrder<T[K]> : T[K];
-      },
-      "fieldOrder"
-    >
+  ? T extends CairoOption<infer U>
+    ? CairoOption<RemoveFieldOrder<U>>
+    : T extends CairoCustomEnum
+    ? T
+    : Omit<
+        {
+          [K in keyof T]: T[K] extends object ? RemoveFieldOrder<T[K]> : T[K];
+        },
+        "fieldOrder"
+      >
   : T;
 // Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerMetadata` struct
 export interface AdventurerMetadata {

@@ -215,8 +215,10 @@ export const useOptimisticUpdates = () => {
 
     const waitForPrizeEntityChange = async () => {
       return await state.waitForEntityChange(entityId, (entity) => {
-        return entity?.models?.tournament?.TournamentPrizeKeysModel?.prize_keys.includes(
-          prizeKey
+        return (
+          entity?.models?.tournament?.TournamentPrizeKeysModel?.prize_keys?.includes(
+            prizeKey
+          ) ?? false
         );
       });
     };

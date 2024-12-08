@@ -1,5 +1,5 @@
 import PrizeDialog from "./Prize";
-import { DialogWrapper } from "./DialogWrapper";
+import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 import useUIStore from "@/hooks/useUIStore";
 import { Prize } from "@/lib/types";
 import { useSystemCalls } from "@/useSystemCalls";

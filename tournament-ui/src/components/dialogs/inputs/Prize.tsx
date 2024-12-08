@@ -5,6 +5,7 @@ import { Distribution, Prize } from "@/lib/types";
 import { CairoCustomEnum } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
+import { TokenDataTypeEnum } from "@/generated/models.gen";
 
 interface PrizeProps {
   onSubmit: (prizes: Prize[]) => void;
@@ -40,16 +41,18 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
   const prizes: Prize[] = distributions
     .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
     .map((dist) => {
+      const tokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: (totalAmount * dist.percentage) / 100,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum; // Type assertion here
+
       return {
         tournamentId: 1,
         token: selectedToken,
         position: dist.position,
-        tokenDataType: new CairoCustomEnum({
-          erc20: {
-            token_amount: (totalAmount * dist.percentage) / 100,
-          },
-          erc721: undefined,
-        }),
+        tokenDataType,
       };
     });
 
@@ -91,7 +94,7 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
                     : "token text-terminal-green/75"
                 }`}
               >
-                {tokenModel?.token_data_type}
+                {(tokenModel?.token_data_type as unknown as string).toString()}
               </span>
               <span
                 className={`absolute bottom-0 text-xs uppercase ${

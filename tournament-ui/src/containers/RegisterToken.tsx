@@ -14,6 +14,7 @@ import {
 import { useDojoSystem } from "@/hooks/useDojoSystem";
 import TokenBox from "@/components/registerToken/TokenBox";
 import { useSubscribeTokensQuery } from "@/hooks/useSdkQueries";
+import { TokenDataTypeEnum } from "@/generated/models.gen";
 
 const RegisterToken = () => {
   const { account } = useAccount();
@@ -135,7 +136,7 @@ const RegisterToken = () => {
                 token_amount: 1,
               },
               erc721: undefined,
-            }),
+            }) as TokenDataTypeEnum,
           },
         ]);
       } else {
@@ -143,11 +144,11 @@ const RegisterToken = () => {
         await registerTokens([
           {
             token: tokenAddress,
-            TokenDataEnum: new CairoCustomEnum({
+            tokenDataType: new CairoCustomEnum({
               erc721: {
                 token_id: tokenId,
               },
-            }),
+            }) as TokenDataTypeEnum,
           },
         ]);
       }
@@ -217,7 +218,7 @@ const RegisterToken = () => {
               >
                 {tokenModel?.name}
                 <span className="absolute top-0 text-xs uppercase text-terminal-green/75">
-                  {tokenModel?.token_data_type}
+                  {tokenModel?.token_data_type as unknown as string}
                 </span>
                 <span className="absolute bottom-0 text-xs uppercase text-terminal-green/75">
                   {displayAddress(tokenModel?.token!)}

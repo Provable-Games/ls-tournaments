@@ -169,7 +169,8 @@ export type DojoChainConfig = {
   masterAddress?: string;
   masterPrivateKey?: string;
   accountClassHash?: string;
-  etherAddress?: string;
+  ethAddress?: string;
+  lordsAddress?: string;
   connectorIds?: string[];
   // starknet Chain
   network?: string;
@@ -192,7 +193,8 @@ const localKatanaConfig: DojoChainConfig = {
   masterPrivateKey:
     "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912",
   accountClassHash: KATANA_CLASS_HASH,
-  etherAddress: KATANA_ETH_CONTRACT_ADDRESS,
+  ethAddress: KATANA_ETH_CONTRACT_ADDRESS,
+  lordsAddress: "0x0",
   connectorIds: [supportedConnectorIds.CONTROLLER],
   // starknet Chain
   nativeCurrency: ETH_KATANA,
@@ -213,7 +215,8 @@ const slotKatanaConfig: DojoChainConfig = {
   masterPrivateKey:
     "0x3e3979c1ed728490308054fe357a9f49cf67f80f9721f44cc57235129e090f4",
   accountClassHash: KATANA_CLASS_HASH,
-  etherAddress: KATANA_ETH_CONTRACT_ADDRESS,
+  ethAddress: KATANA_ETH_CONTRACT_ADDRESS,
+  lordsAddress: "0x0",
   connectorIds: [supportedConnectorIds.CONTROLLER],
   // starknet Chain
   nativeCurrency: ETH_KATANA,
@@ -231,7 +234,9 @@ const snMainnetConfig: DojoChainConfig = {
   masterAddress: undefined,
   masterPrivateKey: undefined,
   accountClassHash: undefined,
-  etherAddress: mainnet.nativeCurrency.address,
+  ethAddress: mainnet.nativeCurrency.address,
+  lordsAddress:
+    "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
   connectorIds: [
     supportedConnectorIds.CONTROLLER,
     // supportedConnectorIds.ARGENT,
@@ -250,7 +255,8 @@ export const envChainConfig: DojoChainConfig = {
   masterAddress: import.meta.env.VITE_MASTER_ADDRESS || undefined,
   masterPrivateKey: import.meta.env.VITE_MASTER_PRIVATE_KEY || undefined,
   accountClassHash: undefined,
-  etherAddress: undefined,
+  ethAddress: undefined,
+  lordsAddress: undefined,
   connectorIds: undefined,
 };
 

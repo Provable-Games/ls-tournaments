@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Button } from "./buttons/Button";
-import { soundSelector, useUiSounds } from "../hooks/useUiSound";
-import { Menu } from "../lib/types";
-import useUIStore from "../hooks/useUIStore";
+import { Button } from "@/components/buttons/Button";
+import { soundSelector, useUiSounds } from "@/hooks/useUiSound";
+import { Menu } from "@/lib/types";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
@@ -28,7 +27,6 @@ const HorizontalKeyboardControl: React.FC<HorizontalKeyboardControlProps> = ({
   const { play } = useUiSounds(soundSelector.click);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const screen = useUIStore((state) => state.screen);
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {

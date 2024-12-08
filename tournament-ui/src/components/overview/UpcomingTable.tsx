@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { Button } from "@/components/buttons/Button";
 import { useGetUpcomingTournamentsQuery } from "@/hooks/useSdkQueries";
 import UpcomingRow from "@/components/overview/UpcomingRow";
 import Pagination from "@/components/table/Pagination";
@@ -59,7 +58,6 @@ const UpcomingTable = () => {
               {tournaments && tournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
                   const tournamentModel = tournament.TournamentModel;
-                  const tournamentEntries = tournament.TournamentEntriesModel;
                   const tournamentPrizeKeys =
                     tournament.TournamentPrizeKeysModel;
                   return (
@@ -70,7 +68,6 @@ const UpcomingTable = () => {
                       startTime={tournamentModel?.start_time}
                       endTime={tournamentModel?.end_time}
                       entryPremium={tournamentModel?.entry_premium}
-                      entries={tournamentEntries?.entry_count}
                       prizeKeys={tournamentPrizeKeys?.prize_keys}
                     />
                   );

@@ -1,6 +1,6 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { BigNumberish, shortString, ByteArray } from "starknet";
+import { BigNumberish, shortString } from "starknet";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

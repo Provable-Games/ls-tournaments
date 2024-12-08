@@ -1,10 +1,8 @@
-import { Premium } from "../../lib/types";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useNavigate } from "react-router-dom";
-import { CairoOption } from "starknet";
 import { feltToString } from "@/lib/utils";
-import useModel from "../../useModel.ts";
-import { Models, PrizesModel } from "../../generated/models.gen";
+import useModel from "@/useModel.ts";
+import { Models, PrizesModel } from "@/generated/models.gen";
 import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries.ts";
 
 interface CreatedRowProps {
@@ -12,7 +10,6 @@ interface CreatedRowProps {
   tournamentId?: any;
   name?: any;
   startTime?: any;
-  endTime?: any;
   entryPremium?: any;
   entries?: any;
   prizeKeys?: any;
@@ -23,9 +20,7 @@ const CreatedRow = ({
   tournamentId,
   name,
   startTime,
-  endTime,
   entryPremium,
-  entries,
   prizeKeys,
 }: CreatedRowProps) => {
   const navigate = useNavigate();
@@ -95,12 +90,12 @@ const CreatedRow = ({
       <td>
         {entryPremium === "None"
           ? "-"
-          : (entryPremium as CairoOption<Premium>).Some?.token_amount}
+          : BigInt(entryPremium.Some?.token_amount).toString()}
       </td>
       <td>
         {entryPremium === "None"
           ? "-"
-          : (entryPremium as CairoOption<Premium>).Some?.creator_fee}
+          : BigInt(entryPremium.Some?.creator_fee).toString()}
       </td>
       <td>
         <div className="flex flex-col gap-2">

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useAccount } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
 import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
-import CreatedRow from "@/components/myTournaments/CreatedRow";
+import EnteredRow from "@/components/myTournaments/EnteredRow";
 import Pagination from "@/components/table/Pagination";
 
 const EnteredTable = () => {
@@ -15,14 +15,8 @@ const EnteredTable = () => {
   const { entities: tournaments, isLoading } =
     useGetAccountCreatedTournamentsQuery(address);
 
-  console.log(tournaments);
-
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
-
-  const handleClick = (page: number) => {
-    setCurrentPage(page);
-  };
 
   const totalPages = useMemo(() => {
     if (!tournaments) return 0;
@@ -71,13 +65,12 @@ const EnteredTable = () => {
                   const tournamentPrizeKeys =
                     tournament.TournamentPrizeKeysModel;
                   return (
-                    <CreatedRow
+                    <EnteredRow
                       key={tournament.entityId}
                       entityId={tournament.entityId}
                       tournamentId={tournamentModel?.tournament_id}
                       name={tournamentModel?.name}
                       startTime={tournamentModel?.start_time}
-                      endTime={tournamentModel?.end_time}
                       entryPremium={tournamentModel?.entry_premium}
                       entries={tournamentEntries?.entry_count}
                       prizeKeys={tournamentPrizeKeys?.prize_keys}

@@ -1,25 +1,25 @@
 import { useState, ChangeEvent } from "react";
 import { useAccount } from "@starknet-react/core";
-import { Button } from "../components/buttons/Button";
-import { InputTournamentModel, Models } from "../generated/models.gen";
-import { DateTimePicker } from "../components/ui/datetime-picker";
-import { PlusIcon, TrophyIcon, CloseIcon, InfoIcon } from "../components/Icons";
-import useUIStore from "../hooks/useUIStore";
+import { Button } from "@/components/buttons/Button";
+import { InputTournamentModel, Models } from "@/generated/models.gen";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { PlusIcon, TrophyIcon, CloseIcon, InfoIcon } from "@/components/Icons";
+import useUIStore from "@/hooks/useUIStore";
 import { useSystemCalls } from "@/useSystemCalls";
 import {
   stringToFelt,
   formatTime,
   bigintToHex,
   feltToString,
-} from "../lib/utils";
-import EntryCriteriaDialog from "../components/dialogs/EntryCriteria";
-import EntryFeeBox from "../components/create/EntryFeeBox";
+} from "@/lib/utils";
+import EntryCriteriaDialog from "@/components/dialogs/EntryCriteria";
+import EntryFeeBox from "@/components/create/EntryFeeBox";
 import PrizeBoxes from "@/components/create/PrizeBoxes";
 import { CairoOption, CairoOptionVariant, addAddressPadding } from "starknet";
 import { useSubscribeTournamentsQuery } from "@/hooks/useSdkQueries";
 import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
-import useModel from "../useModel.ts";
+import useModel from "@/useModel.ts";
 
 const Create = () => {
   const { account } = useAccount();
@@ -38,9 +38,7 @@ const Create = () => {
     contractEntityId,
     Models.TournamentTotalsModel
   );
-  const tournamentCount =
-    tournamentTotals[0]?.models?.tournament?.TournamentTotalsModel
-      ?.total_tournaments ?? 0n;
+  const tournamentCount = tournamentTotals?.total_tournaments ?? 0n;
 
   const {
     createTournament,
@@ -447,7 +445,7 @@ const Create = () => {
             <p className="2xl:text-4xl">Entry Fee</p>
             <div className="flex flex-row gap-2">
               {formData.entryFee.isSome() && (
-                <EntryFeeBox premium={formData.entryFee.unwrap()!} />
+                <EntryFeeBox premium={formData.entryFee} />
               )}
               {formData.entryFee.isNone() && (
                 <Button

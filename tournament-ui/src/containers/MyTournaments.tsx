@@ -1,20 +1,6 @@
-import { useMemo } from "react";
-import { useAccount } from "@starknet-react/core";
-import { addAddressPadding } from "starknet";
-import {
-  useGetAccountCreatedTournamentsQuery,
-  useGetAccountTournamentsQuery,
-} from "@/hooks/useSdkQueries";
 import CreatedTable from "@/components/myTournaments/CreatedTable";
-import { Button } from "@/components/ui/button";
 
 const MyTournaments = () => {
-  const { account } = useAccount();
-  const address = useMemo(
-    () => addAddressPadding(account?.address ?? "0x0"),
-    [account]
-  );
-  const { entities } = useGetAccountCreatedTournamentsQuery(address);
   return (
     <div className="flex flex-col gap-5 w-full p-4 uppercase no-text-shadow">
       <div className="flex flex-row items-center border border-terminal-green p-2 gap-2 uppercase">
