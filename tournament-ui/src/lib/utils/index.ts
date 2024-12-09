@@ -11,8 +11,22 @@ export function formatNumber(num: number): string {
     return parseFloat((num / 1000000).toFixed(2)) + "m";
   } else if (Math.abs(num) >= 1000) {
     return parseFloat((num / 1000).toFixed(2)) + "k";
-  } else {
+  } else if (Math.abs(num) >= 10) {
+    return num.toFixed(0);
+  } else if (Math.abs(num) > 0) {
     return num.toFixed(2);
+  } else {
+    return "0";
+  }
+}
+
+export function formatEth(num: number): string {
+  if (Math.abs(num) >= 0.01) {
+    return num.toFixed(2);
+  } else if (Math.abs(num) >= 0.0001) {
+    return num.toFixed(4);
+  } else {
+    return "0";
   }
 }
 

@@ -17,7 +17,7 @@ import EntryFeeBox from "@/components/create/EntryFeeBox";
 import PrizeBoxes from "@/components/create/PrizeBoxes";
 import { CairoOption, CairoOptionVariant, addAddressPadding } from "starknet";
 import { useSubscribeTournamentsQuery } from "@/hooks/useSdkQueries";
-import { useDojoSystem } from "@/hooks/useDojoSystem";
+import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import useModel from "@/useModel.ts";
 
@@ -26,14 +26,12 @@ const Create = () => {
   const { formData, setFormData, setInputDialog } = useUIStore();
   const [showEntryCriteria, setShowEntryCriteria] = useState(false);
 
-  const tournament = useDojoSystem("tournament_mock");
+  const { tournament } = useTournamentContracts();
 
   useSubscribeTournamentsQuery();
 
   // states
-  const contractEntityId = getEntityIdFromKeys([
-    BigInt(tournament?.contractAddress),
-  ]);
+  const contractEntityId = getEntityIdFromKeys([BigInt(tournament)]);
   const tournamentTotals = useModel(
     contractEntityId,
     Models.TournamentTotalsModel

@@ -2,7 +2,12 @@ import { useState } from "react";
 import { Button } from "./buttons/Button";
 import { CartridgeIcon, ETH, LORDS, LOGO } from "./Icons";
 import useUIStore from "../hooks/useUIStore";
-import { displayAddress, formatNumber, indexAddress } from "@/lib/utils";
+import {
+  displayAddress,
+  formatNumber,
+  indexAddress,
+  formatEth,
+} from "@/lib/utils";
 import { useAccount, useConnect } from "@starknet-react/core";
 import { checkCartridgeConnector } from "../lib/connectors";
 import { useDojo } from "../DojoContext";
@@ -55,10 +60,8 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
               <span className="flex h-5 w-5">
                 <ETH />
               </span>
-              <p>
-                {formatNumber(
-                  parseInt((ethBalance ?? 0).toString()) / 10 ** 18
-                )}
+              <p className="text-xl">
+                {formatEth(parseInt((ethBalance ?? 0).toString()) / 10 ** 18)}
               </p>
             </span>
           </Button>
@@ -87,7 +90,7 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
                   <span className="flex h-5 w-5 fill-current">
                     <LORDS />
                   </span>
-                  <p>
+                  <p className="text-xl">
                     {formatNumber(
                       parseInt((lordsBalance ?? 0).toString()) / 10 ** 18
                     )}
@@ -154,15 +157,19 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
               )}
             </Button>
             {checkCartridge && (
-              <div className="absolute top-0 right-0 w-5 h-5 fill-current">
+              <div className="absolute top-0 right-0 w-5 h-5 fill-current text-lg">
                 <CartridgeIcon />
               </div>
             )}
           </div>
           <Button variant="outline">
-            {selectedChainConfig.chainId === "WP_LS_TOURNAMENTS_KATANA"
-              ? "Katana"
-              : "Mainnet"}
+            <span className="text-xl">
+              {selectedChainConfig.chainId === "WP_LS_TOURNAMENTS_KATANA"
+                ? "Katana"
+                : selectedChainConfig.chainId === "SN_MAINNET"
+                ? "Mainnet"
+                : "Testnet"}
+            </span>
           </Button>
         </div>
       </div>

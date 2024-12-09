@@ -4,7 +4,12 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useAccount } from "@starknet-react/core";
 import ScoreTable from "@/components/tournament/ScoreTable";
 import useModel from "../useModel.ts";
-import { Models, AdventurerModel, PrizesModel } from "../generated/models.gen";
+import {
+  Models,
+  AdventurerModel,
+  PrizesModel,
+  TokenDataTypeEnum,
+} from "../generated/models.gen";
 import {
   feltToString,
   formatTime,
@@ -13,7 +18,12 @@ import {
 } from "@/lib/utils";
 import { Button } from "@/components/buttons/Button.tsx";
 import { useSystemCalls } from "@/useSystemCalls.ts";
-import { CairoOption, CairoOptionVariant, addAddressPadding } from "starknet";
+import {
+  CairoOption,
+  CairoOptionVariant,
+  addAddressPadding,
+  CairoCustomEnum,
+} from "starknet";
 import {
   useGetAdventurersQuery,
   useGetTournamentDetailsQuery,
@@ -21,13 +31,14 @@ import {
   useSubscribeTournamentDetailsAddressQuery,
 } from "@/hooks/useSdkQueries.ts";
 import { useDojoStore } from "@/hooks/useDojoStore.ts";
-import { useDojoSystem } from "@/hooks/useDojoSystem.ts";
 import { useVRFCost } from "@/hooks/useVRFCost";
+import { useLordsCost } from "@/hooks/useLordsCost";
 import { useLSQuery } from "@/hooks/useLSQuery";
 import { getAdventurersInList } from "@/hooks/graphql/queries.ts";
 import { useDojo } from "@/DojoContext.tsx";
 import { Countdown } from "@/components/Countdown.tsx";
 import useUIStore from "@/hooks/useUIStore";
+import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 const Tournament = () => {
   const { id } = useParams<{ id: string }>();
@@ -40,18 +51,18 @@ const Tournament = () => {
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
   const state = useDojoStore((state) => state);
-  const tournament = useDojoSystem("tournament_mock");
+  const { tournament, eth, lords } = useTournamentContracts();
 
   const {
     enterTournament,
     startTournament,
     submitScores,
     distributePrizes,
-    approveLords,
-    approveEth,
+    approveERC20General,
   } = useSystemCalls();
 
   const { dollarPrice } = useVRFCost();
+  const { lordsCost } = useLordsCost();
 
   // Data fetching
   useGetTournamentDetailsQuery(addAddressPadding(bigintToHex(id!)));
@@ -64,8 +75,8 @@ const Tournament = () => {
 
   // Get states
   const contractEntityId = useMemo(
-    () => getEntityIdFromKeys([BigInt(tournament?.contractAddress)]),
-    [tournament?.contractAddress]
+    () => getEntityIdFromKeys([BigInt(tournament)]),
+    [tournament]
   );
   const tournamentEntityId = useMemo(
     () => getEntityIdFromKeys([BigInt(id!)]),
@@ -115,7 +126,7 @@ const Tournament = () => {
     return {
       ids: formattedGameIds,
     };
-  }, []);
+  }, [formattedGameIds]);
 
   const { data: adventurersMainData } = useLSQuery(
     getAdventurersInList,
@@ -123,7 +134,7 @@ const Tournament = () => {
   );
 
   const adventurersData = isMainnet
-    ? adventurersMainData
+    ? adventurersMainData?.adventurers
     : adventurersTestEntities;
 
   const scores =
@@ -139,19 +150,34 @@ const Tournament = () => {
     }, []) ?? [];
 
   const getSubmitableScores = () => {
-    if (!tournamentScores) {
-      const sortedScores = scores.sort(
-        (a: AdventurerModel, b: AdventurerModel) => {
-          return BigInt(a.adventurer?.xp) - BigInt(b.adventurer?.xp);
-        }
-      );
-      const winnersCount = tournamentModel?.winners_count;
-      const adventurerIds = sortedScores.map(
-        (score: AdventurerModel) => score.adventurer_id
-      );
-      return winnersCount
-        ? adventurerIds.slice(0, winnersCount)
-        : adventurerIds;
+    if (!isMainnet) {
+      if (!tournamentScores) {
+        const sortedScores = scores.sort(
+          (a: AdventurerModel, b: AdventurerModel) => {
+            return BigInt(a.adventurer?.xp) - BigInt(b.adventurer?.xp);
+          }
+        );
+        const winnersCount = tournamentModel?.winners_count;
+        const adventurerIds = sortedScores.map(
+          (score: AdventurerModel) => score.adventurer_id
+        );
+        return winnersCount
+          ? adventurerIds.slice(0, winnersCount)
+          : adventurerIds;
+      }
+    } else {
+      if (adventurersData) {
+        const sortedScores = adventurersData.sort((a: any, b: any) => {
+          return BigInt(a.xp) - BigInt(b.xp);
+        });
+        const winnersCount = tournamentModel?.winners_count;
+        const adventurerIds = sortedScores.map((score: any) =>
+          addAddressPadding(bigintToHex(BigInt(score.id)))
+        );
+        return winnersCount
+          ? adventurerIds.slice(0, winnersCount)
+          : adventurerIds;
+      }
     }
     // TODO: Account for already submitted scores and add to the game ids submission
     return [];
@@ -186,13 +212,20 @@ const Tournament = () => {
   const currentAddressStartCount =
     tournamentStartsAddressModel?.start_count ?? 0;
 
-  const getCostToPlay = () => {
-    // const cost = await getCostToPlay(tournament?.tournament_id!);
-    const cost = BigInt(50000000000000000000);
-    return cost;
+  const [customStartCount, setCustomStartCount] = useState(0);
+
+  const handleChangeStartCount = (e: any) => {
+    setCustomStartCount(e.target.value);
   };
 
-  const totalGameCost = getCostToPlay() * BigInt(entryCount);
+  const totalGamesCost = lordsCost ? lordsCost * BigInt(entryCount) : 0n;
+  const totalGamesAddressCost = lordsCost
+    ? lordsCost * BigInt(entryAddressCount)
+    : 0n;
+  const totalGamesCustomCost = useMemo(
+    () => (lordsCost ? lordsCost * BigInt(customStartCount) : 0n),
+    [customStartCount, lordsCost]
+  );
 
   // System call handlers
 
@@ -209,8 +242,29 @@ const Tournament = () => {
   const handleStartTournamentCustom = async (customStartCount: number) => {
     if (dollarPrice) {
       const totalVRFCost = BigInt(dollarPrice) * BigInt(entryCount);
-      await approveLords(tournament?.contractAddress, totalGameCost, BigInt(0));
-      await approveEth(tournament?.contractAddress, totalVRFCost, BigInt(0));
+
+      const lordsTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalGamesCustomCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      const ethTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalVRFCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      await approveERC20General({
+        token: lords,
+        tokenDataType: lordsTokenDataType,
+      });
+      await approveERC20General({
+        token: eth,
+        tokenDataType: ethTokenDataType,
+      });
       await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
       await startTournament(
         tournamentModel?.tournament_id!,
@@ -228,9 +282,31 @@ const Tournament = () => {
 
   const handleStartTournamentAll = async () => {
     if (dollarPrice) {
-      const totalVRFCost = BigInt(dollarPrice) * BigInt(entryCount);
-      await approveLords(tournament?.contractAddress, totalGameCost, BigInt(0));
-      await approveEth(tournament?.contractAddress, totalVRFCost, BigInt(0));
+      const totalVRFCost =
+        (BigInt(dollarPrice) * BigInt(entryAddressCount) * 11n) / 10n;
+
+      const lordsTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalGamesAddressCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      const ethTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalVRFCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      await approveERC20General({
+        token: lords,
+        tokenDataType: lordsTokenDataType,
+      });
+      await approveERC20General({
+        token: eth,
+        tokenDataType: ethTokenDataType,
+      });
       await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
       await startTournament(
         tournamentModel?.tournament_id!,
@@ -243,13 +319,41 @@ const Tournament = () => {
   };
 
   const handleStartTournamentForEveryone = async () => {
-    await startTournament(
-      tournamentModel?.tournament_id!,
-      feltToString(tournamentModel?.name!),
-      true,
-      new CairoOption(CairoOptionVariant.None),
-      entryCount
-    );
+    if (dollarPrice) {
+      const totalVRFCost = BigInt(dollarPrice) * BigInt(entryCount);
+
+      const lordsTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalGamesCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      const ethTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalVRFCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      await approveERC20General({
+        token: lords,
+        tokenDataType: lordsTokenDataType,
+      });
+      await approveERC20General({
+        token: eth,
+        tokenDataType: ethTokenDataType,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
+      await startTournament(
+        tournamentModel?.tournament_id!,
+        feltToString(tournamentModel?.name!),
+        true,
+        new CairoOption(CairoOptionVariant.None),
+        entryCount
+      );
+    }
   };
 
   const handleSubmitScores = async () => {
@@ -271,12 +375,6 @@ const Tournament = () => {
   };
 
   const [countDownExpired, setCountDownExpired] = useState(false);
-
-  const [customStartCount, setCustomStartCount] = useState(0);
-
-  const handleChangeStartCount = (e: any) => {
-    setCustomStartCount(e.target.value);
-  };
 
   const unclaimedPrizes = useMemo<PrizesModel[]>(() => {
     return (
@@ -467,7 +565,9 @@ const Tournament = () => {
                   <p className="text-xl uppercase">Game Cost</p>
                   <p className="text-terminal-green/75 no-text-shadow">
                     {formatNumber(
-                      Number(getCostToPlay() / BigInt(10) ** BigInt(18))
+                      lordsCost
+                        ? Number(lordsCost / BigInt(10) ** BigInt(18))
+                        : 0
                     )}{" "}
                     LORDS
                   </p>
@@ -506,8 +606,9 @@ const Tournament = () => {
                       <p className="text-xl uppercase">Total Games Cost:</p>
                       <p className="text-terminal-green/75 no-text-shadow uppercase text-2xl">
                         {`${
-                          Number(getCostToPlay() / BigInt(10) ** BigInt(18)) *
-                          Number(tournamentEntriesAddressModel?.entry_count)
+                          Number(
+                            lordsCost ? lordsCost / BigInt(10) ** BigInt(18) : 0
+                          ) * Number(tournamentEntriesAddressModel?.entry_count)
                         } LORDS + $${
                           Number(0.5) *
                           Number(tournamentEntriesAddressModel?.entry_count)

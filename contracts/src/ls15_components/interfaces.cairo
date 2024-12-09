@@ -1,13 +1,7 @@
 use starknet::ContractAddress;
-use adventurer::{adventurer::Adventurer, bag::Bag};
-use tournament::ls15_components::models::loot_survivor::AdventurerMetadata;
-
+use adventurer::{adventurer::Adventurer, adventurer_meta::AdventurerMetadata, bag::Bag};
 use dojo::world::{WorldStorage, WorldStorageTrait, IWorldDispatcher};
-
-use tournament::ls15_components::tests::interfaces::{
-    IERC20MockDispatcher, IERC721MockDispatcher, ITournamentMockDispatcher,
-    ILootSurvivorMockDispatcher, IPragmaMockDispatcher
-};
+use tournament::presets::ls_tournament::{ILSTournamentDispatcher};
 
 use tournament::ls15_components::libs::utils::ZERO;
 
@@ -82,28 +76,8 @@ pub impl WorldImpl of WorldTrait {
     //
 
     #[inline(always)]
-    fn tournament_mock_address(self: @WorldStorage) -> ContractAddress {
-        (self.contract_address(@"tournament_mock"))
-    }
-
-    #[inline(always)]
-    fn loot_survivor_mock_address(self: @WorldStorage) -> ContractAddress {
-        (self.contract_address(@"loot_survivor_mock"))
-    }
-
-    #[inline(always)]
-    fn pragma_mock_address(self: @WorldStorage) -> ContractAddress {
-        (self.contract_address(@"pragma_mock"))
-    }
-
-    #[inline(always)]
-    fn erc20_mock_address(self: @WorldStorage) -> ContractAddress {
-        (self.contract_address(@"erc20_mock"))
-    }
-
-    #[inline(always)]
-    fn erc721_mock_address(self: @WorldStorage) -> ContractAddress {
-        (self.contract_address(@"erc721_mock"))
+    fn ls_tournament_address(self: @WorldStorage) -> ContractAddress {
+        (self.contract_address(@"LSTournament"))
     }
 
     //
@@ -111,24 +85,8 @@ pub impl WorldImpl of WorldTrait {
     //
 
     #[inline(always)]
-    fn tournament_mock_dispatcher(self: @WorldStorage) -> ITournamentMockDispatcher {
-        (ITournamentMockDispatcher { contract_address: self.tournament_mock_address() })
-    }
-    #[inline(always)]
-    fn loot_survivor_mock_dispatcher(self: @WorldStorage) -> ILootSurvivorMockDispatcher {
-        (ILootSurvivorMockDispatcher { contract_address: self.loot_survivor_mock_address() })
-    }
-    #[inline(always)]
-    fn pragma_mock_dispatcher(self: @WorldStorage) -> IPragmaMockDispatcher {
-        (IPragmaMockDispatcher { contract_address: self.pragma_mock_address() })
-    }
-    #[inline(always)]
-    fn erc20_mock_dispatcher(self: @WorldStorage) -> IERC20MockDispatcher {
-        (IERC20MockDispatcher { contract_address: self.erc20_mock_address() })
-    }
-    #[inline(always)]
-    fn erc721_mock_dispatcher(self: @WorldStorage) -> IERC721MockDispatcher {
-        (IERC721MockDispatcher { contract_address: self.erc721_mock_address() })
+    fn ls_tournament_dispatcher(self: @WorldStorage) -> ILSTournamentDispatcher {
+        (ILSTournamentDispatcher { contract_address: self.ls_tournament_address() })
     }
 }
 

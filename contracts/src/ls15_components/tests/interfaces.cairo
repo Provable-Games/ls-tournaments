@@ -221,3 +221,75 @@ pub trait IPragmaMock<TState> {
     // IERCPublic
     fn get_data_median(ref self: TState, data_type: DataType) -> PragmaPricesResponse;
 }
+
+#[generate_trait]
+pub impl WorldImpl of WorldTrait {
+    fn contract_address(self: @WorldStorage, contract_name: @ByteArray) -> ContractAddress {
+        match self.dns(contract_name) {
+            Option::Some((contract_address, _)) => { (contract_address) },
+            Option::None => { (ZERO()) },
+        }
+    }
+
+    // Create a Store from a dispatcher
+    // https://github.com/dojoengine/dojo/blob/main/crates/dojo/core/src/contract/components/world_provider.cairo
+    // https://github.com/dojoengine/dojo/blob/main/crates/dojo/core/src/world/storage.cairo
+    #[inline(always)]
+    fn storage(dispatcher: IWorldDispatcher, namespace: @ByteArray) -> WorldStorage {
+        (WorldStorageTrait::new(dispatcher, namespace))
+    }
+
+    //
+    // addresses
+    //
+
+    #[inline(always)]
+    fn tournament_mock_address(self: @WorldStorage) -> ContractAddress {
+        (self.contract_address(@"tournament_mock"))
+    }
+
+    #[inline(always)]
+    fn loot_survivor_mock_address(self: @WorldStorage) -> ContractAddress {
+        (self.contract_address(@"loot_survivor_mock"))
+    }
+
+    #[inline(always)]
+    fn pragma_mock_address(self: @WorldStorage) -> ContractAddress {
+        (self.contract_address(@"pragma_mock"))
+    }
+
+    #[inline(always)]
+    fn erc20_mock_address(self: @WorldStorage) -> ContractAddress {
+        (self.contract_address(@"erc20_mock"))
+    }
+
+    #[inline(always)]
+    fn erc721_mock_address(self: @WorldStorage) -> ContractAddress {
+        (self.contract_address(@"erc721_mock"))
+    }
+
+    //
+    // dispatchers
+    //
+
+    #[inline(always)]
+    fn tournament_mock_dispatcher(self: @WorldStorage) -> ITournamentMockDispatcher {
+        (ITournamentMockDispatcher { contract_address: self.tournament_mock_address() })
+    }
+    #[inline(always)]
+    fn loot_survivor_mock_dispatcher(self: @WorldStorage) -> ILootSurvivorMockDispatcher {
+        (ILootSurvivorMockDispatcher { contract_address: self.loot_survivor_mock_address() })
+    }
+    #[inline(always)]
+    fn pragma_mock_dispatcher(self: @WorldStorage) -> IPragmaMockDispatcher {
+        (IPragmaMockDispatcher { contract_address: self.pragma_mock_address() })
+    }
+    #[inline(always)]
+    fn erc20_mock_dispatcher(self: @WorldStorage) -> IERC20MockDispatcher {
+        (IERC20MockDispatcher { contract_address: self.erc20_mock_address() })
+    }
+    #[inline(always)]
+    fn erc721_mock_dispatcher(self: @WorldStorage) -> IERC721MockDispatcher {
+        (IERC721MockDispatcher { contract_address: self.erc721_mock_address() })
+    }
+}

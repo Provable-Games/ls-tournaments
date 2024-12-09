@@ -19,8 +19,6 @@ const EndTable = () => {
     return tournaments.slice((currentPage - 1) * 5, currentPage * 5);
   }, [tournaments, currentPage]);
 
-  console.log(tournaments);
-
   return (
     <div className="flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
       <div className="flex flex-row items-center justify-between w-full">

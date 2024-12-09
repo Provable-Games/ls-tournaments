@@ -11,7 +11,7 @@ import { supportedConnectorIds } from "@/lib/connectors";
 export const CONTROLLER_CLASS_HASH =
   "0x05f0f2ae9301e0468ca3f9218dadd43a448a71acc66b6ef1a5570bb56cf10c6f";
 
-const exclusions = ["dojo_init"];
+const exclusions = ["dojo_init", "upgrade"];
 
 const _makeControllerPolicies = (manifest: DojoManifest): Policy[] => {
   const policies: Policy[] = [];
@@ -38,6 +38,22 @@ export const makeControllerConnector = (
 ): Connector => {
   const policies = _makeControllerPolicies(manifest);
 
+  // TODO: remove fixed addresses
+
+  policies.push({
+    target:
+      "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    method: "approve",
+    description: "eth::approve()",
+  });
+
+  policies.push({
+    target:
+      "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
+    method: "approve",
+    description: "lords::approve()",
+  });
+
   // tokens to display
   // const tokens: Tokens = {
   //   erc20: [
@@ -46,9 +62,6 @@ export const makeControllerConnector = (
   //   ],
   //   // erc721: [],
   // }
-
-  // extract slot service name from rpcUrl
-  // const slot = /api\.cartridge\.gg\/x\/([^/]+)\/katana/.exec(rpcUrl)?.[1];
 
   const options: ControllerOptions = {
     // ProviderOptions

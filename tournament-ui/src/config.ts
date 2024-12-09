@@ -10,6 +10,7 @@ import {
 import { DojoManifest } from "@/hooks/useDojoSystem";
 import tournament_manifest_dev from "../../contracts/manifest_dev.json";
 import tournament_manifest_slot from "../../contracts/manifest_slot.json";
+import tournament_manifest_mainnet from "../../contracts/manifest_mainnet.json";
 import { makeControllerConnector } from "@/hooks/useController";
 import { supportedConnectorIds } from "@/lib/connectors";
 import {
@@ -44,7 +45,7 @@ const supportedChainIds: ChainId[] = [
   // ChainId.SN_SEPOLIA,
   ChainId.WP_LS_TOURNAMENTS_KATANA,
   // ChainId.TOURNAMENT_STAGING,
-  // ChainId.SN_MAINNET,
+  ChainId.SN_MAINNET,
 ];
 
 export const defaultChainId = (import.meta.env.VITE_CHAIN_ID ||
@@ -111,7 +112,7 @@ export const getStarknetProviderChains = (
 const manifests: Record<ChainId, DojoManifest> = {
   [ChainId.KATANA_LOCAL]: tournament_manifest_dev as DojoManifest,
   [ChainId.WP_LS_TOURNAMENTS_KATANA]: tournament_manifest_slot as DojoManifest,
-  [ChainId.SN_MAINNET]: null,
+  [ChainId.SN_MAINNET]: tournament_manifest_mainnet as DojoManifest,
 };
 
 const NAMESPACE = "tournament";
@@ -227,9 +228,8 @@ const snMainnetConfig: DojoChainConfig = {
   chain: { ...mainnet },
   chainId: ChainId.SN_MAINNET,
   name: "Mainnet",
-  // rpcUrl: 'https://api.cartridge.gg/rpc/starknet',
   rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-  toriiUrl: undefined,
+  toriiUrl: "https://api.cartridge.gg/x/ls-tournaments/torii",
   relayUrl: undefined,
   masterAddress: undefined,
   masterPrivateKey: undefined,

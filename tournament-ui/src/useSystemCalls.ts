@@ -3,25 +3,36 @@ import { useAccount } from "@starknet-react/core";
 import { useDojoStore } from "./hooks/useDojoStore";
 import { useDojo } from "./DojoContext";
 import { v4 as uuidv4 } from "uuid";
-import { Token, Prize, GatedSubmissionTypeEnum } from "./lib/types";
+import { Token, Prize, GatedSubmissionTypeEnum } from "@/lib/types";
 import {
   InputTournamentModel,
   Premium,
   InputGatedTypeEnum,
 } from "@/generated/models.gen";
-import { Account, BigNumberish, CairoOption, byteArray } from "starknet";
+import {
+  Account,
+  BigNumberish,
+  CairoOption,
+  byteArray,
+  CallData,
+} from "starknet";
 import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useToast } from "@/hooks/useToast";
 import useUIStore from "@/hooks/useUIStore";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { feltToString } from "@/lib/utils";
+import { useTournamentContracts } from "@/hooks/useTournamentContracts";
+
+export function selectTournament(client: any, isMainnet: boolean): any {
+  return isMainnet ? client["LSTournament"] : client["tournament_mock"];
+}
 
 export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
   const tournament_mock = useDojoSystem("tournament_mock");
 
   const {
-    setup: { client },
+    setup: { client, selectedChainConfig },
   } = useDojo();
   const { account } = useAccount();
   const { toast } = useToast();
@@ -31,6 +42,9 @@ export const useSystemCalls = () => {
     applyTournamentStartUpdate,
     applyTournamentPrizeUpdate,
   } = useOptimisticUpdates();
+  const { tournament } = useTournamentContracts();
+
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
   // Tournament
 
@@ -49,7 +63,9 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.registerTokens(account!, tokens);
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      // TODO Remove await if on slot (there is a reace condition)
+      await tournamentContract.registerTokens(account!, tokens);
 
       // Wait for the entity to be updated with the new state
       await state.waitForEntityChange(entityId, (entity) => {
@@ -69,8 +85,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-
-      await resolvedClient.tournament_mock.createTournament(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.createTournament(
         account!,
         tournament.name,
         byteArray.byteArrayFromString(tournament.description),
@@ -117,7 +133,8 @@ export const useSystemCalls = () => {
     });
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.enterTournament(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.enterTournament(
         account as Account,
         tournamentId,
         gatedSubmissionType
@@ -148,7 +165,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.startTournament(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.startTournament(
         account!,
         Number(tournamentId),
         startAll,
@@ -185,11 +203,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.submitScores(
-        account!,
-        tournamentId,
-        gameIds
-      );
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.submitScores(account!, tournamentId, gameIds);
       toast({
         title: "Submitted Scores!",
         description: `Submitted scores for tournament ${tournamentName}`,
@@ -219,7 +234,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.addPrize(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.addPrize(
         account!,
         tournamentId,
         prize.token,
@@ -253,7 +269,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.distributePrizes(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.distributePrizes(
         account!,
         tournamentId,
         prizeKeys
@@ -439,9 +456,13 @@ export const useSystemCalls = () => {
     return await resolvedClient.erc721_mock.balanceOf(address);
   };
 
-  const getDataMedian = async (dataType: any) => {
-    const resolvedClient = await client;
-    return await resolvedClient.pragma_mock.getDataMedian(dataType);
+  const getERC20BalanceGeneral = async (tokenAddress: string) => {
+    const result = await (account as Account)?.callContract({
+      contractAddress: tokenAddress,
+      entrypoint: "balance_of",
+      calldata: [account?.address!],
+    });
+    return BigInt(result[0]);
   };
 
   const approveERC20General = async (token: Token) => {
@@ -449,11 +470,11 @@ export const useSystemCalls = () => {
       {
         contractAddress: token.token,
         entrypoint: "approve",
-        calldata: [
-          tournament_mock.contractAddress,
-          token.tokenDataType.variant.erc20?.token_amount,
+        calldata: CallData.compile([
+          tournament,
+          token.tokenDataType.variant.erc20?.token_amount!,
           "0",
-        ],
+        ]),
       },
     ]);
   };
@@ -463,11 +484,11 @@ export const useSystemCalls = () => {
       {
         contractAddress: token.token,
         entrypoint: "approve",
-        calldata: [
-          tournament_mock.contractAddress,
-          token.tokenDataType.variant.erc721?.token_id,
+        calldata: CallData.compile([
+          tournament,
+          token.tokenDataType.variant.erc721?.token_id!,
           "0",
-        ],
+        ]),
       },
     ]);
   };
@@ -496,7 +517,7 @@ export const useSystemCalls = () => {
     mintErc721,
     approveErc721,
     getErc721Balance,
-    getDataMedian,
+    getERC20BalanceGeneral,
     approveERC20General,
     approveERC721General,
   };

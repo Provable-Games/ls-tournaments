@@ -1,5 +1,5 @@
 [world]
-name = "Dojo starter"
+name = "Tournament mocks"
 description = "The official Dojo Starter guide, the quickest and most streamlined way to get your Dojo Autonomous World up and running. This guide will assist you with the initial setup, from cloning the repository to deploying your world."
 cover_uri = "file://assets/cover.png"
 icon_uri = "file://assets/icon.png"
@@ -23,26 +23,29 @@ private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
 # world_address = "0x043b149fadbe95e3946fa124a9a6bd64ec5374b8765f2bb753289d520bd8546d"  # Uncomment and update this line with your world address.
 
 [writers]
-# Tournament
-"tournament-TournamentModel" = ["tournament-tournament_mock"]
-"tournament-TournamentGameModel" = ["tournament-tournament_mock"]
-"tournament-TournamentEntryAddressesModel" = ["tournament-tournament_mock"]
-"tournament-TournamentEntriesAddressModel" = ["tournament-tournament_mock"]
-"tournament-TournamentStartIdsModel" = ["tournament-tournament_mock"]
-"tournament-TournamentEntriesModel" = ["tournament-tournament_mock"]
-"tournament-TournamentStartsAddressModel" = ["tournament-tournament_mock"]
-"tournament-TournamentScoresModel" = ["tournament-tournament_mock"]
-"tournament-TournamentTotalsModel" = ["tournament-tournament_mock"]
-"tournament-TournamentPrizeKeysModel" = ["tournament-tournament_mock"]
-"tournament-PrizesModel" = ["tournament-tournament_mock"]
-"tournament-TokenModel" = ["tournament-tournament_mock"]
-"tournament-TournamentConfig" = ["tournament-tournament_mock"]
-# Loot Survivor
-"tournament-AdventurerModel" = ["tournament-loot_survivor_mock"]
-"tournament-AdventurerMetaModel" = ["tournament-loot_survivor_mock"]
-"tournament-BagModel" = ["tournament-loot_survivor_mock"]
-"tournament-GameCountModel" = ["tournament-loot_survivor_mock"]
-"tournament-Contracts" = ["tournament-loot_survivor_mock"]
+"tournament-TournamentModel" = ["tournament-LSTournament"]
+"tournament-TournamentGameModel" = ["tournament-LSTournament"]
+"tournament-TournamentEntryAddressesModel" = ["tournament-LSTournament"]
+"tournament-TournamentEntriesAddressModel" = ["tournament-LSTournament"]
+"tournament-TournamentStartIdsModel" = ["tournament-LSTournament"]
+"tournament-TournamentEntriesModel" = ["tournament-LSTournament"]
+"tournament-TournamentStartsAddressModel" = ["tournament-LSTournament"]
+"tournament-TournamentScoresModel" = ["tournament-LSTournament"]
+"tournament-TournamentTotalsModel" = ["tournament-LSTournament"]
+"tournament-TournamentPrizeKeysModel" = ["tournament-LSTournament"]
+"tournament-PrizesModel" = ["tournament-LSTournament"]
+"tournament-TokenModel" = ["tournament-LSTournament"]
+"tournament-TournamentConfig" = ["tournament-LSTournament"]
+
+[init_call_args]
+"tournament-LSTournament" = [
+    "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+    "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
+    "0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4",
+    "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
+    "1", # safe_mode
+    "1" # test_mode
+]
 
 [migration]
 order_inits = []
