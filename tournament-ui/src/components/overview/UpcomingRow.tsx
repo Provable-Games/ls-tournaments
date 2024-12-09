@@ -19,7 +19,7 @@ const UpcomingRow = ({
   name,
   startTime,
   endTime,
-  entryPremium,
+  // entryPremium,
   prizeKeys,
 }: UpcomingRowProps) => {
   const navigate = useNavigate();
