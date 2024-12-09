@@ -6,22 +6,22 @@ import { v4 as uuidv4 } from "uuid";
 export const useOptimisticUpdates = () => {
   const state = useDojoStore((state) => state);
 
-  const applyRegisterTokensUpdate = (
-    tournament: BigNumberish,
-    newEntryCount: BigNumberish,
-    newEntryAddressCount: BigNumberish,
-    accountAddress?: string
-  ) => {
-    const entityId = getEntityIdFromKeys([BigInt(tournament)]);
+  // const applyRegisterTokensUpdate = (
+  //   tournament: BigNumberish,
+  //   newEntryCount: BigNumberish,
+  //   newEntryAddressCount: BigNumberish,
+  //   accountAddress?: string
+  // ) => {
+  //   const entityId = getEntityIdFromKeys([BigInt(tournament)]);
 
-    const transactionId = uuidv4();
+  //   const transactionId = uuidv4();
 
-    state.applyOptimisticUpdate(transactionId, (draft) => {
-      if (draft.entities[entityId]?.models?.tournament_mock?.TokenModel) {
-        draft.entities[entityId].models.tournament_mock.TokenModel = tokens; // Create the model from provided data
-      }
-    });
-  };
+  //   state.applyOptimisticUpdate(transactionId, (draft) => {
+  //     if (draft.entities[entityId]?.models?.tournament_mock?.TokenModel) {
+  //       draft.entities[entityId].models.tournament_mock.TokenModel = tokens; // Create the model from provided data
+  //     }
+  //   });
+  // };
 
   const applyTournamentEntryUpdate = (
     tournamentId: BigNumberish,
