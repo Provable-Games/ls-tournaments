@@ -1,6 +1,6 @@
-# torii config for profile [dev]
-world_address = "0x1adaf57de23b6d6d43eeb42b6ab6730a022021382fef49eff1f532c21556a5a"
-rpc = "http://localhost:5050"
+# torii config for profile [mainnet]
+world_address = "0x02b127646258e21186e6c7e6234f42583d0d19bf88a57776a404c2cefeb421f2"
+rpc = "https://api.cartridge.gg/x/ls-tournaments-katana/katana"
 [indexing]
 index_pending = true
 index_transactions = false

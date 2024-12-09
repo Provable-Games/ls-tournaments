@@ -16,12 +16,16 @@ import useUIStore from "@/hooks/useUIStore";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { feltToString } from "@/lib/utils";
 
+export function selectTournament(client: any, isMainnet: boolean): any {
+  return isMainnet ? client["LSTournament"] : client["tournament_mock"];
+}
+
 export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
   const tournament_mock = useDojoSystem("tournament_mock");
 
   const {
-    setup: { client },
+    setup: { client, selectedChainConfig },
   } = useDojo();
   const { account } = useAccount();
   const { toast } = useToast();
@@ -31,6 +35,8 @@ export const useSystemCalls = () => {
     applyTournamentStartUpdate,
     applyTournamentPrizeUpdate,
   } = useOptimisticUpdates();
+
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
   // Tournament
 
@@ -49,7 +55,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.registerTokens(account!, tokens);
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      tournamentContract.registerTokens(account!, tokens);
 
       // Wait for the entity to be updated with the new state
       await state.waitForEntityChange(entityId, (entity) => {
@@ -69,8 +76,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-
-      await resolvedClient.tournament_mock.createTournament(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      await tournamentContract.createTournament(
         account!,
         tournament.name,
         byteArray.byteArrayFromString(tournament.description),
@@ -148,7 +155,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.startTournament(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      tournamentContract.startTournament(
         account!,
         Number(tournamentId),
         startAll,
@@ -219,7 +227,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.addPrize(
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      tournamentContract.addPrize(
         account!,
         tournamentId,
         prize.token,
@@ -253,11 +262,8 @@ export const useSystemCalls = () => {
 
     try {
       const resolvedClient = await client;
-      resolvedClient.tournament_mock.distributePrizes(
-        account!,
-        tournamentId,
-        prizeKeys
-      );
+      const tournamentContract = selectTournament(resolvedClient, isMainnet);
+      tournamentContract.distributePrizes(account!, tournamentId, prizeKeys);
       toast({
         title: "Distributed Prizes!",
         description: `Distributed prizes for tournament ${tournamentName}`,

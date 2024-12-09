@@ -11,7 +11,7 @@ import { supportedConnectorIds } from "@/lib/connectors";
 export const CONTROLLER_CLASS_HASH =
   "0x05f0f2ae9301e0468ca3f9218dadd43a448a71acc66b6ef1a5570bb56cf10c6f";
 
-const exclusions = ["dojo_init"];
+const exclusions = ["dojo_init", "upgrade"];
 
 const _makeControllerPolicies = (manifest: DojoManifest): Policy[] => {
   const policies: Policy[] = [];

@@ -18,28 +18,30 @@ import {
   useGetTokensQuery,
   useSubscribeTournamentCountsQuery,
 } from "@/hooks/useSdkQueries";
-import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useSystemCalls } from "@/useSystemCalls";
 import { useDojo } from "@/DojoContext";
 import { Toaster } from "@/components/ui/toaster";
+import { useTournamentContracts } from "@/hooks/useTournamentContracts";
+import { useConfig } from "@/hooks/useConfig";
 
 function App() {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
   const { account } = useAccount();
-  const tournament_mock = useDojoSystem("tournament_mock");
+  useConfig();
+  const { tournament } = useTournamentContracts();
   const { getEthBalance, getLordsBalance } = useSystemCalls();
   const [tokenBalance, setTokenBalance] = useState<Record<string, bigint>>({});
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
   // Getters
-  useGetTournamentCountsQuery(tournament_mock.contractAddress);
+  useGetTournamentCountsQuery(tournament);
   useGetTokensQuery();
 
   // Subscriptions
-  useSubscribeTournamentCountsQuery(tournament_mock.contractAddress);
+  useSubscribeTournamentCountsQuery(tournament);
 
   const { inputDialog } = useUIStore();
 

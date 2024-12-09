@@ -3,7 +3,7 @@
     "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
     "address": "0x2b127646258e21186e6c7e6234f42583d0d19bf88a57776a404c2cefeb421f2",
     "seed": "tournament",
-    "name": "Dojo starter",
+    "name": "Tournament",
     "entrypoints": [
       "uuid",
       "set_metadata",

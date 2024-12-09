@@ -15,14 +15,13 @@ import { useDojoSystem } from "@/hooks/useDojoSystem";
 import TokenBox from "@/components/registerToken/TokenBox";
 import { useSubscribeTokensQuery } from "@/hooks/useSdkQueries";
 import { TokenDataTypeEnum } from "@/generated/models.gen";
+import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 const RegisterToken = () => {
   const { account } = useAccount();
-  const tournament = useDojoSystem("tournament_mock");
-  const eth_mock = useDojoSystem("eth_mock");
-  const lords_mock = useDojoSystem("lords_mock");
-  const erc20_mock = useDojoSystem("erc20_mock");
-  const erc721_mock = useDojoSystem("erc721_mock");
+  const { tournament, eth, lords } = useTournamentContracts();
+  const erc20_mock = useDojoSystem("erc20_mock").contractAddress ?? "0x0";
+  const erc721_mock = useDojoSystem("erc721_mock").contractAddress ?? "0x0";
   const [tokenType, setTokenType] = useState<TokenDataEnum | null>(null);
   const [tokenAddress, setTokenAddress] = useState("");
   const [tokenId, setTokenId] = useState("");
@@ -120,12 +119,12 @@ const RegisterToken = () => {
   const handleRegisterToken = async () => {
     if (tokenType !== null) {
       if (tokenType === TokenDataEnum.erc20) {
-        if (tokenAddress === padAddress(eth_mock.contractAddress)) {
-          await approveEth(tournament.contractAddress, 1n, 0n);
-        } else if (tokenAddress === padAddress(lords_mock.contractAddress)) {
-          await approveLords(tournament.contractAddress, 1n, 0n);
+        if (tokenAddress === padAddress(eth)) {
+          await approveEth(tournament, 1n, 0n);
+        } else if (tokenAddress === padAddress(lords)) {
+          await approveLords(tournament, 1n, 0n);
         } else {
-          await approveErc20(tournament.contractAddress, 1n, 0n);
+          await approveErc20(tournament, 1n, 0n);
         }
         await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
         await registerTokens([
@@ -140,7 +139,7 @@ const RegisterToken = () => {
           },
         ]);
       } else {
-        await approveErc721(tournament.contractAddress, BigInt(tokenId), 0n);
+        await approveErc721(tournament, BigInt(tokenId), 0n);
         await registerTokens([
           {
             token: tokenAddress,
@@ -160,7 +159,7 @@ const RegisterToken = () => {
       <div className="flex flex-row gap-2 justify-center">
         <TokenBox
           title="ETH"
-          contractAddress={eth_mock.contractAddress}
+          contractAddress={eth}
           standard="eth"
           balance={formatBalance(tokenBalance["eth"])}
           onMint={async () => {
@@ -171,7 +170,7 @@ const RegisterToken = () => {
         />
         <TokenBox
           title="Lords"
-          contractAddress={lords_mock.contractAddress}
+          contractAddress={lords}
           standard="lords"
           balance={formatBalance(tokenBalance["lords"])}
           onMint={async () => {
@@ -182,7 +181,7 @@ const RegisterToken = () => {
         />
         <TokenBox
           title="Test ERC20"
-          contractAddress={erc20_mock.contractAddress}
+          contractAddress={erc20_mock}
           standard="erc20"
           balance={formatBalance(tokenBalance["erc20"])}
           onMint={async () => {
@@ -194,7 +193,7 @@ const RegisterToken = () => {
 
         <TokenBox
           title="Test ERC721"
-          contractAddress={erc721_mock.contractAddress}
+          contractAddress={erc721_mock}
           standard="erc721"
           balance={Number(tokenBalance["erc721"])}
           onMint={async () => {

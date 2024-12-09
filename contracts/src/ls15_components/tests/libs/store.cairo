@@ -2,6 +2,9 @@ use starknet::ContractAddress;
 use dojo::world::{WorldStorage};
 use dojo::model::{ModelStorage};
 
+use tournament::ls15_components::models::loot_survivor::{
+    AdventurerModel, AdventurerMetaModel, BagModel, GameCountModel, Contracts
+};
 use tournament::ls15_components::models::tournament::{
     TournamentTotalsModel, TournamentModel, TournamentEntriesModel, TournamentPrizeKeysModel,
     PrizesModel, TournamentScoresModel, TokenModel, TournamentEntriesAddressModel,
@@ -24,6 +27,34 @@ pub impl StoreImpl of StoreTrait {
     //
     // Getters
     //
+
+    // Loot Survivor
+
+    #[inline(always)]
+    fn get_adventurer_model(ref self: Store, adventurer_id: felt252) -> AdventurerModel {
+        (self.world.read_model(adventurer_id))
+    }
+
+    #[inline(always)]
+    fn get_adventurer_meta_model(ref self: Store, adventurer_id: felt252) -> AdventurerMetaModel {
+        (self.world.read_model(adventurer_id))
+    }
+
+    #[inline(always)]
+    fn get_bag_model(ref self: Store, adventurer_id: felt252) -> BagModel {
+        (self.world.read_model(adventurer_id))
+    }
+
+    #[inline(always)]
+    fn get_game_count_model(ref self: Store, contract: ContractAddress) -> GameCountModel {
+        (self.world.read_model(contract))
+    }
+
+
+    #[inline(always)]
+    fn get_contracts_model(ref self: Store, contract: ContractAddress) -> Contracts {
+        (self.world.read_model(contract))
+    }
 
     // Tournament
 
@@ -96,7 +127,34 @@ pub impl StoreImpl of StoreTrait {
     }
     // Setters
     //
-    
+
+    // Loot Survivor
+
+    #[inline(always)]
+    fn set_adventurer_model(ref self: Store, model: @AdventurerModel) {
+        self.world.write_model(model);
+    }
+
+    #[inline(always)]
+    fn set_adventurer_meta_model(ref self: Store, model: @AdventurerMetaModel) {
+        self.world.write_model(model);
+    }
+
+    #[inline(always)]
+    fn set_bag_model(ref self: Store, model: @BagModel) {
+        self.world.write_model(model);
+    }
+
+    #[inline(always)]
+    fn set_game_count_model(ref self: Store, model: @GameCountModel) {
+        self.world.write_model(model);
+    }
+
+    #[inline(always)]
+    fn set_contracts_model(ref self: Store, model: @Contracts) {
+        self.world.write_model(model);
+    }
+
     // Tournament
 
     #[inline(always)]
