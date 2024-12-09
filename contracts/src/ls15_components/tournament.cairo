@@ -58,7 +58,8 @@ pub mod tournament_component {
         VRF_COST_PER_GAME, TWO_POW_128, MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD,
         MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
         TEST_MIN_REGISTRATION_PERIOD, TEST_MIN_SUBMISSION_PERIOD, TEST_MIN_TOURNAMENT_LENGTH,
-        GAME_EXPIRATION_PERIOD, ETHEREUM_ADDRESS, LORDS_ADDRESS, SURVIVORS_ADDRESS, ETH_SAFE_AMOUNT, LORDS_SAFE_AMOUNT
+        GAME_EXPIRATION_PERIOD, ETHEREUM_ADDRESS, LORDS_ADDRESS, SURVIVORS_ADDRESS, ETH_SAFE_AMOUNT,
+        LORDS_SAFE_AMOUNT
     };
     use tournament::ls15_components::interfaces::{
         ILootSurvivorDispatcher, ILootSurvivorDispatcherTrait, IPragmaABIDispatcher,
@@ -173,7 +174,6 @@ pub mod tournament_component {
     }
 
 
-
     #[embeddable_as(TournamentImpl)]
     impl Tournament<
         TContractState,
@@ -260,7 +260,7 @@ pub mod tournament_component {
             self._assert_start_time_before_max_registration(start_time);
             self._assert_tournament_length_not_too_short(ref store, end_time, start_time);
             self._assert_tournament_length_not_too_long(end_time, start_time);
-            self._assert_submission_period_larger_than_minimum(ref store,submission_period);
+            self._assert_submission_period_larger_than_minimum(ref store, submission_period);
             self._assert_submission_period_less_than_maximum(submission_period);
             self._assert_winners_count_greater_than_zero(winners_count);
             self._assert_gated_type_validates(ref store, gated_type);
@@ -377,7 +377,9 @@ pub mod tournament_component {
                 let address_entries = store
                     .get_address_entries(tournament_id, get_caller_address())
                     .entry_count;
-                let address_starts = store.get_tournament_starts(tournament_id, get_caller_address()).start_count;
+                let address_starts = store
+                    .get_tournament_starts(tournament_id, get_caller_address())
+                    .start_count;
                 assert(address_entries > address_starts, Errors::ALL_ENTRIES_STARTED);
                 match start_count {
                     Option::Some(start_count) => {
@@ -416,9 +418,7 @@ pub mod tournament_component {
 
             // transfer VRF cost
             let vrf_cost = self
-                ._convert_usd_to_wei(
-                    tournament_config, entries.into() * VRF_COST_PER_GAME.into()
-                );
+                ._convert_usd_to_wei(tournament_config, entries.into() * VRF_COST_PER_GAME.into());
             eth_dispatcher
                 .transfer_from(get_caller_address(), get_contract_address(), vrf_cost.into());
 
@@ -480,7 +480,9 @@ pub mod tournament_component {
                 let addresses_model = TournamentEntryAddressesModel { tournament_id, addresses };
                 store.set_tournament_entry_addresses(@addresses_model);
             } else {
-                let mut start_index = store.get_tournament_starts(tournament_id, get_caller_address()).start_count;
+                let mut start_index = store
+                    .get_tournament_starts(tournament_id, get_caller_address())
+                    .start_count;
                 let mut game_ids = ArrayTrait::<u64>::new();
                 loop {
                     if start_index == entries {
@@ -660,7 +662,13 @@ pub mod tournament_component {
             store
                 .set_tournament_config(
                     @TournamentConfig {
-                        contract: get_contract_address(), eth, lords, loot_survivor, oracle, safe_mode, test_mode
+                        contract: get_contract_address(),
+                        eth,
+                        lords,
+                        loot_survivor,
+                        oracle,
+                        safe_mode,
+                        test_mode
                     }
                 );
         }
@@ -910,9 +918,15 @@ pub mod tournament_component {
                     let safe_mode = store.get_tournament_config(get_contract_address()).safe_mode;
                     if (safe_mode) {
                         if (token.token == ETHEREUM_ADDRESS()) {
-                            assert(token.token_amount <= ETH_SAFE_AMOUNT, Errors::INVALID_SAFE_TOKEN_AMOUNT);
+                            assert(
+                                token.token_amount <= ETH_SAFE_AMOUNT,
+                                Errors::INVALID_SAFE_TOKEN_AMOUNT
+                            );
                         } else {
-                            assert(token.token_amount <= LORDS_SAFE_AMOUNT, Errors::INVALID_SAFE_TOKEN_AMOUNT);
+                            assert(
+                                token.token_amount <= LORDS_SAFE_AMOUNT,
+                                Errors::INVALID_SAFE_TOKEN_AMOUNT
+                            );
                         }
                     }
                 },
@@ -1305,7 +1319,12 @@ pub mod tournament_component {
                 );
 
                 if (safe_mode) {
-                    assert(token.token == ETHEREUM_ADDRESS() || token.token == LORDS_ADDRESS() || token.token == SURVIVORS_ADDRESS(), Errors::INVALID_TOKEN_FOR_SAFE_MODE);
+                    assert(
+                        token.token == ETHEREUM_ADDRESS()
+                            || token.token == LORDS_ADDRESS()
+                            || token.token == SURVIVORS_ADDRESS(),
+                        Errors::INVALID_TOKEN_FOR_SAFE_MODE
+                    );
                 }
 
                 let mut name = "";
@@ -1510,9 +1529,7 @@ pub mod tournament_component {
         }
 
         fn _convert_usd_to_wei(
-            self: @ComponentState<TContractState>,
-            tournament_config: TournamentConfig,
-            usd: u128
+            self: @ComponentState<TContractState>, tournament_config: TournamentConfig, usd: u128
         ) -> u128 {
             let oracle_dispatcher = IPragmaABIDispatcher {
                 contract_address: tournament_config.oracle
@@ -1539,17 +1556,23 @@ pub mod tournament_component {
                     let safe_mode = store.get_tournament_config(get_contract_address()).safe_mode;
                     if (safe_mode) {
                         if (token == ETHEREUM_ADDRESS()) {
-                            assert(token_data.token_amount <= ETH_SAFE_AMOUNT, Errors::INVALID_SAFE_TOKEN_AMOUNT);
+                            assert(
+                                token_data.token_amount <= ETH_SAFE_AMOUNT,
+                                Errors::INVALID_SAFE_TOKEN_AMOUNT
+                            );
                         } else {
-                            assert(token_data.token_amount <= LORDS_SAFE_AMOUNT, Errors::INVALID_SAFE_TOKEN_AMOUNT);
+                            assert(
+                                token_data.token_amount <= LORDS_SAFE_AMOUNT,
+                                Errors::INVALID_SAFE_TOKEN_AMOUNT
+                            );
                         }
                     }
                     token_dispatcher
                         .transfer_from(
-                        get_caller_address(),
-                        get_contract_address(),
-                        token_data.token_amount.into()
-                    );
+                            get_caller_address(),
+                            get_contract_address(),
+                            token_data.token_amount.into()
+                        );
                 },
                 TokenDataType::erc721(token_data) => {
                     let token_dispatcher = IERC721Dispatcher { contract_address: token };

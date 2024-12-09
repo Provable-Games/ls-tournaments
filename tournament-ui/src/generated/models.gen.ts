@@ -518,8 +518,8 @@ export type InputGatedTypeEnum = RemoveFieldOrder<GatedTypeEnum>;
 
 // Type definition for `tournament::ls15_components::models::tournament::GatedEntryType` enum
 export type GatedEntryType = {
-  criteria?: EntryCriteria[];
-  uniform?: number;
+  criteria: EntryCriteria[];
+  uniform: number;
 };
 export type GatedEntryTypeEnum = TypedCairoEnum<GatedEntryType>;
 

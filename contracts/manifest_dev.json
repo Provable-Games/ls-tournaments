@@ -2977,8 +2977,8 @@
       ]
     },
     {
-      "address": "0x60b58d084173a70b02dfbdee17962a6435e8b4c6fcc21286adfc67d461c3725",
-      "class_hash": "0x643f1083cca123f24cb237710170b7d46f6cefe8ca959ce4f1e9521f8c9df56",
+      "address": "0x4026ef06bf54f4b69346064c773f1d54d871c95443caa6e2e934b3c6d0b32af",
+      "class_hash": "0x7c13728455d61dc47cf58cdd4feca87a76408a5fddc1c02afe9608c1ced95fe",
       "abi": [
         {
           "type": "impl",
@@ -3499,7 +3499,7 @@
                 }
               ],
               "outputs": [],
-              "state_mutability": "view"
+              "state_mutability": "external"
             },
             {
               "type": "function",
@@ -3515,7 +3515,7 @@
                 }
               ],
               "outputs": [],
-              "state_mutability": "view"
+              "state_mutability": "external"
             },
             {
               "type": "function",
@@ -3531,7 +3531,7 @@
                 }
               ],
               "outputs": [],
-              "state_mutability": "view"
+              "state_mutability": "external"
             }
           ]
         },
@@ -4087,6 +4087,9 @@
         "initializer",
         "upgrade",
         "new_game",
+        "set_adventurer",
+        "set_adventurer_meta",
+        "set_bag",
         "safe_transfer_from",
         "transfer_from",
         "approve",
@@ -4867,8 +4870,8 @@
       ]
     },
     {
-      "address": "0x440f829edc5ac8c5defbad967edf6307d070dbfd71fca3869e1028a1e06ce71",
-      "class_hash": "0x311dbff005bbccc2c917188b2a53b6320efe9157dc17f632f3c1c479e3b78e0",
+      "address": "0x2cdaaede08188c0c6ce57d82468c10d0afda78b8a81ebdd29dbf64569dccbac",
+      "class_hash": "0x6f6056c3f7b22594c8b6f30af604a5c2a61a495622f40029b2ce7444d43e85b",
       "abi": [
         {
           "type": "impl",
@@ -4926,6 +4929,20 @@
           "interface_name": "tournament::ls15_components::tests::tournament_mock::ITournamentMockInit"
         },
         {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "tournament::ls15_components::tests::tournament_mock::ITournamentMockInit",
           "items": [
@@ -4948,6 +4965,14 @@
                 {
                   "name": "oracle_address",
                   "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "safe_mode",
+                  "type": "core::bool"
+                },
+                {
+                  "name": "test_mode",
+                  "type": "core::bool"
                 }
               ],
               "outputs": [],
@@ -5215,20 +5240,6 @@
             {
               "name": "entry_premium",
               "type": "core::option::Option::<tournament::ls15_components::models::tournament::Premium>"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "core::bool",
-          "variants": [
-            {
-              "name": "False",
-              "type": "()"
-            },
-            {
-              "name": "True",
-              "type": "()"
             }
           ]
         },
@@ -5716,9 +5727,9 @@
     },
     {
       "members": [],
-      "class_hash": "0x16a468fd4641d3ab475b80066a7cdba58aba94f6f51955171cb3cc836729ff7",
-      "tag": "tournament-TournamentContracts",
-      "selector": "0x3cef2d4443bcdf6ba4141194170ec796fc3501b6f34ae30abc600c1ffb16ec4"
+      "class_hash": "0x71bd6392a00912a7252a5c6711c88c252ce519ae1ad8300206738343623a6e0",
+      "tag": "tournament-TournamentConfig",
+      "selector": "0x547cd590eea00da15c7206cf56bafbdacb70341a5648eef169c86d20c7ad77f"
     },
     {
       "members": [],

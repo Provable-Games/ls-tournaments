@@ -79,6 +79,13 @@ pub mod LSTournament {
     ) {
         self
             .tournament
-            .initialize(eth_address, lords_address, loot_survivor_address, oracle_address, safe_mode, test_mode);
+            .initialize(
+                eth_address,
+                lords_address,
+                loot_survivor_address,
+                oracle_address,
+                safe_mode,
+                test_mode
+            );
     }
 }

@@ -15,13 +15,6 @@ type RemoveFieldOrder<T> = T extends object
       'fieldOrder'
     >
   : T;
-// Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerMetaModelValue` struct
-export interface AdventurerMetaModelValue {
-	fieldOrder: string[];
-	adventurer_meta: AdventurerMetadata;
-}
-export type InputAdventurerMetaModelValue = RemoveFieldOrder<AdventurerMetaModelValue>;
-
 // Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerMetadata` struct
 export interface AdventurerMetadata {
 	fieldOrder: string[];
@@ -43,6 +36,21 @@ export interface AdventurerMetaModel {
 }
 export type InputAdventurerMetaModel = RemoveFieldOrder<AdventurerMetaModel>;
 
+// Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerMetaModelValue` struct
+export interface AdventurerMetaModelValue {
+	fieldOrder: string[];
+	adventurer_meta: AdventurerMetadata;
+}
+export type InputAdventurerMetaModelValue = RemoveFieldOrder<AdventurerMetaModelValue>;
+
+// Type definition for `tournament::ls15_components::models::loot_survivor::Item` struct
+export interface Item {
+	fieldOrder: string[];
+	id: BigNumberish;
+	xp: BigNumberish;
+}
+export type InputItem = RemoveFieldOrder<Item>;
+
 // Type definition for `tournament::ls15_components::models::loot_survivor::Stats` struct
 export interface Stats {
 	fieldOrder: string[];
@@ -55,21 +63,6 @@ export interface Stats {
 	luck: BigNumberish;
 }
 export type InputStats = RemoveFieldOrder<Stats>;
-
-// Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerModelValue` struct
-export interface AdventurerModelValue {
-	fieldOrder: string[];
-	adventurer: Adventurer;
-}
-export type InputAdventurerModelValue = RemoveFieldOrder<AdventurerModelValue>;
-
-// Type definition for `tournament::ls15_components::models::loot_survivor::Item` struct
-export interface Item {
-	fieldOrder: string[];
-	id: BigNumberish;
-	xp: BigNumberish;
-}
-export type InputItem = RemoveFieldOrder<Item>;
 
 // Type definition for `tournament::ls15_components::models::loot_survivor::Equipment` struct
 export interface Equipment {
@@ -101,6 +94,13 @@ export interface Adventurer {
 }
 export type InputAdventurer = RemoveFieldOrder<Adventurer>;
 
+// Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerModelValue` struct
+export interface AdventurerModelValue {
+	fieldOrder: string[];
+	adventurer: Adventurer;
+}
+export type InputAdventurerModelValue = RemoveFieldOrder<AdventurerModelValue>;
+
 // Type definition for `tournament::ls15_components::models::loot_survivor::AdventurerModel` struct
 export interface AdventurerModel {
 	fieldOrder: string[];
@@ -131,6 +131,13 @@ export interface Bag {
 }
 export type InputBag = RemoveFieldOrder<Bag>;
 
+// Type definition for `tournament::ls15_components::models::loot_survivor::BagModelValue` struct
+export interface BagModelValue {
+	fieldOrder: string[];
+	bag: Bag;
+}
+export type InputBagModelValue = RemoveFieldOrder<BagModelValue>;
+
 // Type definition for `tournament::ls15_components::models::loot_survivor::BagModel` struct
 export interface BagModel {
 	fieldOrder: string[];
@@ -138,13 +145,6 @@ export interface BagModel {
 	bag: Bag;
 }
 export type InputBagModel = RemoveFieldOrder<BagModel>;
-
-// Type definition for `tournament::ls15_components::models::loot_survivor::BagModelValue` struct
-export interface BagModelValue {
-	fieldOrder: string[];
-	bag: Bag;
-}
-export type InputBagModelValue = RemoveFieldOrder<BagModelValue>;
 
 // Type definition for `tournament::ls15_components::models::loot_survivor::Contracts` struct
 export interface Contracts {
@@ -187,6 +187,16 @@ export interface ERC721Data {
 }
 export type InputERC721Data = RemoveFieldOrder<ERC721Data>;
 
+// Type definition for `tournament::ls15_components::models::tournament::PrizesModelValue` struct
+export interface PrizesModelValue {
+	fieldOrder: string[];
+	token: string;
+	token_data_type: TokenDataTypeEnum;
+	payout_position: BigNumberish;
+	claimed: boolean;
+}
+export type InputPrizesModelValue = RemoveFieldOrder<PrizesModelValue>;
+
 // Type definition for `tournament::ls15_components::models::tournament::PrizesModel` struct
 export interface PrizesModel {
 	fieldOrder: string[];
@@ -197,16 +207,6 @@ export interface PrizesModel {
 	claimed: boolean;
 }
 export type InputPrizesModel = RemoveFieldOrder<PrizesModel>;
-
-// Type definition for `tournament::ls15_components::models::tournament::PrizesModelValue` struct
-export interface PrizesModelValue {
-	fieldOrder: string[];
-	token: string;
-	token_data_type: TokenDataTypeEnum;
-	payout_position: BigNumberish;
-	claimed: boolean;
-}
-export type InputPrizesModelValue = RemoveFieldOrder<PrizesModelValue>;
 
 // Type definition for `tournament::ls15_components::models::tournament::ERC20Data` struct
 export interface ERC20Data {
@@ -236,6 +236,18 @@ export interface TokenModel {
 }
 export type InputTokenModel = RemoveFieldOrder<TokenModel>;
 
+// Type definition for `tournament::ls15_components::models::tournament::TournamentConfigValue` struct
+export interface TournamentConfigValue {
+	fieldOrder: string[];
+	eth: string;
+	lords: string;
+	loot_survivor: string;
+	oracle: string;
+	safe_mode: boolean;
+	test_mode: boolean;
+}
+export type InputTournamentConfigValue = RemoveFieldOrder<TournamentConfigValue>;
+
 // Type definition for `tournament::ls15_components::models::tournament::TournamentConfig` struct
 export interface TournamentConfig {
 	fieldOrder: string[];
@@ -249,25 +261,6 @@ export interface TournamentConfig {
 }
 export type InputTournamentConfig = RemoveFieldOrder<TournamentConfig>;
 
-// Type definition for `tournament::ls15_components::models::tournament::TournamentConfigValue` struct
-export interface TournamentConfigValue {
-	fieldOrder: string[];
-	eth: string;
-	lords: string;
-	loot_survivor: string;
-	oracle: string;
-	safe_mode: boolean;
-	test_mode: boolean;
-}
-export type InputTournamentConfigValue = RemoveFieldOrder<TournamentConfigValue>;
-
-// Type definition for `tournament::ls15_components::models::tournament::TournamentEntriesAddressModelValue` struct
-export interface TournamentEntriesAddressModelValue {
-	fieldOrder: string[];
-	entry_count: BigNumberish;
-}
-export type InputTournamentEntriesAddressModelValue = RemoveFieldOrder<TournamentEntriesAddressModelValue>;
-
 // Type definition for `tournament::ls15_components::models::tournament::TournamentEntriesAddressModel` struct
 export interface TournamentEntriesAddressModel {
 	fieldOrder: string[];
@@ -276,6 +269,13 @@ export interface TournamentEntriesAddressModel {
 	entry_count: BigNumberish;
 }
 export type InputTournamentEntriesAddressModel = RemoveFieldOrder<TournamentEntriesAddressModel>;
+
+// Type definition for `tournament::ls15_components::models::tournament::TournamentEntriesAddressModelValue` struct
+export interface TournamentEntriesAddressModelValue {
+	fieldOrder: string[];
+	entry_count: BigNumberish;
+}
+export type InputTournamentEntriesAddressModelValue = RemoveFieldOrder<TournamentEntriesAddressModelValue>;
 
 // Type definition for `tournament::ls15_components::models::tournament::TournamentEntriesModelValue` struct
 export interface TournamentEntriesModelValue {
@@ -311,6 +311,14 @@ export interface TournamentEntryAddressesModelValue {
 }
 export type InputTournamentEntryAddressesModelValue = RemoveFieldOrder<TournamentEntryAddressesModelValue>;
 
+// Type definition for `tournament::ls15_components::models::tournament::TournamentGameModelValue` struct
+export interface TournamentGameModelValue {
+	fieldOrder: string[];
+	address: string;
+	status: EntryStatus;
+}
+export type InputTournamentGameModelValue = RemoveFieldOrder<TournamentGameModelValue>;
+
 // Type definition for `tournament::ls15_components::models::tournament::TournamentGameModel` struct
 export interface TournamentGameModel {
 	fieldOrder: string[];
@@ -321,22 +329,6 @@ export interface TournamentGameModel {
 }
 export type InputTournamentGameModel = RemoveFieldOrder<TournamentGameModel>;
 
-// Type definition for `tournament::ls15_components::models::tournament::TournamentGameModelValue` struct
-export interface TournamentGameModelValue {
-	fieldOrder: string[];
-	address: string;
-	status: EntryStatus;
-}
-export type InputTournamentGameModelValue = RemoveFieldOrder<TournamentGameModelValue>;
-
-// Type definition for `tournament::ls15_components::models::tournament::EntryCriteria` struct
-export interface EntryCriteria {
-	fieldOrder: string[];
-	token_id: BigNumberish;
-	entry_count: BigNumberish;
-}
-export type InputEntryCriteria = RemoveFieldOrder<EntryCriteria>;
-
 // Type definition for `tournament::ls15_components::models::tournament::GatedToken` struct
 export interface GatedToken {
 	fieldOrder: string[];
@@ -344,16 +336,6 @@ export interface GatedToken {
 	entry_type: GatedEntryType;
 }
 export type InputGatedToken = RemoveFieldOrder<GatedToken>;
-
-// Type definition for `tournament::ls15_components::models::tournament::Premium` struct
-export interface Premium {
-	fieldOrder: string[];
-	token: string;
-	token_amount: BigNumberish;
-	token_distribution: Array<BigNumberish>;
-	creator_fee: BigNumberish;
-}
-export type InputPremium = RemoveFieldOrder<Premium>;
 
 // Type definition for `tournament::ls15_components::models::tournament::TournamentModel` struct
 export interface TournamentModel {
@@ -371,6 +353,24 @@ export interface TournamentModel {
 }
 export type InputTournamentModel = RemoveFieldOrder<TournamentModel>;
 
+// Type definition for `tournament::ls15_components::models::tournament::Premium` struct
+export interface Premium {
+	fieldOrder: string[];
+	token: string;
+	token_amount: BigNumberish;
+	token_distribution: Array<BigNumberish>;
+	creator_fee: BigNumberish;
+}
+export type InputPremium = RemoveFieldOrder<Premium>;
+
+// Type definition for `tournament::ls15_components::models::tournament::EntryCriteria` struct
+export interface EntryCriteria {
+	fieldOrder: string[];
+	token_id: BigNumberish;
+	entry_count: BigNumberish;
+}
+export type InputEntryCriteria = RemoveFieldOrder<EntryCriteria>;
+
 // Type definition for `tournament::ls15_components::models::tournament::TournamentModelValue` struct
 export interface TournamentModelValue {
 	fieldOrder: string[];
@@ -386,13 +386,6 @@ export interface TournamentModelValue {
 }
 export type InputTournamentModelValue = RemoveFieldOrder<TournamentModelValue>;
 
-// Type definition for `tournament::ls15_components::models::tournament::TournamentPrizeKeysModelValue` struct
-export interface TournamentPrizeKeysModelValue {
-	fieldOrder: string[];
-	prize_keys: Array<BigNumberish>;
-}
-export type InputTournamentPrizeKeysModelValue = RemoveFieldOrder<TournamentPrizeKeysModelValue>;
-
 // Type definition for `tournament::ls15_components::models::tournament::TournamentPrizeKeysModel` struct
 export interface TournamentPrizeKeysModel {
 	fieldOrder: string[];
@@ -400,6 +393,13 @@ export interface TournamentPrizeKeysModel {
 	prize_keys: Array<BigNumberish>;
 }
 export type InputTournamentPrizeKeysModel = RemoveFieldOrder<TournamentPrizeKeysModel>;
+
+// Type definition for `tournament::ls15_components::models::tournament::TournamentPrizeKeysModelValue` struct
+export interface TournamentPrizeKeysModelValue {
+	fieldOrder: string[];
+	prize_keys: Array<BigNumberish>;
+}
+export type InputTournamentPrizeKeysModelValue = RemoveFieldOrder<TournamentPrizeKeysModelValue>;
 
 // Type definition for `tournament::ls15_components::models::tournament::TournamentScoresModelValue` struct
 export interface TournamentScoresModelValue {
@@ -432,13 +432,6 @@ export interface TournamentStartIdsModelValue {
 }
 export type InputTournamentStartIdsModelValue = RemoveFieldOrder<TournamentStartIdsModelValue>;
 
-// Type definition for `tournament::ls15_components::models::tournament::TournamentStartsAddressModelValue` struct
-export interface TournamentStartsAddressModelValue {
-	fieldOrder: string[];
-	start_count: BigNumberish;
-}
-export type InputTournamentStartsAddressModelValue = RemoveFieldOrder<TournamentStartsAddressModelValue>;
-
 // Type definition for `tournament::ls15_components::models::tournament::TournamentStartsAddressModel` struct
 export interface TournamentStartsAddressModel {
 	fieldOrder: string[];
@@ -448,14 +441,12 @@ export interface TournamentStartsAddressModel {
 }
 export type InputTournamentStartsAddressModel = RemoveFieldOrder<TournamentStartsAddressModel>;
 
-// Type definition for `tournament::ls15_components::models::tournament::TournamentTotalsModel` struct
-export interface TournamentTotalsModel {
+// Type definition for `tournament::ls15_components::models::tournament::TournamentStartsAddressModelValue` struct
+export interface TournamentStartsAddressModelValue {
 	fieldOrder: string[];
-	contract: string;
-	total_tournaments: BigNumberish;
-	total_prizes: BigNumberish;
+	start_count: BigNumberish;
 }
-export type InputTournamentTotalsModel = RemoveFieldOrder<TournamentTotalsModel>;
+export type InputTournamentStartsAddressModelValue = RemoveFieldOrder<TournamentStartsAddressModelValue>;
 
 // Type definition for `tournament::ls15_components::models::tournament::TournamentTotalsModelValue` struct
 export interface TournamentTotalsModelValue {
@@ -464,6 +455,15 @@ export interface TournamentTotalsModelValue {
 	total_prizes: BigNumberish;
 }
 export type InputTournamentTotalsModelValue = RemoveFieldOrder<TournamentTotalsModelValue>;
+
+// Type definition for `tournament::ls15_components::models::tournament::TournamentTotalsModel` struct
+export interface TournamentTotalsModel {
+	fieldOrder: string[];
+	contract: string;
+	total_tournaments: BigNumberish;
+	total_prizes: BigNumberish;
+}
+export type InputTournamentTotalsModel = RemoveFieldOrder<TournamentTotalsModel>;
 
 // Type definition for `tournament::ls15_components::models::tournament::TokenDataType` enum
 export type TokenDataType = {
@@ -494,61 +494,57 @@ export enum GatedEntryType {
 
 export interface SchemaType extends ISchemaType {
 	tournament: {
-		AdventurerMetaModelValue: AdventurerMetaModelValue,
 		AdventurerMetadata: AdventurerMetadata,
 		AdventurerMetaModel: AdventurerMetaModel,
-		Stats: Stats,
-		AdventurerModelValue: AdventurerModelValue,
+		AdventurerMetaModelValue: AdventurerMetaModelValue,
 		Item: Item,
+		Stats: Stats,
 		Equipment: Equipment,
 		Adventurer: Adventurer,
+		AdventurerModelValue: AdventurerModelValue,
 		AdventurerModel: AdventurerModel,
 		Bag: Bag,
-		BagModel: BagModel,
 		BagModelValue: BagModelValue,
+		BagModel: BagModel,
 		Contracts: Contracts,
 		ContractsValue: ContractsValue,
 		GameCountModelValue: GameCountModelValue,
 		GameCountModel: GameCountModel,
 		ERC721Data: ERC721Data,
-		PrizesModel: PrizesModel,
 		PrizesModelValue: PrizesModelValue,
+		PrizesModel: PrizesModel,
 		ERC20Data: ERC20Data,
 		TokenModelValue: TokenModelValue,
 		TokenModel: TokenModel,
-		TournamentConfig: TournamentConfig,
 		TournamentConfigValue: TournamentConfigValue,
-		TournamentEntriesAddressModelValue: TournamentEntriesAddressModelValue,
+		TournamentConfig: TournamentConfig,
 		TournamentEntriesAddressModel: TournamentEntriesAddressModel,
+		TournamentEntriesAddressModelValue: TournamentEntriesAddressModelValue,
 		TournamentEntriesModelValue: TournamentEntriesModelValue,
 		TournamentEntriesModel: TournamentEntriesModel,
 		TournamentEntryAddressesModel: TournamentEntryAddressesModel,
 		TournamentEntryAddressesModelValue: TournamentEntryAddressesModelValue,
-		TournamentGameModel: TournamentGameModel,
 		TournamentGameModelValue: TournamentGameModelValue,
-		EntryCriteria: EntryCriteria,
+		TournamentGameModel: TournamentGameModel,
 		GatedToken: GatedToken,
-		Premium: Premium,
 		TournamentModel: TournamentModel,
+		Premium: Premium,
+		EntryCriteria: EntryCriteria,
 		TournamentModelValue: TournamentModelValue,
-		TournamentPrizeKeysModelValue: TournamentPrizeKeysModelValue,
 		TournamentPrizeKeysModel: TournamentPrizeKeysModel,
+		TournamentPrizeKeysModelValue: TournamentPrizeKeysModelValue,
 		TournamentScoresModelValue: TournamentScoresModelValue,
 		TournamentScoresModel: TournamentScoresModel,
 		TournamentStartIdsModel: TournamentStartIdsModel,
 		TournamentStartIdsModelValue: TournamentStartIdsModelValue,
-		TournamentStartsAddressModelValue: TournamentStartsAddressModelValue,
 		TournamentStartsAddressModel: TournamentStartsAddressModel,
-		TournamentTotalsModel: TournamentTotalsModel,
+		TournamentStartsAddressModelValue: TournamentStartsAddressModelValue,
 		TournamentTotalsModelValue: TournamentTotalsModelValue,
+		TournamentTotalsModel: TournamentTotalsModel,
 	},
 }
 export const schema: SchemaType = {
 	tournament: {
-		AdventurerMetaModelValue: {
-			fieldOrder: ['adventurer_meta'],
-			adventurer_meta: { fieldOrder: ['birth_date', 'death_date', 'level_seed', 'item_specials_seed', 'rank_at_death', 'delay_stat_reveal', 'golden_token_id'], birth_date: 0, death_date: 0, level_seed: 0, item_specials_seed: 0, rank_at_death: 0, delay_stat_reveal: false, golden_token_id: 0, },
-		},
 		AdventurerMetadata: {
 			fieldOrder: ['birth_date', 'death_date', 'level_seed', 'item_specials_seed', 'rank_at_death', 'delay_stat_reveal', 'golden_token_id'],
 			birth_date: 0,
@@ -564,6 +560,15 @@ export const schema: SchemaType = {
 			adventurer_id: 0,
 			adventurer_meta: { fieldOrder: ['birth_date', 'death_date', 'level_seed', 'item_specials_seed', 'rank_at_death', 'delay_stat_reveal', 'golden_token_id'], birth_date: 0, death_date: 0, level_seed: 0, item_specials_seed: 0, rank_at_death: 0, delay_stat_reveal: false, golden_token_id: 0, },
 		},
+		AdventurerMetaModelValue: {
+			fieldOrder: ['adventurer_meta'],
+			adventurer_meta: { fieldOrder: ['birth_date', 'death_date', 'level_seed', 'item_specials_seed', 'rank_at_death', 'delay_stat_reveal', 'golden_token_id'], birth_date: 0, death_date: 0, level_seed: 0, item_specials_seed: 0, rank_at_death: 0, delay_stat_reveal: false, golden_token_id: 0, },
+		},
+		Item: {
+			fieldOrder: ['id', 'xp'],
+			id: 0,
+			xp: 0,
+		},
 		Stats: {
 			fieldOrder: ['strength', 'dexterity', 'vitality', 'intelligence', 'wisdom', 'charisma', 'luck'],
 			strength: 0,
@@ -573,15 +578,6 @@ export const schema: SchemaType = {
 			wisdom: 0,
 			charisma: 0,
 			luck: 0,
-		},
-		AdventurerModelValue: {
-			fieldOrder: ['adventurer'],
-			adventurer: { fieldOrder: ['health', 'xp', 'gold', 'beast_health', 'stat_upgrades_available', 'stats', 'equipment', 'battle_action_count', 'mutated', 'awaiting_item_specials'], health: 0, xp: 0, gold: 0, beast_health: 0, stat_upgrades_available: 0, stats: { fieldOrder: ['strength', 'dexterity', 'vitality', 'intelligence', 'wisdom', 'charisma', 'luck'], strength: 0, dexterity: 0, vitality: 0, intelligence: 0, wisdom: 0, charisma: 0, luck: 0, }, equipment: { fieldOrder: ['weapon', 'chest', 'head', 'waist', 'foot', 'hand', 'neck', 'ring'], weapon: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, chest: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, head: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, waist: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, foot: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, hand: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, neck: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, ring: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, }, battle_action_count: 0, mutated: false, awaiting_item_specials: false, },
-		},
-		Item: {
-			fieldOrder: ['id', 'xp'],
-			id: 0,
-			xp: 0,
 		},
 		Equipment: {
 			fieldOrder: ['weapon', 'chest', 'head', 'waist', 'foot', 'hand', 'neck', 'ring'],
@@ -607,6 +603,10 @@ export const schema: SchemaType = {
 			mutated: false,
 			awaiting_item_specials: false,
 		},
+		AdventurerModelValue: {
+			fieldOrder: ['adventurer'],
+			adventurer: { fieldOrder: ['health', 'xp', 'gold', 'beast_health', 'stat_upgrades_available', 'stats', 'equipment', 'battle_action_count', 'mutated', 'awaiting_item_specials'], health: 0, xp: 0, gold: 0, beast_health: 0, stat_upgrades_available: 0, stats: { fieldOrder: ['strength', 'dexterity', 'vitality', 'intelligence', 'wisdom', 'charisma', 'luck'], strength: 0, dexterity: 0, vitality: 0, intelligence: 0, wisdom: 0, charisma: 0, luck: 0, }, equipment: { fieldOrder: ['weapon', 'chest', 'head', 'waist', 'foot', 'hand', 'neck', 'ring'], weapon: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, chest: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, head: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, waist: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, foot: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, hand: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, neck: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, ring: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, }, battle_action_count: 0, mutated: false, awaiting_item_specials: false, },
+		},
 		AdventurerModel: {
 			fieldOrder: ['adventurer_id', 'adventurer'],
 			adventurer_id: 0,
@@ -631,13 +631,13 @@ export const schema: SchemaType = {
 			item_15: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, },
 			mutated: false,
 		},
+		BagModelValue: {
+			fieldOrder: ['bag'],
+			bag: { fieldOrder: ['item_1', 'item_2', 'item_3', 'item_4', 'item_5', 'item_6', 'item_7', 'item_8', 'item_9', 'item_10', 'item_11', 'item_12', 'item_13', 'item_14', 'item_15', 'mutated'], item_1: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_2: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_3: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_4: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_5: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_6: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_7: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_8: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_9: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_10: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_11: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_12: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_13: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_14: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_15: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, mutated: false, },
+		},
 		BagModel: {
 			fieldOrder: ['adventurer_id', 'bag'],
 			adventurer_id: 0,
-			bag: { fieldOrder: ['item_1', 'item_2', 'item_3', 'item_4', 'item_5', 'item_6', 'item_7', 'item_8', 'item_9', 'item_10', 'item_11', 'item_12', 'item_13', 'item_14', 'item_15', 'mutated'], item_1: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_2: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_3: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_4: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_5: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_6: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_7: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_8: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_9: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_10: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_11: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_12: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_13: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_14: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_15: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, mutated: false, },
-		},
-		BagModelValue: {
-			fieldOrder: ['bag'],
 			bag: { fieldOrder: ['item_1', 'item_2', 'item_3', 'item_4', 'item_5', 'item_6', 'item_7', 'item_8', 'item_9', 'item_10', 'item_11', 'item_12', 'item_13', 'item_14', 'item_15', 'mutated'], item_1: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_2: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_3: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_4: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_5: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_6: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_7: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_8: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_9: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_10: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_11: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_12: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_13: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_14: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, item_15: { fieldOrder: ['id', 'xp'], id: 0, xp: 0, }, mutated: false, },
 		},
 		Contracts: {
@@ -666,16 +666,16 @@ export const schema: SchemaType = {
 			fieldOrder: ['token_id'],
 			token_id: 0,
 		},
-		PrizesModel: {
-			fieldOrder: ['prize_key', 'token', 'token_data_type', 'payout_position', 'claimed'],
-			prize_key: 0,
+		PrizesModelValue: {
+			fieldOrder: ['token', 'token_data_type', 'payout_position', 'claimed'],
 			token: "",
 			token_data_type: { fieldOrder: ['token_amount'], token_amount: 0, },
 			payout_position: 0,
 			claimed: false,
 		},
-		PrizesModelValue: {
-			fieldOrder: ['token', 'token_data_type', 'payout_position', 'claimed'],
+		PrizesModel: {
+			fieldOrder: ['prize_key', 'token', 'token_data_type', 'payout_position', 'claimed'],
+			prize_key: 0,
 			token: "",
 			token_data_type: { fieldOrder: ['token_amount'], token_amount: 0, },
 			payout_position: 0,
@@ -700,6 +700,15 @@ export const schema: SchemaType = {
 			token_data_type: { fieldOrder: ['token_amount'], token_amount: 0, },
 			is_registered: false,
 		},
+		TournamentConfigValue: {
+			fieldOrder: ['eth', 'lords', 'loot_survivor', 'oracle', 'safe_mode', 'test_mode'],
+			eth: "",
+			lords: "",
+			loot_survivor: "",
+			oracle: "",
+			safe_mode: false,
+			test_mode: false,
+		},
 		TournamentConfig: {
 			fieldOrder: ['contract', 'eth', 'lords', 'loot_survivor', 'oracle', 'safe_mode', 'test_mode'],
 			contract: "",
@@ -710,23 +719,14 @@ export const schema: SchemaType = {
 			safe_mode: false,
 			test_mode: false,
 		},
-		TournamentConfigValue: {
-			fieldOrder: ['eth', 'lords', 'loot_survivor', 'oracle', 'safe_mode', 'test_mode'],
-			eth: "",
-			lords: "",
-			loot_survivor: "",
-			oracle: "",
-			safe_mode: false,
-			test_mode: false,
-		},
-		TournamentEntriesAddressModelValue: {
-			fieldOrder: ['entry_count'],
-			entry_count: 0,
-		},
 		TournamentEntriesAddressModel: {
 			fieldOrder: ['tournament_id', 'address', 'entry_count'],
 			tournament_id: 0,
 			address: "",
+			entry_count: 0,
+		},
+		TournamentEntriesAddressModelValue: {
+			fieldOrder: ['entry_count'],
 			entry_count: 0,
 		},
 		TournamentEntriesModelValue: {
@@ -751,6 +751,11 @@ export const schema: SchemaType = {
 			fieldOrder: ['addresses'],
 			addresses: [""],
 		},
+		TournamentGameModelValue: {
+			fieldOrder: ['address', 'status'],
+			address: "",
+			status: EntryStatus.Started,
+		},
 		TournamentGameModel: {
 			fieldOrder: ['tournament_id', 'game_id', 'address', 'status'],
 			tournament_id: 0,
@@ -758,27 +763,10 @@ export const schema: SchemaType = {
 			address: "",
 			status: EntryStatus.Started,
 		},
-		TournamentGameModelValue: {
-			fieldOrder: ['address', 'status'],
-			address: "",
-			status: EntryStatus.Started,
-		},
-		EntryCriteria: {
-			fieldOrder: ['token_id', 'entry_count'],
-			token_id: 0,
-			entry_count: 0,
-		},
 		GatedToken: {
 			fieldOrder: ['token', 'entry_type'],
 			token: "",
 			entry_type: GatedEntryType.criteria,
-		},
-		Premium: {
-			fieldOrder: ['token', 'token_amount', 'token_distribution', 'creator_fee'],
-			token: "",
-			token_amount: 0,
-			token_distribution: [0],
-			creator_fee: 0,
 		},
 		TournamentModel: {
 			fieldOrder: ['tournament_id', 'name', 'description', 'creator', 'start_time', 'end_time', 'submission_period', 'winners_count', 'gated_type', 'entry_premium'],
@@ -793,6 +781,18 @@ export const schema: SchemaType = {
 			gated_type: Option,
 			entry_premium: Option,
 		},
+		Premium: {
+			fieldOrder: ['token', 'token_amount', 'token_distribution', 'creator_fee'],
+			token: "",
+			token_amount: 0,
+			token_distribution: [0],
+			creator_fee: 0,
+		},
+		EntryCriteria: {
+			fieldOrder: ['token_id', 'entry_count'],
+			token_id: 0,
+			entry_count: 0,
+		},
 		TournamentModelValue: {
 			fieldOrder: ['name', 'description', 'creator', 'start_time', 'end_time', 'submission_period', 'winners_count', 'gated_type', 'entry_premium'],
 			name: 0,
@@ -805,13 +805,13 @@ export const schema: SchemaType = {
 			gated_type: Option,
 			entry_premium: Option,
 		},
-		TournamentPrizeKeysModelValue: {
-			fieldOrder: ['prize_keys'],
-			prize_keys: [0],
-		},
 		TournamentPrizeKeysModel: {
 			fieldOrder: ['tournament_id', 'prize_keys'],
 			tournament_id: 0,
+			prize_keys: [0],
+		},
+		TournamentPrizeKeysModelValue: {
+			fieldOrder: ['prize_keys'],
 			prize_keys: [0],
 		},
 		TournamentScoresModelValue: {
@@ -833,24 +833,24 @@ export const schema: SchemaType = {
 			fieldOrder: ['game_ids'],
 			game_ids: [0],
 		},
-		TournamentStartsAddressModelValue: {
-			fieldOrder: ['start_count'],
-			start_count: 0,
-		},
 		TournamentStartsAddressModel: {
 			fieldOrder: ['tournament_id', 'address', 'start_count'],
 			tournament_id: 0,
 			address: "",
 			start_count: 0,
 		},
-		TournamentTotalsModel: {
-			fieldOrder: ['contract', 'total_tournaments', 'total_prizes'],
-			contract: "",
-			total_tournaments: 0,
-			total_prizes: 0,
+		TournamentStartsAddressModelValue: {
+			fieldOrder: ['start_count'],
+			start_count: 0,
 		},
 		TournamentTotalsModelValue: {
 			fieldOrder: ['total_tournaments', 'total_prizes'],
+			total_tournaments: 0,
+			total_prizes: 0,
+		},
+		TournamentTotalsModel: {
+			fieldOrder: ['contract', 'total_tournaments', 'total_prizes'],
+			contract: "",
 			total_tournaments: 0,
 			total_prizes: 0,
 		},

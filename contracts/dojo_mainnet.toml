@@ -1,7 +1,7 @@
 [world]
 name = "Tournament"
-description = "Tournament component"
-website = "https://github.com/Provable-Games"
+description = "Loot Survivor Tournaments"
+website = "https://github.com/Provable-Games/ls-tournaments"
 seed = "tournament"
 
 [world.socials]
@@ -12,6 +12,8 @@ github = "https://github.com/Provable-Games"
 default = "tournament"
 
 [env]
+chain_id = "SN_MAINNET"
+rpc_url = "https://api.cartridge.gg/x/ls-tournaments-katana/katana"
 # world_address = "0x043b149fadbe95e3946fa124a9a6bd64ec5374b8765f2bb753289d520bd8546d"  # Uncomment and update this line with your world address.
 
 [writers]
@@ -21,7 +23,7 @@ default = "tournament"
 "tournament-TournamentEntriesAddressModel" = ["tournament-LSTournament"]
 "tournament-TournamentStartIdsModel" = ["tournament-LSTournament"]
 "tournament-TournamentEntriesModel" = ["tournament-LSTournament"]
-"tournament-TournamentStartsAddressModel" = ["tournament-tournament_mock"]
+"tournament-TournamentStartsAddressModel" = ["tournament-LSTournament"]
 "tournament-TournamentScoresModel" = ["tournament-LSTournament"]
 "tournament-TournamentTotalsModel" = ["tournament-LSTournament"]
 "tournament-TournamentPrizeKeysModel" = ["tournament-LSTournament"]
@@ -41,4 +43,12 @@ default = "tournament"
 
 [migration]
 order_inits = []
-skip_contracts = []
+skip_contracts = [
+    "tournament-tournament_mock", 
+    "tournament-loot_survivor_mock", 
+    "tournament-pragma_mock", 
+    "tournament-eth_mock", 
+    "tournament-lords_mock", 
+    "tournament-erc20_mock", 
+    "tournament-erc721_mock"
+]
