@@ -30,8 +30,8 @@ function App() {
   } = useDojo();
   const { account } = useAccount();
   useConfig();
-  const { tournament } = useTournamentContracts();
-  const { getEthBalance, getLordsBalance } = useSystemCalls();
+  const { tournament, eth, lords } = useTournamentContracts();
+  const { getERC20BalanceGeneral } = useSystemCalls();
   const [tokenBalance, setTokenBalance] = useState<Record<string, bigint>>({});
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
@@ -150,8 +150,8 @@ function App() {
     if (!account?.address) return;
 
     const [ethBalance, lordsBalance] = await Promise.all([
-      getEthBalance(account.address),
-      getLordsBalance(account.address),
+      getERC20BalanceGeneral(eth),
+      getERC20BalanceGeneral(lords),
     ]);
 
     setTokenBalance((prev) => ({
@@ -159,13 +159,13 @@ function App() {
       eth: ethBalance as bigint,
       lords: lordsBalance as bigint,
     }));
-  }, [account?.address, getEthBalance, getLordsBalance]);
+  }, [account?.address, getERC20BalanceGeneral]);
 
   useEffect(() => {
-    if (account) {
+    if (account && eth && lords) {
       getBalances();
     }
-  }, [account]);
+  }, [account, eth, lords]);
 
   // const getTokenBalances = async () => {
   //   const balances = await sdk.getTokenBalances(

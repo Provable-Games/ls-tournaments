@@ -1,38 +1,51 @@
 import { CairoCustomEnum } from "starknet";
 import { useState, useEffect } from "react";
-import { useSystemCalls } from "@/useSystemCalls.ts";
-
-export type PragmaPrice = {
-  decimals: bigint;
-  expiration_timestamp: any;
-  last_updated_timestamp: bigint;
-  num_sources_aggregated: bigint;
-  price: bigint;
-};
+import { useTournamentContracts } from "@/hooks/useTournamentContracts";
+import { useProvider } from "@starknet-react/core";
 
 export const useVRFCost = () => {
   const [dollarPrice, setDollarPrice] = useState<bigint>();
-  const { getDataMedian } = useSystemCalls(); // Move this inside the hook
+  const [isLoading, setIsLoading] = useState(true);
+  const { oracle } = useTournamentContracts();
+  const { provider } = useProvider();
 
   useEffect(() => {
+    if (!oracle || !provider) {
+      return;
+    }
+
     const fetchVRFCost = async () => {
-      const result = await getDataMedian(
-        new CairoCustomEnum({
+      try {
+        const spotEntry = new CairoCustomEnum({
           SpotEntry: "19514442401534788",
           tournament: undefined,
           address: undefined,
-        })
-      );
-      const dollarToWei = BigInt(5) * BigInt(10) ** BigInt(17);
-      const ethToWei = (result as PragmaPrice).price / BigInt(10) ** BigInt(8);
-      const dollarPrice = dollarToWei / ethToWei;
-      setDollarPrice(dollarPrice);
+        });
+
+        const result = await provider.callContract({
+          contractAddress: oracle,
+          entrypoint: "get_data_median",
+          calldata: [spotEntry],
+        });
+
+        if (result && Array.isArray(result) && result[0]) {
+          const dollarToWei = BigInt(5) * BigInt(10) ** BigInt(17);
+          const ethToWei = BigInt(result[0]) / BigInt(10) ** BigInt(8);
+          const price = dollarToWei / ethToWei;
+          setDollarPrice(price);
+        }
+      } catch (error) {
+        console.error("Error fetching VRF cost:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchVRFCost();
-  }, [getDataMedian]); // Add dependency
+  }, [oracle, provider]); // Include both dependencies
 
   return {
     dollarPrice,
+    isLoading,
   };
 };

@@ -6,23 +6,19 @@ type Variables = Record<
   string | number | number[] | boolean | null | undefined | Date
 >;
 
-// Custom hook that safely handles both mainnet and non-mainnet cases
 export const useLSQuery = (query: DocumentNode, variables?: Variables) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
-  // Always call useQuery, but skip it when not on mainnet
   const { data, loading, error } = useQuery(query, {
     variables,
-    // skip: !isMainnet,
+    skip: !isMainnet,
   });
 
-  // Return consistent shape regardless of chain
   return {
-    // data: isMainnet ? data : null,
-    data,
+    data: isMainnet ? data : null,
     loading,
     error,
     isMainnet,

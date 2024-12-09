@@ -128,8 +128,6 @@ export async function setupWorld(provider: DojoProvider) {
     winnersCount: BigNumberish,
     gatedType: CairoOption<models.InputGatedTypeEnum>,
     entryPremium: CairoOption<models.Premium>
-    // gatedType: models.NewOption<models.InputGatedTypeEnum>,
-    // entryPremium: models.NewOption<models.Premium>
   ) => {
     try {
       return await provider.execute(
@@ -1314,6 +1312,242 @@ export async function setupWorld(provider: DojoProvider) {
     }
   };
 
+  const LSTournament_totalTournaments = async () => {
+    try {
+      return await provider.call("tournament", {
+        contractName: "LSTournament",
+        entrypoint: "total_tournaments",
+        calldata: [],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_tournament = async (tournamentId: BigNumberish) => {
+    try {
+      return await provider.call("tournament", {
+        contractName: "LSTournament",
+        entrypoint: "tournament",
+        calldata: [tournamentId],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_tournamentEntries = async (tournamentId: BigNumberish) => {
+    try {
+      return await provider.call("tournament", {
+        contractName: "LSTournament",
+        entrypoint: "tournament_entries",
+        calldata: [tournamentId],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_tournamentPrizeKeys = async (
+    tournamentId: BigNumberish
+  ) => {
+    try {
+      return await provider.call("tournament", {
+        contractName: "LSTournament",
+        entrypoint: "tournament_prize_keys",
+        calldata: [tournamentId],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_topScores = async (tournamentId: BigNumberish) => {
+    try {
+      return await provider.call("tournament", {
+        contractName: "LSTournament",
+        entrypoint: "top_scores",
+        calldata: [tournamentId],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_isTokenRegistered = async (token: string) => {
+    try {
+      return await provider.call("tournament", {
+        contractName: "LSTournament",
+        entrypoint: "is_token_registered",
+        calldata: [token],
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_registerTokens = async (
+    snAccount: Account | AccountInterface,
+    tokens: Array<Token>
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "register_tokens",
+          calldata: [tokens],
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_createTournament = async (
+    snAccount: Account | AccountInterface,
+    name: BigNumberish,
+    description: string,
+    startTime: BigNumberish,
+    endTime: BigNumberish,
+    submissionPeriod: BigNumberish,
+    winnersCount: BigNumberish,
+    gatedType: CairoOption<models.InputGatedTypeEnum>,
+    entryPremium: CairoOption<models.Premium>
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "create_tournament",
+          calldata: CallData.compile([
+            name,
+            description,
+            startTime,
+            endTime,
+            submissionPeriod,
+            winnersCount,
+            gatedType,
+            entryPremium,
+          ]),
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_enterTournament = async (
+    snAccount: Account | AccountInterface,
+    tournamentId: BigNumberish,
+    gatedSubmissionType: CairoOption<GatedSubmissionTypeEnum>
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "enter_tournament",
+          calldata: CallData.compile([tournamentId, gatedSubmissionType]),
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_startTournament = async (
+    snAccount: Account | AccountInterface,
+    tournamentId: BigNumberish,
+    startAll: boolean,
+    startCount: CairoOption<BigNumberish>
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "start_tournament",
+          calldata: CallData.compile([tournamentId, startAll, startCount]),
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_submitScores = async (
+    snAccount: Account | AccountInterface,
+    tournamentId: BigNumberish,
+    gameIds: Array<BigNumberish>
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "submit_scores",
+          calldata: CallData.compile([tournamentId, gameIds]),
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_addPrize = async (
+    snAccount: Account | AccountInterface,
+    tournamentId: BigNumberish,
+    token: string,
+    tokenDataType: models.TokenDataTypeEnum,
+    position: BigNumberish
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "add_prize",
+          calldata: CallData.compile([
+            tournamentId,
+            token,
+            tokenDataType,
+            position,
+          ]),
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const LSTournament_distributePrizes = async (
+    snAccount: Account | AccountInterface,
+    tournamentId: BigNumberish,
+    prizeKeys: Array<BigNumberish>
+  ) => {
+    try {
+      return await provider.execute(
+        snAccount,
+        {
+          contractName: "LSTournament",
+          entrypoint: "distribute_prizes",
+          calldata: CallData.compile([tournamentId, prizeKeys]),
+        },
+        "tournament"
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return {
     pragma_mock: {
       getDataMedian: pragma_mock_getDataMedian,
@@ -1407,6 +1641,21 @@ export async function setupWorld(provider: DojoProvider) {
       name: erc721_mock_name,
       symbol: erc721_mock_symbol,
       tokenUri: erc721_mock_tokenUri,
+    },
+    LSTournament: {
+      totalTournaments: LSTournament_totalTournaments,
+      tournament: LSTournament_tournament,
+      tournamentEntries: LSTournament_tournamentEntries,
+      tournamentPrizeKeys: LSTournament_tournamentPrizeKeys,
+      topScores: LSTournament_topScores,
+      isTokenRegistered: LSTournament_isTokenRegistered,
+      registerTokens: LSTournament_registerTokens,
+      createTournament: LSTournament_createTournament,
+      enterTournament: LSTournament_enterTournament,
+      startTournament: LSTournament_startTournament,
+      submitScores: LSTournament_submitScores,
+      addPrize: LSTournament_addPrize,
+      distributePrizes: LSTournament_distributePrizes,
     },
   };
 }

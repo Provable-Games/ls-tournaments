@@ -127,7 +127,6 @@ export const useGetEndedTournamentsQuery = (currentTime: string) => {
 };
 
 export const useGetAccountTournamentsQuery = (address: string) => {
-  console.log(address);
   const query = useMemo<TournamentGetQuery>(
     () => ({
       tournament: {

@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import Pagination from "@/components/table/Pagination";
 import ScoreRow from "@/components/tournament/ScoreRow";
 import { useDojo } from "@/DojoContext";
+import { bigintToHex } from "@/lib/utils";
+import { addAddressPadding } from "starknet";
 
 interface ScoreTableProps {
   tournamentScores: any;
@@ -31,7 +33,7 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
-        <p className="w-1/2 text-4xl text-center uppercase">Upcoming</p>
+        <p className="w-1/2 text-4xl text-center uppercase">Scores</p>
         <div className="w-1/4 flex justify-end">
           {tournamentScores && tournamentScores.length > 10 && (
             <Pagination
@@ -50,7 +52,6 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
             <th className="text-left">ID</th>
             <th className="text-left">Level</th>
             <th className="text-left">XP</th>
-            <th className="text-left">Death Time</th>
             <th className="text-left">Prizes</th>
           </tr>
         </thead>
@@ -58,8 +59,10 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
           {tournamentScores && tournamentScores.top_score_ids.length > 0 ? (
             pagedScores.map((gameId: any, index: any) => {
               const adventurer = isMainnet
-                ? adventurersData.find(
-                    (adventurer: any) => adventurer.adventurer_id === gameId
+                ? adventurersData?.find(
+                    (adventurer: any) =>
+                      addAddressPadding(bigintToHex(BigInt(adventurer.id))) ===
+                      gameId
                   )
                 : adventurersData.find(
                     (entity: any) =>

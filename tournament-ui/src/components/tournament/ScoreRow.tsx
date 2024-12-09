@@ -1,5 +1,6 @@
 import { useDojo } from "@/DojoContext";
 import { FirstIcon, SecondIcon, ThirdIcon } from "../Icons";
+import { displayAddress } from "@/lib/utils";
 
 // First, define the props interface
 interface ScoreRowProps {
@@ -11,7 +12,6 @@ const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
-
   if (!adventurer) return null;
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const formattedAdventurer = isMainnet
@@ -38,11 +38,10 @@ const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
           )}
         </div>
       </td>
-      <td>{formattedAdventurer.address ?? "-"}</td>
+      <td>{displayAddress(formattedAdventurer.owner) ?? "-"}</td>
       <td>{formattedAdventurer.id ?? "-"}</td>
       <td>{formattedAdventurer.level ?? "-"}</td>
       <td>{formattedAdventurer.xp ?? "-"}</td>
-      <td>{formattedAdventurer.deathTime ?? "-"}</td>
       <td>{formattedAdventurer.prizes ?? "-"}</td>
     </tr>
   );

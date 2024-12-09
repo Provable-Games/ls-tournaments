@@ -45,7 +45,7 @@ const supportedChainIds: ChainId[] = [
   // ChainId.SN_SEPOLIA,
   ChainId.WP_LS_TOURNAMENTS_KATANA,
   // ChainId.TOURNAMENT_STAGING,
-  // ChainId.SN_MAINNET,
+  ChainId.SN_MAINNET,
 ];
 
 export const defaultChainId = (import.meta.env.VITE_CHAIN_ID ||

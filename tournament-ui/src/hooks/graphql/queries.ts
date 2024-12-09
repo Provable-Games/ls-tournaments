@@ -14,6 +14,7 @@ const ADVENTURER_FIELDS = `
   charisma
   luck
   xp
+  level
   weapon
   chest
   head
