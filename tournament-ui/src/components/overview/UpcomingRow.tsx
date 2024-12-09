@@ -55,14 +55,16 @@ const UpcomingRow = ({
       <td>{startDate}</td>
       <td>{formatTime(Number(endTime) - Number(startTime))}</td>
       <td>
-        {entryPremium === "None"
+        -
+        {/* {entryPremium === "None"
           ? "-"
-          : BigInt(entryPremium.Some?.token_amount).toString()}
+          : BigInt(entryPremium.Some?.token_amount).toString()} */}
       </td>
       <td>
-        {entryPremium === "None"
+        -
+        {/* {entryPremium === "None"
           ? "-"
-          : BigInt(entryPremium.Some?.creator_fee).toString()}
+          : BigInt(entryPremium.Some?.creator_fee).toString()} */}
       </td>
       <td>
         <div className="flex flex-col gap-2">
