@@ -2,6 +2,7 @@ use starknet::ContractAddress;
 use adventurer::{adventurer::Adventurer, adventurer_meta::AdventurerMetadata, bag::Bag};
 use dojo::world::{WorldStorage, WorldStorageTrait, IWorldDispatcher};
 use tournament::presets::ls_tournament::{ILSTournamentDispatcher};
+use tournament::ls15_components::models::tournament::FreeGameTokenType;
 
 use tournament::ls15_components::libs::utils::ZERO;
 
@@ -34,6 +35,7 @@ pub trait ILootSurvivor<TState> {
     fn get_adventurer_meta(self: @TState, adventurer_id: felt252) -> AdventurerMetadata;
     fn get_bag(self: @TState, adventurer_id: felt252) -> Bag;
     fn get_cost_to_play(self: @TState) -> u128;
+    fn free_game_available(self: @TState, token_type: FreeGameTokenType, token_id: u128) -> bool;
     fn new_game(
         ref self: TState,
         client_reward_address: ContractAddress,

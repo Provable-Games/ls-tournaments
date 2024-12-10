@@ -13,7 +13,7 @@ use tournament::ls15_components::tests::interfaces::{
     ITournamentMockDispatcher, ITournamentMockDispatcherTrait
 };
 use adventurer::{adventurer::Adventurer, equipment::Equipment, item::Item, stats::Stats};
-use tournament::ls15_components::models::loot_survivor::AdventurerMetadata;
+use tournament::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
 use tournament::ls15_components::models::tournament::{ERC20Data, ERC721Data, Token, TokenDataType};
 
 //
@@ -70,8 +70,8 @@ pub fn create_dead_adventurer_with_xp(xp: u16) -> Adventurer {
     }
 }
 
-pub fn create_adventurer_metadata_with_death_date(death_date: u64) -> AdventurerMetadata {
-    AdventurerMetadata {
+pub fn create_adventurer_metadata_with_death_date(death_date: u64) -> AdventurerMetadataStorage {
+    AdventurerMetadataStorage {
         birth_date: get_block_timestamp().into(),
         death_date: death_date,
         level_seed: 0,

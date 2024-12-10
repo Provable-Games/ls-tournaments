@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use dojo::world::IWorldDispatcher;
 use tournament::ls15_components::models::tournament::{
-    TournamentModel, Token, Premium, TokenDataType, GatedType, GatedSubmissionType
+    TournamentModel, Premium, TokenDataType, GatedType, GatedSubmissionType
 };
 
 #[starknet::interface]
@@ -15,6 +15,8 @@ pub trait ILSTournament<TState> {
     fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
     fn is_token_registered(self: @TState, token: ContractAddress) -> bool;
+    // TODO: add for V2 (only ERC721 tokens)
+    // fn register_tokens(ref self: TState, tokens: Array<Token>);
     fn create_tournament(
         ref self: TState,
         name: felt252,
@@ -26,7 +28,6 @@ pub trait ILSTournament<TState> {
         gated_type: Option<GatedType>,
         entry_premium: Option<Premium>,
     ) -> u64;
-    fn register_tokens(ref self: TState, tokens: Array<Token>);
     fn enter_tournament(
         ref self: TState, tournament_id: u64, gated_submission_type: Option<GatedSubmissionType>
     );
@@ -46,7 +47,7 @@ pub trait ILSTournament<TState> {
 
 #[dojo::contract]
 pub mod LSTournament {
-    use starknet::ContractAddress;
+    use starknet::{contract_address_const};
     use tournament::ls15_components::tournament::tournament_component;
 
     component!(path: tournament_component, storage: tournament, event: TournamentEvent);
@@ -68,24 +69,111 @@ pub mod LSTournament {
         TournamentEvent: tournament_component::Event,
     }
 
-    fn dojo_init(
-        ref self: ContractState,
-        eth_address: ContractAddress,
-        lords_address: ContractAddress,
-        loot_survivor_address: ContractAddress,
-        oracle_address: ContractAddress,
-        safe_mode: bool,
-        test_mode: bool
-    ) {
+    fn dojo_init(ref self: ContractState, safe_mode: bool, test_mode: bool,) {
         self
             .tournament
             .initialize(
-                eth_address,
-                lords_address,
-                loot_survivor_address,
-                oracle_address,
+                contract_address_const::<
+                    0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7
+                >(), // eth
+                contract_address_const::<
+                    0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49
+                >(), // lords
+                contract_address_const::<
+                    0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4
+                >(), // loot survivor
+                contract_address_const::<
+                    0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b
+                >(), // oracle
+                contract_address_const::<
+                    0x04f5e296c805126637552cf3930e857f380e7c078e8f00696de4fc8545356b1d
+                >(), // golden token
+                contract_address_const::<
+                    0x00539f522b29ae9251dbf7443c7a950cf260372e69efab3710a11bf17a9599f1
+                >(), // blobert
                 safe_mode,
                 test_mode
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7
+                >(),
+                "Ether",
+                "ETH"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49
+                >(),
+                "Lords",
+                "LORDS"
+            );
+        self
+            .tournament
+            .initialize_erc721(
+                contract_address_const::<
+                    0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4
+                >(),
+                "Loot Survivor",
+                "LSVR"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d
+                >(),
+                "Starknet Token",
+                "STRK"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x53c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8
+                >(),
+                "USD Coin",
+                "USDC"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x4878d1148318a31829523ee9c6a5ee563af6cd87f90a30809e5b0d27db8a9b
+                >(),
+                "Standard Weighted Adalian Yield",
+                "SWAY"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x410466536b5ae074f7fea81e5533b8134a9fa08b3dd077dd9db08f64997d113
+                >(),
+                "Paper",
+                "PAPER"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x75afe6402ad5a5c20dd25e10ec3b3986acaa647b77e4ae24b0cbc9a54a27a87
+                >(),
+                "Ekubo Protocol",
+                "EKUBO"
+            );
+        self
+            .tournament
+            .initialize_erc20(
+                contract_address_const::<
+                    0x3b405a98c9e795d427fe82cdeeeed803f221b52471e3a757574a2b4180793ee
+                >(),
+                "STARKNET BROTHER",
+                "BROTHER"
             );
     }
 }

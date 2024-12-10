@@ -96,7 +96,7 @@ pub impl StoreImpl of StoreTrait {
     }
     // Setters
     //
-    
+
     // Tournament
 
     #[inline(always)]

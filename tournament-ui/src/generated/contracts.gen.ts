@@ -1390,13 +1390,14 @@ export async function setupWorld(provider: DojoProvider) {
     snAccount: Account | AccountInterface,
     tokens: Array<Token>
   ) => {
+    console.log(tokens);
     try {
       return await provider.execute(
         snAccount,
         {
           contractName: "LSTournament",
           entrypoint: "register_tokens",
-          calldata: [tokens],
+          calldata: CallData.compile([tokens]),
         },
         "tournament"
       );

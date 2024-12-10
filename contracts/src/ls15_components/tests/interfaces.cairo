@@ -1,14 +1,18 @@
 use adventurer::{
-    adventurer::{Adventurer, ImplAdventurer}, adventurer_meta::{ImplAdventurerMetadata}, bag::Bag
+    adventurer::{Adventurer, ImplAdventurer},
+    adventurer_meta::{AdventurerMetadata, ImplAdventurerMetadata}, bag::Bag
 };
-use tournament::ls15_components::models::loot_survivor::AdventurerMetadata;
+use tournament::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
 use tournament::ls15_components::models::tournament::{
-    TournamentModel, Token, Premium, TokenDataType, GatedType, GatedSubmissionType
+    TournamentModel, Token, Premium, TokenDataType, GatedType, GatedSubmissionType,
+    FreeGameTokenType
 };
 use tournament::ls15_components::interfaces::{DataType, PragmaPricesResponse};
 
 use starknet::ContractAddress;
-use dojo::world::IWorldDispatcher;
+use dojo::world::{WorldStorage, WorldStorageTrait, IWorldDispatcher};
+
+use tournament::ls15_components::libs::utils::ZERO;
 
 #[starknet::interface]
 pub trait IERC20Mock<TState> {
@@ -115,7 +119,11 @@ pub trait ITournamentMock<TState> {
         ref self: TState, tournament_id: u64, gated_submission_type: Option<GatedSubmissionType>
     );
     fn start_tournament(
-        ref self: TState, tournament_id: u64, start_all: bool, start_count: Option<u64>
+        ref self: TState,
+        tournament_id: u64,
+        start_all: bool,
+        start_count: Option<u64>,
+        client_reward_address: ContractAddress
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(
@@ -133,8 +141,12 @@ pub trait ITournamentMock<TState> {
         lords_address: ContractAddress,
         loot_survivor_address: ContractAddress,
         oracle_address: ContractAddress,
+        golden_token: ContractAddress,
+        blobert: ContractAddress,
         safe_mode: bool,
-        test_mode: bool
+        test_mode: bool,
+        test_erc20: ContractAddress,
+        test_erc721: ContractAddress,
     );
 }
 
@@ -188,6 +200,7 @@ pub trait ILootSurvivorMock<TState> {
     fn get_adventurer_meta(self: @TState, adventurer_id: felt252) -> AdventurerMetadata;
     fn get_bag(self: @TState, adventurer_id: felt252) -> Bag;
     fn get_cost_to_play(self: @TState) -> u128;
+    fn free_game_available(self: @TState, token_type: FreeGameTokenType, token_id: u128) -> bool;
     fn new_game(
         ref self: TState,
         client_reward_address: ContractAddress,
@@ -201,7 +214,7 @@ pub trait ILootSurvivorMock<TState> {
     ) -> felt252;
     fn set_adventurer(ref self: TState, adventurer_id: felt252, adventurer: Adventurer);
     fn set_adventurer_meta(
-        ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadata
+        ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadataStorage
     );
     fn set_bag(ref self: TState, adventurer_id: felt252, bag: Bag);
 

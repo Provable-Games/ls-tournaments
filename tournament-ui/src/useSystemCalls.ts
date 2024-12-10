@@ -49,9 +49,7 @@ export const useSystemCalls = () => {
   // Tournament
 
   const registerTokens = async (tokens: Token[]) => {
-    const entityId = getEntityIdFromKeys([
-      BigInt(tournament_mock.contractAddress),
-    ]);
+    const entityId = getEntityIdFromKeys([BigInt(tournament)]);
 
     const transactionId = uuidv4();
 

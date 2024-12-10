@@ -1,6 +1,6 @@
 use starknet::ContractAddress;
 use tournament::ls15_components::models::tournament::{
-    TournamentModel, GatedType, Premium, Token, GatedSubmissionType, TokenDataType
+    TournamentModel, GatedType, Premium, GatedSubmissionType, TokenDataType
 };
 
 ///
@@ -15,7 +15,8 @@ trait ITournament<TState> {
     fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
     fn is_token_registered(self: @TState, token: ContractAddress) -> bool;
-    fn register_tokens(ref self: TState, tokens: Array<Token>);
+    // TODO: add for V2 (only ERC721 tokens)
+    // fn register_tokens(ref self: TState, tokens: Array<Token>);
     fn create_tournament(
         ref self: TState,
         name: felt252,
@@ -31,7 +32,13 @@ trait ITournament<TState> {
         ref self: TState, tournament_id: u64, gated_submission_type: Option<GatedSubmissionType>
     );
     fn start_tournament(
-        ref self: TState, tournament_id: u64, start_all: bool, start_count: Option<u64>
+        ref self: TState,
+        tournament_id: u64,
+        start_all: bool,
+        start_count: Option<u64>,
+        client_reward_address: ContractAddress,
+        golden_token_free_game_ids: Option<Array<u256>>,
+        blobert_free_game_ids: Option<Array<u256>>,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(
@@ -55,11 +62,10 @@ pub mod tournament_component {
     use core::num::traits::Zero;
 
     use tournament::ls15_components::constants::{
-        VRF_COST_PER_GAME, TWO_POW_128, MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD,
-        MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
+        VRF_COST_PER_GAME, MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_TOURNAMENT_LENGTH,
+        MAX_TOURNAMENT_LENGTH, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
         TEST_MIN_REGISTRATION_PERIOD, TEST_MIN_SUBMISSION_PERIOD, TEST_MIN_TOURNAMENT_LENGTH,
-        GAME_EXPIRATION_PERIOD, ETHEREUM_ADDRESS, LORDS_ADDRESS, SURVIVORS_ADDRESS, ETH_SAFE_AMOUNT,
-        LORDS_SAFE_AMOUNT
+        GAME_EXPIRATION_PERIOD, ETHEREUM_ADDRESS, ETH_SAFE_AMOUNT, LORDS_SAFE_AMOUNT
     };
     use tournament::ls15_components::interfaces::{
         ILootSurvivorDispatcher, ILootSurvivorDispatcherTrait, IPragmaABIDispatcher,
@@ -71,7 +77,7 @@ pub mod tournament_component {
         TournamentStartIdsModel, TournamentScoresModel, TournamentTotalsModel,
         TournamentPrizeKeysModel, PrizesModel, TokenModel, TournamentConfig, TokenDataType,
         EntryStatus, GatedType, GatedSubmissionType, GatedEntryType, GatedToken, Premium, ERC20Data,
-        Token
+        ERC721Data, FreeGameTokenType
     };
     use tournament::ls15_components::interfaces::{WorldTrait, WorldImpl,};
     use tournament::ls15_components::libs::store::{Store, StoreTrait};
@@ -85,14 +91,8 @@ pub mod tournament_component {
         contract_address_const
     };
 
-    use openzeppelin_token::erc20::interface::{
-        IERC20Dispatcher, IERC20DispatcherTrait, IERC20MetadataDispatcher,
-        IERC20MetadataDispatcherTrait
-    };
-    use openzeppelin_token::erc721::interface::{
-        IERC721Dispatcher, IERC721DispatcherTrait, IERC721MetadataDispatcher,
-        IERC721MetadataDispatcherTrait
-    };
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 
     use adventurer::{adventurer::Adventurer};
 
@@ -119,6 +119,7 @@ pub mod tournament_component {
         pub const PREMIUM_DISTRIBUTIONS_NOT_100: felt252 = 'premium distributions not 100%';
         pub const SUBMISSION_PERIOD_TOO_SHORT: felt252 = 'submission period too short';
         pub const SUBMISSION_PERIOD_TOO_LONG: felt252 = 'submission period too long';
+        pub const NOT_TOKEN_OWNER: felt252 = 'not token owner';
         //
         // Register Tokens
         //
@@ -148,6 +149,7 @@ pub mod tournament_component {
         pub const ADDRESS_ENTRIES_STARTED: felt252 = 'address entries started';
         pub const START_COUNT_TOO_LARGE: felt252 = 'start count too large';
         pub const TOURNAMENT_PERIOD_TOO_LONG: felt252 = 'period too long to start all';
+        pub const FREE_GAME_NOT_AVAILABLE: felt252 = 'free game not available';
         //
         // Submit Scores
         //
@@ -232,13 +234,14 @@ pub mod tournament_component {
             self._is_token_registered(ref store, token)
         }
 
-        fn register_tokens(ref self: ComponentState<TContractState>, tokens: Array<Token>) {
-            let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
-            );
-            let mut store: Store = StoreTrait::new(world);
-            self._register_tokens(ref store, tokens);
-        }
+        // TODO: add for V2 (use Ekubo tokens)
+        // fn register_tokens(ref self: ComponentState<TContractState>, tokens: Array<Token>) {
+        //     let mut world = WorldTrait::storage(
+        //         self.get_contract().world_dispatcher(), @"tournament"
+        //     );
+        //     let mut store: Store = StoreTrait::new(world);
+        //     self._register_tokens(ref store, tokens);
+        // }
 
         fn create_tournament(
             ref self: ComponentState<TContractState>,
@@ -346,6 +349,9 @@ pub mod tournament_component {
             tournament_id: u64,
             start_all: bool,
             start_count: Option<u64>,
+            client_reward_address: ContractAddress,
+            golden_token_free_game_ids: Option<Array<u256>>,
+            blobert_free_game_ids: Option<Array<u256>>,
         ) {
             let mut world = WorldTrait::storage(
                 self.get_contract().world_dispatcher(), @"tournament"
@@ -358,12 +364,79 @@ pub mod tournament_component {
                 self._assert_tournament_period_within_max(ref store, tournament_id);
             }
 
-            let total_entries = store.get_total_entries(tournament_id);
+            let tournament_config = store.get_tournament_config(get_contract_address());
 
-            // handle formatiing of premium config into prize keys
-            if (!total_entries.premiums_formatted) {
-                self._format_premium_config_into_prize_keys(ref store, tournament_id);
-            }
+            let mut ls_dispatcher = ILootSurvivorDispatcher {
+                contract_address: tournament_config.loot_survivor
+            };
+
+            let mut free_games = 0;
+
+            match golden_token_free_game_ids {
+                Option::Some(token_ids) => {
+                    let mut game_index = 0;
+                    loop {
+                        if game_index == token_ids.len() {
+                            break;
+                        }
+                        let golden_token_id = *token_ids.at(game_index);
+                        self
+                            ._assert_token_owner(
+                                tournament_config.golden_token,
+                                golden_token_id,
+                                get_caller_address()
+                            );
+                        // check if golden token free game is available
+                        let free_game_available = ls_dispatcher
+                            .free_game_available(
+                                FreeGameTokenType::GoldenToken, golden_token_id.low
+                            );
+                        assert(free_game_available, Errors::FREE_GAME_NOT_AVAILABLE);
+                        // flash loan golden tokens
+                        IERC721Dispatcher { contract_address: tournament_config.golden_token }
+                            .transfer_from(
+                                get_caller_address(),
+                                get_contract_address(),
+                                *token_ids.at(game_index)
+                            );
+                        free_games += 1;
+                        game_index += 1;
+                    }
+                },
+                Option::None => {},
+            };
+
+            match blobert_free_game_ids {
+                Option::Some(token_ids) => {
+                    let mut game_index = 0;
+                    loop {
+                        if game_index == token_ids.len() {
+                            break;
+                        }
+                        let blobert_token_id = *token_ids.at(game_index);
+                        self
+                            ._assert_token_owner(
+                                tournament_config.blobert, blobert_token_id, get_caller_address()
+                            );
+                        // check if caller has blobert
+                        let free_game_available = ls_dispatcher
+                            .free_game_available(
+                                FreeGameTokenType::LaunchTournamentChampion, blobert_token_id.low
+                            );
+                        assert(free_game_available, Errors::FREE_GAME_NOT_AVAILABLE);
+                        // flash loan bloberts
+                        IERC721Dispatcher { contract_address: tournament_config.blobert }
+                            .transfer_from(
+                                get_caller_address(),
+                                get_contract_address(),
+                                *token_ids.at(game_index)
+                            );
+                        free_games += 1;
+                        game_index += 1;
+                    }
+                },
+                Option::None => {},
+            };
 
             let mut entries = 0;
 
@@ -394,10 +467,6 @@ pub mod tournament_component {
             }
 
             // define contract interfaces
-            let tournament_config = store.get_tournament_config(get_contract_address());
-            let mut ls_dispatcher = ILootSurvivorDispatcher {
-                contract_address: tournament_config.loot_survivor
-            };
             let lords_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
                 contract_address: tournament_config.lords
             };
@@ -407,14 +476,11 @@ pub mod tournament_component {
 
             // get current game cost
             let cost_to_play = ls_dispatcher.get_cost_to_play();
+            let entries_cost = (entries.into() - free_games.into()) * cost_to_play.into();
 
             // transfer base game cost
             lords_dispatcher
-                .transfer_from(
-                    get_caller_address(),
-                    get_contract_address(),
-                    entries.into() * cost_to_play.into()
-                );
+                .transfer_from(get_caller_address(), get_contract_address(), entries_cost);
 
             // transfer VRF cost
             let vrf_cost = self
@@ -423,8 +489,7 @@ pub mod tournament_component {
                 .transfer_from(get_caller_address(), get_contract_address(), vrf_cost.into());
 
             // set the approvals according to entries
-            lords_dispatcher
-                .approve(tournament_config.loot_survivor, entries.into() * cost_to_play.into());
+            lords_dispatcher.approve(tournament_config.loot_survivor, entries_cost);
             eth_dispatcher.approve(tournament_config.loot_survivor, vrf_cost.into());
 
             let tournament = store.get_tournament(tournament_id);
@@ -447,17 +512,123 @@ pub mod tournament_component {
                         if entry_index == address_entries.entry_count {
                             break;
                         }
-                        let game_id = ls_dispatcher
-                            .new_game(
-                                get_contract_address(),
-                                12, // wand
-                                tournament.name,
-                                0,
-                                true,
-                                contract_address_const::<0>(),
-                                0,
-                                address
-                            );
+                        let mut game_id = 0;
+                        match golden_token_free_game_ids {
+                            Option::Some(mut token_ids) => {
+                                let popped_token_id = token_ids.pop_front();
+                                match popped_token_id {
+                                    Option::Some(token_id) => {
+                                        game_id = ls_dispatcher
+                                            .new_game(
+                                                client_reward_address,
+                                                12, // wand
+                                                tournament.name,
+                                                token_id.low.try_into().unwrap(),
+                                                true,
+                                                contract_address_const::<0>(),
+                                                0,
+                                                address
+                                            );
+                                    },
+                                    Option::None => {
+                                        match blobert_free_game_ids {
+                                            Option::Some(mut token_ids) => {
+                                                let popped_token_id = token_ids.pop_front();
+                                                match popped_token_id {
+                                                    Option::Some(token_id) => {
+                                                        game_id = ls_dispatcher
+                                                            .new_game(
+                                                                client_reward_address,
+                                                                12, // wand
+                                                                tournament.name,
+                                                                0,
+                                                                true,
+                                                                contract_address_const::<0>(),
+                                                                token_id.low,
+                                                                address
+                                                            );
+                                                    },
+                                                    Option::None => {
+                                                        game_id = ls_dispatcher
+                                                            .new_game(
+                                                                client_reward_address,
+                                                                12, // wand
+                                                                tournament.name,
+                                                                0,
+                                                                true,
+                                                                contract_address_const::<0>(),
+                                                                0,
+                                                                address
+                                                            );
+                                                    },
+                                                }
+                                            },
+                                            Option::None => {
+                                                game_id = ls_dispatcher
+                                                    .new_game(
+                                                        client_reward_address,
+                                                        12, // wand
+                                                        tournament.name,
+                                                        0,
+                                                        true,
+                                                        contract_address_const::<0>(),
+                                                        0,
+                                                        address
+                                                    );
+                                            },
+                                        }
+                                    },
+                                }
+                            },
+                            Option::None => {
+                                match blobert_free_game_ids {
+                                    Option::Some(mut token_ids) => {
+                                        let popped_token_id = token_ids.pop_front();
+                                        match popped_token_id {
+                                            Option::Some(token_id) => {
+                                                game_id = ls_dispatcher
+                                                    .new_game(
+                                                        client_reward_address,
+                                                        12, // wand
+                                                        tournament.name,
+                                                        0,
+                                                        true,
+                                                        contract_address_const::<0>(),
+                                                        token_id.low,
+                                                        address
+                                                    );
+                                            },
+                                            Option::None => {
+                                                game_id = ls_dispatcher
+                                                    .new_game(
+                                                        client_reward_address,
+                                                        12, // wand
+                                                        tournament.name,
+                                                        0,
+                                                        true,
+                                                        contract_address_const::<0>(),
+                                                        0,
+                                                        address
+                                                    );
+                                            },
+                                        }
+                                    },
+                                    Option::None => {
+                                        game_id = ls_dispatcher
+                                            .new_game(
+                                                client_reward_address,
+                                                12, // wand
+                                                tournament.name,
+                                                0,
+                                                true,
+                                                contract_address_const::<0>(),
+                                                0,
+                                                address
+                                            );
+                                    },
+                                }
+                            },
+                        }
                         game_ids.append(game_id.try_into().unwrap());
                         let game = TournamentGameModel {
                             tournament_id,
@@ -490,7 +661,7 @@ pub mod tournament_component {
                     }
                     let game_id = ls_dispatcher
                         .new_game(
-                            get_contract_address(),
+                            client_reward_address,
                             12, // wand
                             tournament.name,
                             0,
@@ -537,6 +708,13 @@ pub mod tournament_component {
             self._assert_scores_count_valid(ref tournament, game_ids.len());
             // assert submission period is not over
             self._assert_tournament_not_settled(ref tournament);
+
+            let total_entries = store.get_total_entries(tournament_id);
+
+            // handle formatiing of premium config into prize keys
+            if (!total_entries.premiums_formatted) {
+                self._format_premium_config_into_prize_keys(ref store, tournament_id);
+            }
 
             let tournament_config = store.get_tournament_config(get_contract_address());
             let mut ls_dispatcher = ILootSurvivorDispatcher {
@@ -644,14 +822,17 @@ pub mod tournament_component {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         //
-        // INITIALIZE
+        // INITIALIZE COMPONENT
         //
+
         fn initialize(
             self: @ComponentState<TContractState>,
             eth: ContractAddress,
             lords: ContractAddress,
             loot_survivor: ContractAddress,
             oracle: ContractAddress,
+            golden_token: ContractAddress,
+            blobert: ContractAddress,
             safe_mode: bool,
             test_mode: bool
         ) {
@@ -659,6 +840,7 @@ pub mod tournament_component {
                 self.get_contract().world_dispatcher(), @"tournament"
             );
             let mut store: Store = StoreTrait::new(world);
+            // Store the config
             store
                 .set_tournament_config(
                     @TournamentConfig {
@@ -667,8 +849,81 @@ pub mod tournament_component {
                         lords,
                         loot_survivor,
                         oracle,
+                        golden_token,
+                        blobert,
                         safe_mode,
                         test_mode
+                    }
+                );
+            store
+                .set_token(
+                    @TokenModel {
+                        token: eth,
+                        name: "Ether",
+                        symbol: "ETH",
+                        token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 }),
+                        is_registered: true
+                    }
+                );
+            store
+                .set_token(
+                    @TokenModel {
+                        token: eth,
+                        name: "Ether",
+                        symbol: "ETH",
+                        token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 }),
+                        is_registered: true
+                    }
+                );
+        }
+
+        //
+        // INITIALIZE TOKENS
+        //
+
+        fn initialize_erc20(
+            self: @ComponentState<TContractState>,
+            token: ContractAddress,
+            name: ByteArray,
+            symbol: ByteArray,
+        ) {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            assert(!self._is_token_registered(ref store, token), Errors::TOKEN_ALREADY_REGISTERED);
+            store
+                .set_token(
+                    @TokenModel {
+                        token: token,
+                        name: name,
+                        symbol: symbol,
+                        token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 }),
+                        is_registered: true
+                    }
+                );
+        }
+
+
+        fn initialize_erc721(
+            self: @ComponentState<TContractState>,
+            token: ContractAddress,
+            name: ByteArray,
+            symbol: ByteArray
+        ) {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            assert(!self._is_token_registered(ref store, token), Errors::TOKEN_ALREADY_REGISTERED);
+            store
+                .set_token(
+                    @TokenModel {
+                        token: token,
+                        name: name,
+                        symbol: symbol,
+                        token_data_type: TokenDataType::erc721(ERC721Data { token_id: 1 }),
+                        is_registered: true
                     }
                 );
         }
@@ -1030,6 +1285,16 @@ pub mod tournament_component {
             assert(!claimed, Errors::PRIZE_ALREADY_CLAIMED);
         }
 
+        fn _assert_token_owner(
+            self: @ComponentState<TContractState>,
+            token: ContractAddress,
+            token_id: u256,
+            account: ContractAddress
+        ) {
+            let owner = self._get_owner(token, token_id);
+            assert(owner == account, Errors::NOT_TOKEN_OWNER);
+        }
+
         fn _assert_gated_token_owner(
             self: @ComponentState<TContractState>,
             token: ContractAddress,
@@ -1301,105 +1566,113 @@ pub mod tournament_component {
             store.set_tournament_totals(@tournament_totals);
             new_tournament_id
         }
-        fn _register_tokens(
-            ref self: ComponentState<TContractState>, ref store: Store, tokens: Array<Token>
-        ) {
-            let num_tokens = tokens.len();
-            let mut token_index = 0;
-            let safe_mode = store.get_tournament_config(get_contract_address()).safe_mode;
-            loop {
-                if token_index == num_tokens {
-                    break;
-                }
-                let token = *tokens.at(token_index);
 
-                assert(
-                    !self._is_token_registered(ref store, token.token),
-                    Errors::TOKEN_ALREADY_REGISTERED
-                );
+        // TODO: add for V2 (only ERC721 tokens)
+        // fn _register_tokens(
+        //     ref self: ComponentState<TContractState>, ref store: Store, tokens: Array<Token>
+        // ) {
+        //     let num_tokens = tokens.len();
+        //     let mut token_index = 0;
+        //     let safe_mode = store.get_tournament_config(get_contract_address()).safe_mode;
+        //     loop {
+        //         if token_index == num_tokens {
+        //             break;
+        //         }
+        //         let token = *tokens.at(token_index);
 
-                if (safe_mode) {
-                    assert(
-                        token.token == ETHEREUM_ADDRESS()
-                            || token.token == LORDS_ADDRESS()
-                            || token.token == SURVIVORS_ADDRESS(),
-                        Errors::INVALID_TOKEN_FOR_SAFE_MODE
-                    );
-                }
+        // assert(
+        //     !self._is_token_registered(ref store, token.token),
+        //     Errors::TOKEN_ALREADY_REGISTERED
+        // );
 
-                let mut name = "";
-                let mut symbol = "";
+        //         if (safe_mode) {
+        //             assert(
+        //                 token.token == ETHEREUM_ADDRESS()
+        //                     || token.token == LORDS_ADDRESS()
+        //                     || token.token == SURVIVORS_ADDRESS(),
+        //                 Errors::INVALID_TOKEN_FOR_SAFE_MODE
+        //             );
+        //         }
 
-                match token.token_data_type.into() {
-                    TokenDataType::erc20(_) => {
-                        let token_dispatcher = IERC20Dispatcher { contract_address: token.token };
-                        let token_dispatcher_metadata = IERC20MetadataDispatcher {
-                            contract_address: token.token
-                        };
-                        name = token_dispatcher_metadata.name();
-                        symbol = token_dispatcher_metadata.symbol();
-                        // check that the contract is approved for the minimal amount
-                        let allowance = token_dispatcher
-                            .allowance(get_caller_address(), get_contract_address());
-                        assert(allowance == 1, Errors::INVALID_TOKEN_ALLOWANCES);
-                        // take a reading of the current balance (incase contract has assets
-                        // already)
-                        let current_balance = token_dispatcher.balance_of(get_contract_address());
-                        // trnsfer a minimal amount to the contract
-                        token_dispatcher
-                            .transfer_from(get_caller_address(), get_contract_address(), 1);
-                        // take a reading of the new balance
-                        let new_balance = token_dispatcher.balance_of(get_contract_address());
-                        assert(new_balance == current_balance + 1, Errors::INVALID_TOKEN_BALANCES);
-                        // transfer back the minimal amount
-                        token_dispatcher.transfer(get_caller_address(), 1);
-                        // check the total supply is legitimate
-                        let total_supply = token_dispatcher.total_supply();
-                        assert(total_supply < TWO_POW_128.into(), Errors::TOKEN_SUPPLY_TOO_LARGE);
-                    },
-                    TokenDataType::erc721(token_data_type) => {
-                        let token_dispatcher = IERC721Dispatcher { contract_address: token.token };
-                        let token_dispatcher_metadata = IERC721MetadataDispatcher {
-                            contract_address: token.token
-                        };
-                        name = token_dispatcher_metadata.name();
-                        symbol = token_dispatcher_metadata.symbol();
-                        // check that the contract is approved for the specific id
-                        let approved = token_dispatcher
-                            .get_approved(token_data_type.token_id.into());
-                        assert(approved == get_contract_address(), Errors::INVALID_TOKEN_APPROVALS);
-                        // transfer a specific id to the contract
-                        token_dispatcher
-                            .transfer_from(
-                                get_caller_address(),
-                                get_contract_address(),
-                                token_data_type.token_id.into()
-                            );
-                        // check the balance of the contract
-                        let balance = token_dispatcher.balance_of(get_contract_address());
-                        assert(balance == 1, Errors::INVALID_TOKEN_BALANCES);
-                        let owner = token_dispatcher.owner_of(token_data_type.token_id.into());
-                        assert(owner == get_contract_address(), Errors::INVALID_TOKEN_OWNER);
-                        // transfer back the token
-                        token_dispatcher
-                            .transfer_from(
-                                get_contract_address(),
-                                get_caller_address(),
-                                token_data_type.token_id.into()
-                            );
-                    },
-                }
-                let token_model = TokenModel {
-                    token: token.token,
-                    name,
-                    symbol,
-                    token_data_type: token.token_data_type,
-                    is_registered: true
-                };
-                store.set_token(@token_model);
-                token_index += 1;
-            }
-        }
+        //         let mut name = "";
+        //         let mut symbol = "";
+
+        //         match token.token_data_type.into() {
+        //             TokenDataType::erc20(_) => {
+        //                 let token_dispatcher = IERC20Dispatcher { contract_address: token.token
+        //                 };
+        //                 let token_dispatcher_metadata = IERC20MetadataDispatcher {
+        //                     contract_address: token.token
+        //                 };
+        //                 name = token_dispatcher_metadata.name();
+        //                 symbol = token_dispatcher_metadata.symbol();
+        //                 // check that the contract is approved for the minimal amount
+        //                 let allowance = token_dispatcher
+        //                     .allowance(get_caller_address(), get_contract_address());
+        //                 assert(allowance == 1, Errors::INVALID_TOKEN_ALLOWANCES);
+        //                 // take a reading of the current balance (incase contract has assets
+        //                 // already)
+        //                 let current_balance =
+        //                 token_dispatcher.balance_of(get_contract_address());
+        //                 // trnsfer a minimal amount to the contract
+        //                 token_dispatcher
+        //                     .transfer_from(get_caller_address(), get_contract_address(), 1);
+        //                 // take a reading of the new balance
+        //                 let new_balance = token_dispatcher.balance_of(get_contract_address());
+        //                 assert(new_balance == current_balance + 1,
+        //                 Errors::INVALID_TOKEN_BALANCES);
+        //                 // transfer back the minimal amount
+        //                 token_dispatcher.transfer(get_caller_address(), 1);
+        //                 // check the total supply is legitimate
+        //                 let total_supply = token_dispatcher.total_supply();
+        //                 assert(total_supply < TWO_POW_128.into(),
+        //                 Errors::TOKEN_SUPPLY_TOO_LARGE);
+        //             },
+        //             TokenDataType::erc721(token_data_type) => {
+        //                 let token_dispatcher = IERC721Dispatcher { contract_address: token.token
+        //                 };
+        //                 let token_dispatcher_metadata = IERC721MetadataDispatcher {
+        //                     contract_address: token.token
+        //                 };
+        //                 name = token_dispatcher_metadata.name();
+        //                 symbol = token_dispatcher_metadata.symbol();
+        //                 // check that the contract is approved for the specific id
+        //                 let approved = token_dispatcher
+        //                     .get_approved(token_data_type.token_id.into());
+        //                 assert(approved == get_contract_address(),
+        //                 Errors::INVALID_TOKEN_APPROVALS);
+        //                 // transfer a specific id to the contract
+        //                 token_dispatcher
+        //                     .transfer_from(
+        //                         get_caller_address(),
+        //                         get_contract_address(),
+        //                         token_data_type.token_id.into()
+        //                     );
+        //                 // check the balance of the contract
+        //                 let balance = token_dispatcher.balance_of(get_contract_address());
+        //                 assert(balance == 1, Errors::INVALID_TOKEN_BALANCES);
+        //                 let owner = token_dispatcher.owner_of(token_data_type.token_id.into());
+        //                 assert(owner == get_contract_address(), Errors::INVALID_TOKEN_OWNER);
+        //                 // transfer back the token
+        //                 token_dispatcher
+        //                     .transfer_from(
+        //                         get_contract_address(),
+        //                         get_caller_address(),
+        //                         token_data_type.token_id.into()
+        //                     );
+        //             },
+        //         }
+        //         let token_model = TokenModel {
+        //             token: token.token,
+        //             name,
+        //             symbol,
+        //             token_data_type: token.token_data_type,
+        //             is_registered: true
+        //         };
+        //         store.set_token(@token_model);
+        //         token_index += 1;
+        //     }
+        // }
 
         fn _format_premium_config_into_prize_keys(
             ref self: ComponentState<TContractState>, ref store: Store, tournament_id: u64
@@ -1576,6 +1849,10 @@ pub mod tournament_component {
                 },
                 TokenDataType::erc721(token_data) => {
                     let token_dispatcher = IERC721Dispatcher { contract_address: token };
+                    self
+                        ._assert_token_owner(
+                            token, token_data.token_id.into(), get_caller_address()
+                        );
                     token_dispatcher
                         .transfer_from(
                             get_caller_address(), get_contract_address(), token_data.token_id.into()

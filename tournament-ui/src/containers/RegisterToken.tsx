@@ -38,10 +38,8 @@ const RegisterToken = () => {
     mintErc20,
     mintErc721,
     getERC20Balance,
-    approveErc20,
-    approveErc721,
-    approveEth,
-    approveLords,
+    approveERC20General,
+    approveERC721General,
     mintEth,
     mintLords,
     getEthBalance,
@@ -119,13 +117,13 @@ const RegisterToken = () => {
   const handleRegisterToken = async () => {
     if (tokenType !== null) {
       if (tokenType === TokenDataEnum.erc20) {
-        if (tokenAddress === padAddress(eth)) {
-          await approveEth(tournament, 1n, 0n);
-        } else if (tokenAddress === padAddress(lords)) {
-          await approveLords(tournament, 1n, 0n);
-        } else {
-          await approveErc20(tournament, 1n, 0n);
-        }
+        const tokenDataType = new CairoCustomEnum({
+          erc20: {
+            token_amount: 1,
+          },
+          erc721: undefined,
+        }) as TokenDataTypeEnum;
+        await approveERC20General({ token: tokenAddress, tokenDataType });
         await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
         await registerTokens([
           {
@@ -139,7 +137,13 @@ const RegisterToken = () => {
           },
         ]);
       } else {
-        await approveErc721(tournament, BigInt(tokenId), 0n);
+        const tokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: tokenId,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({ token: tokenAddress, tokenDataType });
         await registerTokens([
           {
             token: tokenAddress,

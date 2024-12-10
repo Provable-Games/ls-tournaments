@@ -34,7 +34,8 @@ function App() {
   const { getERC20BalanceGeneral } = useSystemCalls();
   const [tokenBalance, setTokenBalance] = useState<Record<string, bigint>>({});
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  // const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = false;
 
   // Getters
   useGetTournamentCountsQuery(tournament);

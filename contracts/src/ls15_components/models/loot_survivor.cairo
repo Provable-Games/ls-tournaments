@@ -41,7 +41,7 @@ pub struct Adventurer {
 }
 
 #[derive(Drop, Copy, Serde, Introspect)]
-pub struct AdventurerMetadata {
+pub struct AdventurerMetadataStorage {
     pub birth_date: u64, // 64 bits in storage
     pub death_date: u64, // 64 bits in storage
     pub level_seed: u64, // 64 bits in storage
@@ -49,7 +49,7 @@ pub struct AdventurerMetadata {
     pub rank_at_death: u8, // 2 bits in storage
     pub delay_stat_reveal: bool, // 1 bit in storage
     pub golden_token_id: u8, // 8 bits in storage
-    // launch_tournament_winner_token_id: u128, // 32 bits in storage
+    // pub launch_tournament_winner_token_id: u128, // 32 bits in storage
 }
 
 
@@ -97,7 +97,7 @@ pub struct AdventurerModel {
 pub struct AdventurerMetaModel {
     #[key]
     pub adventurer_id: felt252,
-    pub adventurer_meta: AdventurerMetadata,
+    pub adventurer_meta: AdventurerMetadataStorage,
 }
 
 #[dojo::model]

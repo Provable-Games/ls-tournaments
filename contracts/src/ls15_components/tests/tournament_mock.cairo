@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use dojo::world::IWorldDispatcher;
 use tournament::ls15_components::models::tournament::{
-    TournamentModel, Token, Premium, TokenDataType, GatedType, GatedSubmissionType
+    TournamentModel, Premium, TokenDataType, GatedType, GatedSubmissionType
 };
 
 #[starknet::interface]
@@ -15,6 +15,8 @@ pub trait ITournamentMock<TState> {
     fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
     fn is_token_registered(self: @TState, token: ContractAddress) -> bool;
+    // TODO: add for V2 (only ERC721 tokens)
+    // fn register_tokens(ref self: TState, tokens: Array<Token>);
     fn create_tournament(
         ref self: TState,
         name: felt252,
@@ -26,12 +28,17 @@ pub trait ITournamentMock<TState> {
         gated_type: Option<GatedType>,
         entry_premium: Option<Premium>,
     ) -> u64;
-    fn register_tokens(ref self: TState, tokens: Array<Token>);
     fn enter_tournament(
         ref self: TState, tournament_id: u64, gated_submission_type: Option<GatedSubmissionType>
     );
     fn start_tournament(
-        ref self: TState, tournament_id: u64, start_all: bool, start_count: Option<u64>
+        ref self: TState,
+        tournament_id: u64,
+        start_all: bool,
+        start_count: Option<u64>,
+        client_reward_address: ContractAddress,
+        golden_token_free_game_ids: Option<Array<u256>>,
+        blobert_free_game_ids: Option<Array<u256>>,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(
@@ -49,8 +56,12 @@ pub trait ITournamentMock<TState> {
         lords_address: ContractAddress,
         loot_survivor_address: ContractAddress,
         oracle_address: ContractAddress,
+        golden_token: ContractAddress,
+        blobert: ContractAddress,
         safe_mode: bool,
-        test_mode: bool
+        test_mode: bool,
+        test_erc20: ContractAddress,
+        test_erc721: ContractAddress,
     );
 }
 
@@ -62,8 +73,12 @@ trait ITournamentMockInit<TState> {
         lords_address: ContractAddress,
         loot_survivor_address: ContractAddress,
         oracle_address: ContractAddress,
+        golden_token: ContractAddress,
+        blobert: ContractAddress,
         safe_mode: bool,
-        test_mode: bool
+        test_mode: bool,
+        test_erc20: ContractAddress,
+        test_erc721: ContractAddress,
     );
 }
 
@@ -99,8 +114,12 @@ pub mod tournament_mock {
             lords_address: ContractAddress,
             loot_survivor_address: ContractAddress,
             oracle_address: ContractAddress,
+            golden_token: ContractAddress,
+            blobert: ContractAddress,
             safe_mode: bool,
-            test_mode: bool
+            test_mode: bool,
+            test_erc20: ContractAddress,
+            test_erc721: ContractAddress,
         ) {
             self
                 .tournament
@@ -109,9 +128,13 @@ pub mod tournament_mock {
                     lords_address,
                     loot_survivor_address,
                     oracle_address,
+                    golden_token,
+                    blobert,
                     safe_mode,
                     test_mode
                 );
+            self.tournament.initialize_erc20(test_erc20, "Test ERC20", "TERC20");
+            self.tournament.initialize_erc721(test_erc721, "Test ERC721", "TERC721");
         }
     }
 }

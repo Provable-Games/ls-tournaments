@@ -1,5 +1,8 @@
 use starknet::ContractAddress;
-use tournament::ls15_components::models::loot_survivor::{Adventurer, AdventurerMetadata, Bag};
+use tournament::ls15_components::models::loot_survivor::{
+    Adventurer, AdventurerMetadataStorage, Bag
+};
+use adventurer::{adventurer_meta::AdventurerMetadata};
 
 #[starknet::interface]
 trait ILootSurvivor<TState> {
@@ -20,7 +23,7 @@ trait ILootSurvivor<TState> {
     ) -> felt252;
     fn set_adventurer(ref self: TState, adventurer_id: felt252, adventurer: Adventurer);
     fn set_adventurer_meta(
-        ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadata
+        ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadataStorage
     );
     fn set_bag(ref self: TState, adventurer_id: felt252, bag: Bag);
 }
@@ -37,12 +40,14 @@ pub mod loot_survivor_component {
     use starknet::{ContractAddress, get_block_timestamp, get_caller_address, get_contract_address};
     use dojo::contract::components::world_provider::{IWorldProvider};
 
+    use adventurer::{adventurer_meta::AdventurerMetadata};
+
     use tournament::ls15_components::models::loot_survivor::{
-        Adventurer, AdventurerMetadata, Bag, Stats, Equipment, Item, AdventurerModel,
+        Adventurer, AdventurerMetadataStorage, Bag, Stats, Equipment, Item, AdventurerModel,
         AdventurerMetaModel, BagModel, GameCountModel, Contracts
     };
     use tournament::ls15_components::interfaces::{WorldTrait, WorldImpl};
-    use tournament::ls15_components::libs::store::{Store, StoreTrait};
+    use tournament::ls15_components::tests::libs::store::{Store, StoreTrait};
     use tournament::ls15_components::libs::utils::{pow};
 
     use openzeppelin_introspection::src5::SRC5Component;
@@ -94,7 +99,18 @@ pub mod loot_survivor_component {
                 self.get_contract().world_dispatcher(), @"tournament"
             );
             let mut store: Store = StoreTrait::new(world);
-            store.get_adventurer_meta_model(adventurer_id).adventurer_meta
+            let adventurer_meta = store.get_adventurer_meta_model(adventurer_id).adventurer_meta;
+            let formatted_adventurer_meta = AdventurerMetadata {
+                birth_date: adventurer_meta.birth_date,
+                death_date: adventurer_meta.death_date,
+                level_seed: adventurer_meta.level_seed,
+                item_specials_seed: adventurer_meta.item_specials_seed,
+                rank_at_death: adventurer_meta.rank_at_death,
+                delay_stat_reveal: adventurer_meta.delay_stat_reveal,
+                golden_token_id: adventurer_meta.golden_token_id,
+                launch_tournament_winner_token_id: 0,
+            };
+            formatted_adventurer_meta
         }
 
         fn get_bag(self: @ComponentState<TContractState>, adventurer_id: felt252) -> Bag {
@@ -187,7 +203,7 @@ pub mod loot_survivor_component {
                     @AdventurerModel { adventurer_id: adventurer_id.into(), adventurer }
                 );
 
-            let adventurer_meta = AdventurerMetadata {
+            let adventurer_meta = AdventurerMetadataStorage {
                 birth_date: get_block_timestamp().into(),
                 death_date: 0,
                 level_seed: 0,
@@ -222,7 +238,7 @@ pub mod loot_survivor_component {
         fn set_adventurer_meta(
             ref self: ComponentState<TContractState>,
             adventurer_id: felt252,
-            adventurer_meta: AdventurerMetadata
+            adventurer_meta: AdventurerMetadataStorage
         ) {
             let mut world = WorldTrait::storage(
                 self.get_contract().world_dispatcher(), @"tournament"
