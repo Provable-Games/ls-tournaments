@@ -19,15 +19,11 @@ import {
   useSubscribeTournamentCountsQuery,
 } from "@/hooks/useSdkQueries";
 import { useSystemCalls } from "@/useSystemCalls";
-import { useDojo } from "@/DojoContext";
 import { Toaster } from "@/components/ui/toaster";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import { useConfig } from "@/hooks/useConfig";
 
 function App() {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
   const { account } = useAccount();
   useConfig();
   const { tournament, eth, lords } = useTournamentContracts();

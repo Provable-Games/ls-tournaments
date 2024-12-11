@@ -19,7 +19,7 @@ import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 const RegisterToken = () => {
   const { account } = useAccount();
-  const { tournament, eth, lords } = useTournamentContracts();
+  const { eth, lords } = useTournamentContracts();
   const erc20_mock = useDojoSystem("erc20_mock").contractAddress ?? "0x0";
   const erc721_mock = useDojoSystem("erc721_mock").contractAddress ?? "0x0";
   const [tokenType, setTokenType] = useState<TokenDataEnum | null>(null);

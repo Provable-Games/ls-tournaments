@@ -16,7 +16,6 @@ import {
   byteArray,
   CallData,
 } from "starknet";
-import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useToast } from "@/hooks/useToast";
 import useUIStore from "@/hooks/useUIStore";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
@@ -29,7 +28,6 @@ export function selectTournament(client: any, isMainnet: boolean): any {
 
 export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
-  const tournament_mock = useDojoSystem("tournament_mock");
 
   const {
     setup: { client, selectedChainConfig },
