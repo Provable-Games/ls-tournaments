@@ -1,4 +1,5 @@
 use starknet::ContractAddress;
+use tournament::ls15_components::models::tournament::FreeGameTokenType;
 
 // dojo compatible structs
 
@@ -114,6 +115,16 @@ pub struct GameCountModel {
     #[key]
     pub contract_address: ContractAddress,
     pub game_count: u128,
+}
+
+#[dojo::model]
+#[derive(Copy, Drop, Serde)]
+pub struct FreeGameAvailableModel {
+    #[key]
+    pub free_game_type: FreeGameTokenType,
+    #[key]
+    pub token_id: u128,
+    pub available: bool,
 }
 
 #[dojo::model]

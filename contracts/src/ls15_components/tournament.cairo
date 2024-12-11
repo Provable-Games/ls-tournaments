@@ -37,8 +37,8 @@ trait ITournament<TState> {
         start_all: bool,
         start_count: Option<u64>,
         client_reward_address: ContractAddress,
-        golden_token_free_game_ids: Option<Array<u256>>,
-        blobert_free_game_ids: Option<Array<u256>>,
+        golden_token_free_game_token_ids: Span<u256>,
+        blobert_free_game_token_ids: Span<u256>,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(
@@ -150,6 +150,7 @@ pub mod tournament_component {
         pub const START_COUNT_TOO_LARGE: felt252 = 'start count too large';
         pub const TOURNAMENT_PERIOD_TOO_LONG: felt252 = 'period too long to start all';
         pub const FREE_GAME_NOT_AVAILABLE: felt252 = 'free game not available';
+        pub const TOO_MANY_FREE_GAMES: felt252 = 'too many free games';
         //
         // Submit Scores
         //
@@ -350,8 +351,8 @@ pub mod tournament_component {
             start_all: bool,
             start_count: Option<u64>,
             client_reward_address: ContractAddress,
-            golden_token_free_game_ids: Option<Array<u256>>,
-            blobert_free_game_ids: Option<Array<u256>>,
+            golden_token_free_game_token_ids: Span<u256>,
+            blobert_free_game_token_ids: Span<u256>,
         ) {
             let mut world = WorldTrait::storage(
                 self.get_contract().world_dispatcher(), @"tournament"
@@ -359,6 +360,11 @@ pub mod tournament_component {
             let mut store: Store = StoreTrait::new(world);
             // assert tournament is active
             self._assert_tournament_active(ref store, tournament_id);
+            // assert not too many free games if start count supplied
+            self
+                ._assert_free_game_ids_not_larger_than_start_count(
+                    start_count, golden_token_free_game_token_ids, blobert_free_game_token_ids
+                );
             // if starting all games, assert the tournament period is within max
             if (start_all) {
                 self._assert_tournament_period_within_max(ref store, tournament_id);
@@ -370,73 +376,7 @@ pub mod tournament_component {
                 contract_address: tournament_config.loot_survivor
             };
 
-            let mut free_games = 0;
-
-            match golden_token_free_game_ids {
-                Option::Some(token_ids) => {
-                    let mut game_index = 0;
-                    loop {
-                        if game_index == token_ids.len() {
-                            break;
-                        }
-                        let golden_token_id = *token_ids.at(game_index);
-                        self
-                            ._assert_token_owner(
-                                tournament_config.golden_token,
-                                golden_token_id,
-                                get_caller_address()
-                            );
-                        // check if golden token free game is available
-                        let free_game_available = ls_dispatcher
-                            .free_game_available(
-                                FreeGameTokenType::GoldenToken, golden_token_id.low
-                            );
-                        assert(free_game_available, Errors::FREE_GAME_NOT_AVAILABLE);
-                        // flash loan golden tokens
-                        IERC721Dispatcher { contract_address: tournament_config.golden_token }
-                            .transfer_from(
-                                get_caller_address(),
-                                get_contract_address(),
-                                *token_ids.at(game_index)
-                            );
-                        free_games += 1;
-                        game_index += 1;
-                    }
-                },
-                Option::None => {},
-            };
-
-            match blobert_free_game_ids {
-                Option::Some(token_ids) => {
-                    let mut game_index = 0;
-                    loop {
-                        if game_index == token_ids.len() {
-                            break;
-                        }
-                        let blobert_token_id = *token_ids.at(game_index);
-                        self
-                            ._assert_token_owner(
-                                tournament_config.blobert, blobert_token_id, get_caller_address()
-                            );
-                        // check if caller has blobert
-                        let free_game_available = ls_dispatcher
-                            .free_game_available(
-                                FreeGameTokenType::LaunchTournamentChampion, blobert_token_id.low
-                            );
-                        assert(free_game_available, Errors::FREE_GAME_NOT_AVAILABLE);
-                        // flash loan bloberts
-                        IERC721Dispatcher { contract_address: tournament_config.blobert }
-                            .transfer_from(
-                                get_caller_address(),
-                                get_contract_address(),
-                                *token_ids.at(game_index)
-                            );
-                        free_games += 1;
-                        game_index += 1;
-                    }
-                },
-                Option::None => {},
-            };
+            // first get the number of entries for calculations and allowed starts
 
             let mut entries = 0;
 
@@ -465,6 +405,58 @@ pub mod tournament_component {
                     },
                 };
             }
+
+            // assert not free games not longer
+            self
+                ._assert_free_game_ids_not_larger_than_entries(
+                    entries, golden_token_free_game_token_ids, blobert_free_game_token_ids
+                );
+
+            let mut free_games = 0;
+
+            let mut golden_token_index = 0;
+            loop {
+                if golden_token_index == golden_token_free_game_token_ids.len() {
+                    break;
+                }
+                let golden_token_id = *golden_token_free_game_token_ids.at(golden_token_index);
+                self
+                    ._assert_token_owner(
+                        tournament_config.golden_token, golden_token_id, get_caller_address()
+                    );
+                // check if golden token free game is available
+                let free_game_available = ls_dispatcher
+                    .free_game_available(FreeGameTokenType::GoldenToken, golden_token_id.low);
+                assert(free_game_available, Errors::FREE_GAME_NOT_AVAILABLE);
+                // flash loan golden tokens
+                IERC721Dispatcher { contract_address: tournament_config.golden_token }
+                    .transfer_from(get_caller_address(), get_contract_address(), golden_token_id);
+                free_games += 1;
+                golden_token_index += 1;
+            };
+
+            let mut blobert_token_index = 0;
+            loop {
+                if blobert_token_index == blobert_free_game_token_ids.len() {
+                    break;
+                }
+                let blobert_token_id = *blobert_free_game_token_ids.at(blobert_token_index);
+                self
+                    ._assert_token_owner(
+                        tournament_config.blobert, blobert_token_id, get_caller_address()
+                    );
+                // check if caller has blobert
+                let free_game_available = ls_dispatcher
+                    .free_game_available(
+                        FreeGameTokenType::LaunchTournamentChampion, blobert_token_id.low
+                    );
+                assert(free_game_available, Errors::FREE_GAME_NOT_AVAILABLE);
+                // flash loan bloberts
+                IERC721Dispatcher { contract_address: tournament_config.blobert }
+                    .transfer_from(get_caller_address(), get_contract_address(), blobert_token_id);
+                free_games += 1;
+                blobert_token_index += 1;
+            };
 
             // define contract interfaces
             let lords_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
@@ -513,121 +505,48 @@ pub mod tournament_component {
                             break;
                         }
                         let mut game_id = 0;
-                        match golden_token_free_game_ids {
-                            Option::Some(mut token_ids) => {
-                                let popped_token_id = token_ids.pop_front();
-                                match popped_token_id {
-                                    Option::Some(token_id) => {
-                                        game_id = ls_dispatcher
-                                            .new_game(
-                                                client_reward_address,
-                                                12, // wand
-                                                tournament.name,
-                                                token_id.low.try_into().unwrap(),
-                                                true,
-                                                contract_address_const::<0>(),
-                                                0,
-                                                address
-                                            );
-                                    },
-                                    Option::None => {
-                                        match blobert_free_game_ids {
-                                            Option::Some(mut token_ids) => {
-                                                let popped_token_id = token_ids.pop_front();
-                                                match popped_token_id {
-                                                    Option::Some(token_id) => {
-                                                        game_id = ls_dispatcher
-                                                            .new_game(
-                                                                client_reward_address,
-                                                                12, // wand
-                                                                tournament.name,
-                                                                0,
-                                                                true,
-                                                                contract_address_const::<0>(),
-                                                                token_id.low,
-                                                                address
-                                                            );
-                                                    },
-                                                    Option::None => {
-                                                        game_id = ls_dispatcher
-                                                            .new_game(
-                                                                client_reward_address,
-                                                                12, // wand
-                                                                tournament.name,
-                                                                0,
-                                                                true,
-                                                                contract_address_const::<0>(),
-                                                                0,
-                                                                address
-                                                            );
-                                                    },
-                                                }
-                                            },
-                                            Option::None => {
-                                                game_id = ls_dispatcher
-                                                    .new_game(
-                                                        client_reward_address,
-                                                        12, // wand
-                                                        tournament.name,
-                                                        0,
-                                                        true,
-                                                        contract_address_const::<0>(),
-                                                        0,
-                                                        address
-                                                    );
-                                            },
-                                        }
-                                    },
-                                }
-                            },
-                            Option::None => {
-                                match blobert_free_game_ids {
-                                    Option::Some(mut token_ids) => {
-                                        let popped_token_id = token_ids.pop_front();
-                                        match popped_token_id {
-                                            Option::Some(token_id) => {
-                                                game_id = ls_dispatcher
-                                                    .new_game(
-                                                        client_reward_address,
-                                                        12, // wand
-                                                        tournament.name,
-                                                        0,
-                                                        true,
-                                                        contract_address_const::<0>(),
-                                                        token_id.low,
-                                                        address
-                                                    );
-                                            },
-                                            Option::None => {
-                                                game_id = ls_dispatcher
-                                                    .new_game(
-                                                        client_reward_address,
-                                                        12, // wand
-                                                        tournament.name,
-                                                        0,
-                                                        true,
-                                                        contract_address_const::<0>(),
-                                                        0,
-                                                        address
-                                                    );
-                                            },
-                                        }
-                                    },
-                                    Option::None => {
-                                        game_id = ls_dispatcher
-                                            .new_game(
-                                                client_reward_address,
-                                                12, // wand
-                                                tournament.name,
-                                                0,
-                                                true,
-                                                contract_address_const::<0>(),
-                                                0,
-                                                address
-                                            );
-                                    },
-                                }
-                            },
+                        let mut golden_token_index = 0;
+                        let mut blobert_token_index = 0;
+                        if (golden_token_index != golden_token_free_game_token_ids.len()) {
+                            let token_id = *golden_token_free_game_token_ids.at(golden_token_index);
+                            game_id = ls_dispatcher
+                                .new_game(
+                                    client_reward_address,
+                                    12, // wand
+                                    tournament.name,
+                                    (token_id.low).try_into().unwrap(),
+                                    true,
+                                    contract_address_const::<0>(),
+                                    0,
+                                    address
+                                );
+                            golden_token_index += 1;
+                        } else if (blobert_token_index != blobert_free_game_token_ids.len()) {
+                            let token_id = *blobert_free_game_token_ids.at(blobert_token_index);
+                            game_id = ls_dispatcher
+                                .new_game(
+                                    client_reward_address,
+                                    12, // wand
+                                    tournament.name,
+                                    0,
+                                    true,
+                                    contract_address_const::<0>(),
+                                    token_id.low,
+                                    address
+                                );
+                            blobert_token_index += 1;
+                        } else {
+                            game_id = ls_dispatcher
+                                .new_game(
+                                    client_reward_address,
+                                    12, // wand
+                                    tournament.name,
+                                    0,
+                                    true,
+                                    contract_address_const::<0>(),
+                                    0,
+                                    address
+                                );
                         }
                         game_ids.append(game_id.try_into().unwrap());
                         let game = TournamentGameModel {
@@ -654,22 +573,55 @@ pub mod tournament_component {
                 let mut start_index = store
                     .get_tournament_starts(tournament_id, get_caller_address())
                     .start_count;
+                let mut game_id = 0;
                 let mut game_ids = ArrayTrait::<u64>::new();
                 loop {
                     if start_index == entries {
                         break;
                     }
-                    let game_id = ls_dispatcher
-                        .new_game(
-                            client_reward_address,
-                            12, // wand
-                            tournament.name,
-                            0,
-                            true,
-                            contract_address_const::<0>(),
-                            0,
-                            get_caller_address()
-                        );
+                    let mut golden_token_index = 0;
+                    let mut blobert_token_index = 0;
+                    if (golden_token_index != golden_token_free_game_token_ids.len()) {
+                        let token_id = *golden_token_free_game_token_ids.at(golden_token_index);
+                        game_id = ls_dispatcher
+                            .new_game(
+                                client_reward_address,
+                                12, // wand
+                                tournament.name,
+                                (token_id.low).try_into().unwrap(),
+                                true,
+                                contract_address_const::<0>(),
+                                0,
+                                get_caller_address()
+                            );
+                        golden_token_index += 1;
+                    } else if (blobert_token_index != blobert_free_game_token_ids.len()) {
+                        let token_id = *blobert_free_game_token_ids.at(blobert_token_index);
+                        game_id = ls_dispatcher
+                            .new_game(
+                                client_reward_address,
+                                12, // wand
+                                tournament.name,
+                                0,
+                                true,
+                                contract_address_const::<0>(),
+                                token_id.low,
+                                get_caller_address()
+                            );
+                        blobert_token_index += 1;
+                    } else {
+                        game_id = ls_dispatcher
+                            .new_game(
+                                client_reward_address,
+                                12, // wand
+                                tournament.name,
+                                0,
+                                true,
+                                contract_address_const::<0>(),
+                                0,
+                                get_caller_address()
+                            );
+                    }
                     game_ids.append(game_id.try_into().unwrap());
                     let game = TournamentGameModel {
                         tournament_id,
@@ -690,6 +642,36 @@ pub mod tournament_component {
                     tournament_id, address: get_caller_address(), start_count: entries
                 };
                 store.set_address_starts(@address_starts);
+
+                // send the free game tokens back if (any were available to use)
+
+                let mut golden_token_index = 0;
+                loop {
+                    if golden_token_index == golden_token_free_game_token_ids.len() {
+                        break;
+                    }
+                    IERC721Dispatcher { contract_address: tournament_config.golden_token }
+                        .transfer_from(
+                            get_contract_address(),
+                            get_caller_address(),
+                            *golden_token_free_game_token_ids.at(golden_token_index)
+                        );
+                    golden_token_index += 1;
+                };
+
+                let mut blobert_token_index = 0;
+                loop {
+                    if blobert_token_index == blobert_free_game_token_ids.len() {
+                        break;
+                    }
+                    IERC721Dispatcher { contract_address: tournament_config.blobert }
+                        .transfer_from(
+                            get_contract_address(),
+                            get_caller_address(),
+                            *blobert_free_game_token_ids.at(blobert_token_index)
+                        );
+                    blobert_token_index += 1;
+                };
             }
         }
 
@@ -853,26 +835,6 @@ pub mod tournament_component {
                         blobert,
                         safe_mode,
                         test_mode
-                    }
-                );
-            store
-                .set_token(
-                    @TokenModel {
-                        token: eth,
-                        name: "Ether",
-                        symbol: "ETH",
-                        token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 }),
-                        is_registered: true
-                    }
-                );
-            store
-                .set_token(
-                    @TokenModel {
-                        token: eth,
-                        name: "Ether",
-                        symbol: "ETH",
-                        token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 }),
-                        is_registered: true
                     }
                 );
         }
@@ -1254,6 +1216,37 @@ pub mod tournament_component {
             assert(
                 tournament.end_time - tournament.start_time < GAME_EXPIRATION_PERIOD.into(),
                 Errors::TOURNAMENT_PERIOD_TOO_LONG
+            );
+        }
+
+        fn _assert_free_game_ids_not_larger_than_start_count(
+            self: @ComponentState<TContractState>,
+            start_count: Option<u64>,
+            golden_token_free_game_token_ids: Span<u256>,
+            blobert_free_game_token_ids: Span<u256>
+        ) {
+            match start_count {
+                Option::Some(start_count) => {
+                    assert(
+                        golden_token_free_game_token_ids.len()
+                            + blobert_free_game_token_ids.len() <= start_count.try_into().unwrap(),
+                        Errors::TOO_MANY_FREE_GAMES
+                    );
+                },
+                Option::None => {},
+            }
+        }
+
+        fn _assert_free_game_ids_not_larger_than_entries(
+            self: @ComponentState<TContractState>,
+            entries: u64,
+            golden_token_free_game_token_ids: Span<u256>,
+            blobert_free_game_token_ids: Span<u256>
+        ) {
+            assert(
+                golden_token_free_game_token_ids.len()
+                    + blobert_free_game_token_ids.len() <= entries.try_into().unwrap(),
+                Errors::TOO_MANY_FREE_GAMES
             );
         }
 

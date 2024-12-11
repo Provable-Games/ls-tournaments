@@ -3,13 +3,14 @@ use dojo::world::{WorldStorage};
 use dojo::model::{ModelStorage};
 
 use tournament::ls15_components::models::loot_survivor::{
-    AdventurerModel, AdventurerMetaModel, BagModel, GameCountModel, Contracts
+    AdventurerModel, AdventurerMetaModel, BagModel, GameCountModel, FreeGameAvailableModel,
+    Contracts
 };
 use tournament::ls15_components::models::tournament::{
     TournamentTotalsModel, TournamentModel, TournamentEntriesModel, TournamentPrizeKeysModel,
     PrizesModel, TournamentScoresModel, TokenModel, TournamentEntriesAddressModel,
     TournamentEntryAddressesModel, TournamentStartsAddressModel, TournamentGameModel,
-    TournamentConfig, TournamentStartIdsModel
+    TournamentConfig, TournamentStartIdsModel, FreeGameTokenType
 };
 
 #[derive(Copy, Drop)]
@@ -50,6 +51,12 @@ pub impl StoreImpl of StoreTrait {
         (self.world.read_model(contract))
     }
 
+    #[inline(always)]
+    fn get_free_game_available_model(
+        ref self: Store, free_game_type: FreeGameTokenType, token_id: u128
+    ) -> FreeGameAvailableModel {
+        (self.world.read_model((free_game_type, token_id),))
+    }
 
     #[inline(always)]
     fn get_contracts_model(ref self: Store, contract: ContractAddress) -> Contracts {
@@ -147,6 +154,11 @@ pub impl StoreImpl of StoreTrait {
 
     #[inline(always)]
     fn set_game_count_model(ref self: Store, model: @GameCountModel) {
+        self.world.write_model(model);
+    }
+
+    #[inline(always)]
+    fn set_free_game_available_model(ref self: Store, model: @FreeGameAvailableModel) {
         self.world.write_model(model);
     }
 

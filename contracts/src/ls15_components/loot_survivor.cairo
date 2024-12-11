@@ -2,6 +2,7 @@ use starknet::ContractAddress;
 use tournament::ls15_components::models::loot_survivor::{
     Adventurer, AdventurerMetadataStorage, Bag
 };
+use tournament::ls15_components::models::tournament::FreeGameTokenType;
 use adventurer::{adventurer_meta::AdventurerMetadata};
 
 #[starknet::interface]
@@ -10,6 +11,9 @@ trait ILootSurvivor<TState> {
     fn get_adventurer_meta(self: @TState, adventurer_id: felt252) -> AdventurerMetadata;
     fn get_bag(self: @TState, adventurer_id: felt252) -> Bag;
     fn get_cost_to_play(self: @TState) -> u128;
+    fn free_game_available(
+        self: @TState, free_game_type: FreeGameTokenType, token_id: u128
+    ) -> bool;
     fn new_game(
         ref self: TState,
         client_reward_address: ContractAddress,
@@ -26,6 +30,7 @@ trait ILootSurvivor<TState> {
         ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadataStorage
     );
     fn set_bag(ref self: TState, adventurer_id: felt252, bag: Bag);
+    fn set_free_game_available(self: @TState, free_game_type: FreeGameTokenType, token_id: u128);
 }
 
 ///
@@ -44,8 +49,9 @@ pub mod loot_survivor_component {
 
     use tournament::ls15_components::models::loot_survivor::{
         Adventurer, AdventurerMetadataStorage, Bag, Stats, Equipment, Item, AdventurerModel,
-        AdventurerMetaModel, BagModel, GameCountModel, Contracts
+        AdventurerMetaModel, BagModel, GameCountModel, FreeGameAvailableModel, Contracts
     };
+    use tournament::ls15_components::models::tournament::FreeGameTokenType;
     use tournament::ls15_components::interfaces::{WorldTrait, WorldImpl};
     use tournament::ls15_components::tests::libs::store::{Store, StoreTrait};
     use tournament::ls15_components::libs::utils::{pow};
@@ -125,6 +131,16 @@ pub mod loot_survivor_component {
             50000000000000000000
         }
 
+        fn free_game_available(
+            self: @ComponentState<TContractState>, free_game_type: FreeGameTokenType, token_id: u128
+        ) -> bool {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store.get_free_game_available_model(free_game_type, token_id).available
+        }
+
         fn new_game(
             ref self: ComponentState<TContractState>,
             client_reward_address: ContractAddress,
@@ -143,11 +159,15 @@ pub mod loot_survivor_component {
             let contracts = store.get_contracts_model(get_contract_address());
             let cost_to_play = self.get_cost_to_play();
             // transfer base game cost
-            let lords_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
-                contract_address: contracts.lords
-            };
-            lords_dispatcher
-                .transfer_from(get_caller_address(), get_contract_address(), cost_to_play.into());
+            if (golden_token_id.is_zero() && launch_tournament_winner_token_id.is_zero()) {
+                let lords_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
+                    contract_address: contracts.lords
+                };
+                lords_dispatcher
+                    .transfer_from(
+                        get_caller_address(), get_contract_address(), cost_to_play.into()
+                    );
+            }
 
             // transfer VRF cost
             let eth_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
@@ -254,6 +274,19 @@ pub mod loot_survivor_component {
             );
             let mut store: Store = StoreTrait::new(world);
             store.set_bag_model(@BagModel { adventurer_id, bag });
+        }
+
+        fn set_free_game_available(
+            self: @ComponentState<TContractState>, free_game_type: FreeGameTokenType, token_id: u128
+        ) {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store
+                .set_free_game_available_model(
+                    @FreeGameAvailableModel { free_game_type, token_id, available: true }
+                );
         }
     }
 

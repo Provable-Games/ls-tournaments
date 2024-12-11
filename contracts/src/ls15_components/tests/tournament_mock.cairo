@@ -37,8 +37,8 @@ pub trait ITournamentMock<TState> {
         start_all: bool,
         start_count: Option<u64>,
         client_reward_address: ContractAddress,
-        golden_token_free_game_ids: Option<Array<u256>>,
-        blobert_free_game_ids: Option<Array<u256>>,
+        golden_token_free_game_ids: Option<Span<u256>>,
+        blobert_free_game_ids: Option<Span<u256>>,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(

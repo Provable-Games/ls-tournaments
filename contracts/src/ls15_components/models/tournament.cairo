@@ -67,7 +67,7 @@ pub enum EntryStatus {
     Submitted,
 }
 
-#[derive(Copy, Drop, PartialEq, Serde)]
+#[derive(Copy, Drop, PartialEq, Introspect, Serde)]
 pub enum FreeGameTokenType {
     GoldenToken,
     LaunchTournamentChampion,

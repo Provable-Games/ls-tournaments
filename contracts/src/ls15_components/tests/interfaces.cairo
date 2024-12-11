@@ -123,7 +123,9 @@ pub trait ITournamentMock<TState> {
         tournament_id: u64,
         start_all: bool,
         start_count: Option<u64>,
-        client_reward_address: ContractAddress
+        client_reward_address: ContractAddress,
+        golden_token_free_game_ids: Span<u256>,
+        blobert_free_game_ids: Span<u256>,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(
@@ -217,6 +219,7 @@ pub trait ILootSurvivorMock<TState> {
         ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadataStorage
     );
     fn set_bag(ref self: TState, adventurer_id: felt252, bag: Bag);
+    fn set_free_game_available(ref self: TState, free_game_type: FreeGameTokenType, token_id: u128);
 
     fn initializer(
         ref self: TState,

@@ -44,6 +44,16 @@ pub fn approve_game_costs(
     eth.approve(tournament.contract_address, entries * 200000000000000);
 }
 
+pub fn approve_free_game_cost(
+    eth: IERC20MockDispatcher,
+    golden_token: IERC721MockDispatcher,
+    token_id: u256,
+    tournament: ITournamentMockDispatcher
+) {
+    eth.approve(tournament.contract_address, 200000000000000);
+    golden_token.approve(tournament.contract_address, token_id);
+}
+
 pub fn create_dead_adventurer_with_xp(xp: u16) -> Adventurer {
     Adventurer {
         health: 0,
