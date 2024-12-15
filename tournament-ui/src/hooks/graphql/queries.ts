@@ -42,21 +42,6 @@ const ADVENTURERS_FRAGMENT = `
   }
 `;
 
-const GOLDEN_TOKEN_FIELDS = `
-  contract_address
-  id
-  image
-  name
-  owner
-  token_id
-`;
-
-const GOLDEN_TOKEN_FRAGMENT = `
-  fragment GoldenTokenFields on ERC721Tokens {
-    ${GOLDEN_TOKEN_FIELDS}
-  }
-`;
-
 const getAdventurerById = gql`
   ${ADVENTURERS_FRAGMENT}
   query get_adventurer_by_id($id: FeltValue) {
@@ -75,18 +60,19 @@ const getAdventurersInList = gql`
   }
 `;
 
-const getGoldenTokensByOwner = gql`
-  ${GOLDEN_TOKEN_FRAGMENT}
-  query getGoldenTokensByOwner($contractAddress: String!, $owner: String!) {
-    getERC721Tokens(
-      contract_address: $contractAddress
-      cursor: 0
-      limit: 101
-      owner: $owner
+const getOwnerTokens = gql`
+  query getOwnerTokens($token: HexValue, $owner: HexValue) {
+    tokens(
+      where: { token: { eq: $token }, nftOwnerAddress: { eq: $owner } }
+      limit: 1000
     ) {
-      ...GoldenTokenFields
+      hash
+      nftOwnerAddress
+      timestamp
+      token
+      tokenId
     }
   }
 `;
 
-export { getAdventurerById, getAdventurersInList, getGoldenTokensByOwner };
+export { getAdventurerById, getAdventurersInList, getOwnerTokens };

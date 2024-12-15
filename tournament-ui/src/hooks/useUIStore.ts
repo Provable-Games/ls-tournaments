@@ -26,11 +26,15 @@ type State = {
   formData: FormData;
   setFormData: (value: FormData) => void;
   resetFormData: () => void; // Add this new type
+  tokenBalance: Record<string, bigint>;
+  setTokenBalance: (value: Record<string, bigint>) => void;
 };
 
 const initialFormData: FormData = {
   tournamentName: "",
   tournamentDescription: "",
+  registrationStartTime: undefined,
+  registrationEndTime: undefined,
   startTime: undefined,
   endTime: undefined,
   submissionPeriod: 0,
@@ -52,6 +56,14 @@ const useUIStore = create<State>((set) => ({
   formData: initialFormData,
   setFormData: (value: FormData) => set({ formData: value }),
   resetFormData: () => set({ formData: initialFormData }),
+  tokenBalance: {
+    eth: BigInt(0),
+    lords: BigInt(0),
+    goldenToken: BigInt(0),
+    blobert: BigInt(0),
+  },
+  setTokenBalance: (value: Record<string, bigint>) =>
+    set({ tokenBalance: value }),
 }));
 
 export default useUIStore;

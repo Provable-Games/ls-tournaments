@@ -1,6 +1,8 @@
 use starknet::{ContractAddress, contract_address_const};
 
-use tournament::ls15_components::constants::{MIN_REGISTRATION_PERIOD, MIN_TOURNAMENT_LENGTH};
+use tournament::ls15_components::constants::{
+    MIN_REGISTRATION_PERIOD, MIN_TOURNAMENT_LENGTH
+};
 
 pub fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
@@ -72,8 +74,16 @@ pub fn TOURNAMENT_DESCRIPTION() -> ByteArray {
 
 pub const STARTING_BALANCE: u256 = 1000000000000000000000;
 
+pub fn TEST_REGISTRATION_START_TIME() -> u32 {
+    1
+}
+
+pub fn TEST_REGISTRATION_END_TIME() -> u32 {
+    TEST_REGISTRATION_START_TIME() + MIN_REGISTRATION_PERIOD
+}
+
 pub fn TEST_START_TIME() -> u32 {
-    2 + MIN_REGISTRATION_PERIOD
+    1 + MIN_REGISTRATION_PERIOD
 }
 
 pub fn TEST_END_TIME() -> u32 {

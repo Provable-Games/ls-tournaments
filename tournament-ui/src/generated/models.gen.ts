@@ -267,6 +267,8 @@ export interface TournamentConfig {
   lords: string;
   loot_survivor: string;
   oracle: string;
+  golden_token: string;
+  blobert: string;
   safe_mode: boolean;
   test_mode: boolean;
 }
@@ -377,6 +379,8 @@ export interface TournamentModel {
   name: BigNumberish;
   description: string;
   creator: string;
+  registration_start_time: BigNumberish;
+  registration_end_time: BigNumberish;
   start_time: BigNumberish;
   end_time: BigNumberish;
   submission_period: BigNumberish;
@@ -1149,6 +1153,8 @@ export const schema: SchemaType = {
       lords: "",
       loot_survivor: "",
       oracle: "",
+      golden_token: "",
+      blobert: "",
       safe_mode: false,
       test_mode: false,
     },
@@ -1245,6 +1251,8 @@ export const schema: SchemaType = {
       name: 0,
       description: "",
       creator: "",
+      registration_start_time: 0,
+      registration_end_time: 0,
       start_time: 0,
       end_time: 0,
       submission_period: 0,

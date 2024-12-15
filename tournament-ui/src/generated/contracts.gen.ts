@@ -122,6 +122,8 @@ export async function setupWorld(provider: DojoProvider) {
     snAccount: Account | AccountInterface,
     name: BigNumberish,
     description: ByteArray,
+    registrationStartTime: BigNumberish,
+    registrationEndTime: BigNumberish,
     startTime: BigNumberish,
     endTime: BigNumberish,
     submissionPeriod: BigNumberish,
@@ -138,6 +140,8 @@ export async function setupWorld(provider: DojoProvider) {
           calldata: CallData.compile([
             name,
             description,
+            registrationStartTime,
+            registrationEndTime,
             startTime,
             endTime,
             submissionPeriod,
@@ -177,7 +181,10 @@ export async function setupWorld(provider: DojoProvider) {
     snAccount: Account | AccountInterface,
     tournamentId: BigNumberish,
     startAll: boolean,
-    startCount: CairoOption<BigNumberish>
+    startCount: CairoOption<BigNumberish>,
+    clientRewardAddress: string,
+    usableGoldenTokens: any[],
+    usableBlobertTokens: any[]
   ) => {
     try {
       return await provider.execute(
@@ -185,7 +192,14 @@ export async function setupWorld(provider: DojoProvider) {
         {
           contractName: "tournament_mock",
           entrypoint: "start_tournament",
-          calldata: CallData.compile([tournamentId, startAll, startCount]),
+          calldata: CallData.compile([
+            tournamentId,
+            startAll,
+            startCount,
+            clientRewardAddress,
+            usableGoldenTokens,
+            usableBlobertTokens,
+          ]),
         },
         "tournament"
       );
@@ -1410,6 +1424,8 @@ export async function setupWorld(provider: DojoProvider) {
     snAccount: Account | AccountInterface,
     name: BigNumberish,
     description: string,
+    registrationStartTime: BigNumberish,
+    registrationEndTime: BigNumberish,
     startTime: BigNumberish,
     endTime: BigNumberish,
     submissionPeriod: BigNumberish,
@@ -1426,6 +1442,8 @@ export async function setupWorld(provider: DojoProvider) {
           calldata: CallData.compile([
             name,
             description,
+            registrationStartTime,
+            registrationEndTime,
             startTime,
             endTime,
             submissionPeriod,
@@ -1465,7 +1483,10 @@ export async function setupWorld(provider: DojoProvider) {
     snAccount: Account | AccountInterface,
     tournamentId: BigNumberish,
     startAll: boolean,
-    startCount: CairoOption<BigNumberish>
+    startCount: CairoOption<BigNumberish>,
+    clientRewardAddress: string,
+    usableGoldenTokens: string[],
+    usableBlobertTokens: string[]
   ) => {
     try {
       return await provider.execute(
@@ -1473,7 +1494,14 @@ export async function setupWorld(provider: DojoProvider) {
         {
           contractName: "LSTournament",
           entrypoint: "start_tournament",
-          calldata: CallData.compile([tournamentId, startAll, startCount]),
+          calldata: CallData.compile([
+            tournamentId,
+            startAll,
+            startCount,
+            clientRewardAddress,
+            usableGoldenTokens,
+            usableBlobertTokens,
+          ]),
         },
         "tournament"
       );

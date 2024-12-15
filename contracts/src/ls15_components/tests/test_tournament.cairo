@@ -7,8 +7,8 @@ use dojo_cairo_test::{
 };
 
 use tournament::ls15_components::constants::{
-    MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
-    MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH
+    MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_SUBMISSION_PERIOD,
+    MAX_SUBMISSION_PERIOD, MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH
 };
 
 use tournament::ls15_components::tests::interfaces::WorldTrait;
@@ -31,30 +31,28 @@ use tournament::ls15_components::models::{
 use tournament::tests::{
     utils,
     constants::{
-        OWNER, TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, STARTING_BALANCE, TEST_START_TIME,
-        TEST_END_TIME, ZERO
+        OWNER, TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, STARTING_BALANCE,
+        TEST_REGISTRATION_START_TIME, TEST_REGISTRATION_END_TIME, TEST_START_TIME, TEST_END_TIME,
+        ZERO
     },
 };
 use tournament::ls15_components::tests::helpers::{
     approve_game_costs, approve_free_game_cost, create_basic_tournament,
     create_adventurer_metadata_with_death_date, create_dead_adventurer_with_xp
 };
-use tournament::ls15_components::tests::{
-    erc20_mock::{erc20_mock}, interfaces::{IERC20MockDispatcher, IERC20MockDispatcherTrait},
+use tournament::ls15_components::tests::mocks::{
+    erc20_mock::erc20_mock,
+    erc721_mock::erc721_mock,
+    tournament_mock::tournament_mock,
+    pragma_mock::pragma_mock,
+    loot_survivor_mock::loot_survivor_mock,
 };
-use tournament::ls15_components::tests::{
-    erc721_mock::{erc721_mock}, interfaces::{IERC721MockDispatcher, IERC721MockDispatcherTrait},
-};
-use tournament::ls15_components::tests::{
-    tournament_mock::{tournament_mock},
-    interfaces::{ITournamentMockDispatcher, ITournamentMockDispatcherTrait},
-};
-use tournament::ls15_components::tests::{
-    loot_survivor_mock::{loot_survivor_mock},
-    interfaces::{ILootSurvivorMockDispatcher, ILootSurvivorMockDispatcherTrait},
-};
-use tournament::ls15_components::tests::{
-    pragma_mock::{pragma_mock}, interfaces::{IPragmaMockDispatcher},
+use tournament::ls15_components::tests::interfaces::{
+    ILootSurvivorMockDispatcher, ILootSurvivorMockDispatcherTrait,
+    ITournamentMockDispatcher, ITournamentMockDispatcherTrait,
+    IERC20MockDispatcher, IERC20MockDispatcherTrait,
+    IERC721MockDispatcher, IERC721MockDispatcherTrait,
+    IPragmaMockDispatcher,
 };
 
 use openzeppelin_token::erc721::interface;
@@ -340,9 +338,16 @@ fn test_create_tournament() {
     assert(
         tournament_data.description == TOURNAMENT_DESCRIPTION(), 'Invalid tournament description'
     );
+    println!("registration start time: {}", tournament_data.registration_start_time);
     assert(
-        tournament_data.start_time == TEST_START_TIME().into(), 'Invalid tournament start time'
+        tournament_data.registration_start_time == TEST_REGISTRATION_START_TIME().into(),
+        'Invalid registration start'
     );
+    assert(
+        tournament_data.registration_end_time == TEST_REGISTRATION_END_TIME().into(),
+        'Invalid registration end'
+    );
+    assert(tournament_data.start_time == TEST_START_TIME().into(), 'Invalid tournament start time');
     assert(tournament_data.end_time == TEST_END_TIME().into(), 'Invalid tournament end time');
     assert(tournament_data.gated_type == Option::None, 'Invalid tournament gated token');
     assert(tournament_data.entry_premium == Option::None, 'Invalid entry premium');
@@ -350,7 +355,7 @@ fn test_create_tournament() {
 }
 
 #[test]
-#[should_panic(expected: ('start time too close', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('start time not in future', 'ENTRYPOINT_FAILED'))]
 fn test_create_tournament_start_time_too_close() {
     let contracts = setup();
 
@@ -359,7 +364,9 @@ fn test_create_tournament_start_time_too_close() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
-            2,
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
+            0,
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
             1, // single top score
@@ -369,8 +376,8 @@ fn test_create_tournament_start_time_too_close() {
 }
 
 #[test]
-#[should_panic(expected: ('start time too far', 'ENTRYPOINT_FAILED'))]
-fn test_create_tournament_start_time_too_far() {
+#[should_panic(expected: ('registration period too short', 'ENTRYPOINT_FAILED'))]
+fn test_create_tournament_registration_period_too_short() {
     let contracts = setup();
 
     contracts
@@ -378,7 +385,9 @@ fn test_create_tournament_start_time_too_far() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
-            (TEST_START_TIME() + MAX_REGISTRATION_PERIOD).into(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_START_TIME().into() + 1,
+            TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
             1, // single top score
@@ -388,7 +397,28 @@ fn test_create_tournament_start_time_too_far() {
 }
 
 #[test]
-#[should_panic(expected: ('tournament too short', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('registration period too long', 'ENTRYPOINT_FAILED'))]
+fn test_create_tournament_registration_period_too_long() {
+    let contracts = setup();
+
+    contracts
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_START_TIME().into() + MAX_REGISTRATION_PERIOD.into(),
+            TEST_START_TIME().into() + MAX_REGISTRATION_PERIOD.into(),
+            TEST_END_TIME().into() + MAX_REGISTRATION_PERIOD.into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            1, // single top score
+            Option::None, // zero gated type
+            Option::None, // zero entry premium
+        );
+}
+
+#[test]
+#[should_panic(expected: ('registration end too late', 'ENTRYPOINT_FAILED'))]
 fn test_create_tournament_end_time_too_close() {
     let contracts = setup();
 
@@ -397,8 +427,10 @@ fn test_create_tournament_end_time_too_close() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
-            2 + MIN_REGISTRATION_PERIOD.into(),
-            2 + MIN_REGISTRATION_PERIOD.into(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
+            MIN_REGISTRATION_PERIOD.into(),
+            MIN_REGISTRATION_PERIOD.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1, // single top score
             Option::None, // zero gated type
@@ -416,6 +448,8 @@ fn test_create_tournament_end_time_too_far() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             (TEST_END_TIME() + MAX_TOURNAMENT_LENGTH).into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -435,6 +469,8 @@ fn test_create_tournament_submission_period_too_short() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into() - 1,
@@ -454,6 +490,8 @@ fn test_create_tournament_submission_period_too_long() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MAX_SUBMISSION_PERIOD.into() + 1,
@@ -566,6 +604,8 @@ fn test_create_tournament_with_premiums_too_long() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -594,6 +634,8 @@ fn test_create_tournament_with_premiums_not_100() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -616,6 +658,8 @@ fn test_create_gated_tournament_with_unsettled_tournament() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -624,10 +668,12 @@ fn test_create_gated_tournament_with_unsettled_tournament() {
             Option::None, // zero entry premium
         );
 
+    // Move to tournament start time
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     // Enter first tournament
     contracts.tournament.enter_tournament(first_tournament_id, Option::None);
 
-    // Move to tournament start time
     testing::set_block_timestamp(TEST_START_TIME().into());
 
     // Start first tournament
@@ -649,8 +695,13 @@ fn test_create_gated_tournament_with_unsettled_tournament() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
-            current_time + MIN_REGISTRATION_PERIOD.into(), // start after first tournament
-            current_time + 1 + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into(),
+            current_time, // start after first tournament
+            current_time + MIN_REGISTRATION_PERIOD.into(),
+            current_time + MIN_REGISTRATION_PERIOD.into(),
+            current_time
+               
+                + MIN_REGISTRATION_PERIOD.into()
+                + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1,
             Option::Some(gated_type), // Gate by first tournament
@@ -670,6 +721,8 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -684,6 +737,8 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -692,9 +747,13 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
             Option::None,
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     // Enter and complete first tournament
     contracts.tournament.enter_tournament(first_tournament_id, Option::None);
+
     testing::set_block_timestamp(TEST_START_TIME().into());
+
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
@@ -708,7 +767,7 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
     contracts.tournament.submit_scores(first_tournament_id, array![1]);
 
     // Enter and complete second tournament
-    testing::set_block_timestamp(1);
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
     contracts.tournament.enter_tournament(second_tournament_id, Option::None);
     testing::set_block_timestamp(TEST_START_TIME().into());
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
@@ -737,8 +796,13 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            current_time,
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into() + 1,
+            current_time + MIN_REGISTRATION_PERIOD.into(),
+            current_time
+               
+                + MIN_REGISTRATION_PERIOD.into()
+                + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1,
             Option::Some(gated_type),
@@ -747,8 +811,10 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
 
     // Verify the gated tournament was created with correct parameters
     let gated_tournament = contracts.tournament.tournament(gated_tournament_id);
-    assert(
-        gated_tournament.gated_type == Option::Some(gated_type), 'Invalid tournament gate type'
+    assert(gated_tournament.gated_type == Option::Some(gated_type), 'Invalid tournament gate type');
+
+    testing::set_block_timestamp(
+        current_time + MIN_REGISTRATION_PERIOD.into()
     );
 
     let gated_submission_type = GatedSubmissionType::game_id(array![1, 2].span());
@@ -778,6 +844,8 @@ fn test_create_tournament_gated_accounts() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -788,9 +856,10 @@ fn test_create_tournament_gated_accounts() {
 
     // Verify tournament was created with correct gating
     let tournament_data = contracts.tournament.tournament(tournament_id);
-    assert(
-        tournament_data.gated_type == Option::Some(gated_type), 'Invalid tournament gate type'
-    );
+    assert(tournament_data.gated_type == Option::Some(gated_type), 'Invalid tournament gate type');
+
+    // Start tournament entries
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     // Allowed account (owner) can enter
     contracts.tournament.enter_tournament(tournament_id, Option::None);
@@ -801,24 +870,49 @@ fn test_create_tournament_gated_accounts() {
     contracts.lords.mint(allowed_player, STARTING_BALANCE);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Start tournament entries
     testing::set_block_timestamp(TEST_START_TIME().into());
 
     utils::impersonate(OWNER());
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(allowed_player);
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // Verify entries were successful
     let entries = contracts.tournament.tournament_entries(tournament_id);
     assert(entries == 2, 'Invalid entry count');
+}
+
+#[test]
+fn test_create_tournament_season() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    contracts
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            1,
+            Option::None,
+            Option::None,
+        );
 }
 
 //
@@ -899,17 +993,7 @@ fn test_enter_tournament() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-}
-
-#[test]
-#[should_panic(expected: ('tournament already started', 'ENTRYPOINT_FAILED'))]
-fn test_enter_tournament_already_started() {
-    let contracts = setup();
-
-    let tournament_id = create_basic_tournament(contracts.tournament);
-
-    testing::set_block_timestamp(TEST_START_TIME().into());
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 }
@@ -927,6 +1011,8 @@ fn test_enter_tournament_wrong_submission_type() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -935,9 +1021,13 @@ fn test_enter_tournament_wrong_submission_type() {
             Option::None,
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     // Complete the first tournament
     contracts.tournament.enter_tournament(first_tournament_id, Option::None);
+
     testing::set_block_timestamp(TEST_START_TIME().into());
+
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
@@ -962,8 +1052,13 @@ fn test_enter_tournament_wrong_submission_type() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            current_time,
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into() + 1,
+            current_time + MIN_REGISTRATION_PERIOD.into(),
+            current_time
+               
+                + MIN_REGISTRATION_PERIOD.into()
+                + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1,
             Option::Some(gated_type),
@@ -973,9 +1068,39 @@ fn test_enter_tournament_wrong_submission_type() {
     // Try to enter with wrong submission type (token_id instead of game_id)
     let wrong_submission_type = GatedSubmissionType::token_id(1);
 
+    testing::set_block_timestamp(
+        current_time + MIN_REGISTRATION_PERIOD.into()
+    );
+
     // This should panic because we're using token_id submission type for a tournament-gated
     // tournament
     contracts.tournament.enter_tournament(gated_tournament_id, Option::Some(wrong_submission_type));
+}
+
+#[test]
+fn test_enter_tournament_season() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = contracts
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            1,
+            Option::None,
+            Option::None,
+        );
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
 }
 
 //
@@ -990,6 +1115,8 @@ fn test_start_tournament() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -998,7 +1125,9 @@ fn test_start_tournament() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // check tournament entries
     assert(contracts.tournament.tournament_entries(tournament_id) == 1, 'Invalid entries');
@@ -1022,8 +1151,7 @@ fn test_start_tournament() {
         'Invalid balance'
     );
     assert(
-        contracts.eth.balance_of(OWNER()) == STARTING_BALANCE - 200000000000000,
-        'Invalid balance'
+        contracts.eth.balance_of(OWNER()) == STARTING_BALANCE - 200000000000000, 'Invalid balance'
     );
 }
 
@@ -1036,6 +1164,8 @@ fn test_start_tournament_entry_already_started() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1044,10 +1174,91 @@ fn test_start_tournament_entry_already_started() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
+}
+
+#[test]
+fn test_start_tournament_multiple_starts() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = create_basic_tournament(contracts.tournament);
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 2);
+
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::Some(1), ZERO(), array![].span(), array![].span()
+        );
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::Some(1), ZERO(), array![].span(), array![].span()
+        );
+}
+
+#[test]
+fn test_start_tournament_multiple_starts_multiple_addresses() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = create_basic_tournament(contracts.tournament);
+
+    // Create multiple players
+    let player2 = starknet::contract_address_const::<0x456>();
+    let player3 = starknet::contract_address_const::<0x789>();
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
+    approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 2);
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    utils::impersonate(player2);
+    contracts.eth.mint(player2, STARTING_BALANCE);
+    contracts.lords.mint(player2, STARTING_BALANCE);
+    approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 2);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    utils::impersonate(player3);
+    contracts.eth.mint(player3, STARTING_BALANCE);
+    contracts.lords.mint(player3, STARTING_BALANCE);
+    approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 2);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    utils::impersonate(OWNER());
+
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, true, Option::Some(2), ZERO(), array![].span(), array![].span()
+        );
+
+    utils::impersonate(player3);
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 }
 
 #[test]
@@ -1058,11 +1269,13 @@ fn test_start_tournament_with_free_game() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    testing::set_block_timestamp(TEST_START_TIME().into());
-
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     approve_free_game_cost(contracts.eth, contracts.golden_token, 1, contracts.tournament);
 
@@ -1087,15 +1300,17 @@ fn test_start_tournament_with_free_game_multiple() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
-    testing::set_block_timestamp(TEST_START_TIME().into());
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 2);
 
     contracts.golden_token.mint(OWNER(), 2);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     contracts.eth.approve(contracts.tournament.contract_address, 400000000000000);
     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
@@ -1123,13 +1338,13 @@ fn test_start_tournament_with_free_game_multiple_and_lords() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
-    testing::set_block_timestamp(TEST_START_TIME().into());
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 2);
@@ -1138,6 +1353,8 @@ fn test_start_tournament_with_free_game_multiple_and_lords() {
 
     contracts.golden_token.mint(OWNER(), 2);
     contracts.blobert.mint(OWNER(), 2);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     contracts.eth.approve(contracts.tournament.contract_address, 1000000000000000);
     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
@@ -1171,15 +1388,17 @@ fn test_start_tournament_with_free_game_over_start_count() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
-    testing::set_block_timestamp(TEST_START_TIME().into());
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 2);
 
     contracts.golden_token.mint(OWNER(), 2);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     contracts.eth.approve(contracts.tournament.contract_address, 400000000000000);
     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
@@ -1201,14 +1420,16 @@ fn test_start_tournament_with_free_game_over_entries() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
-    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
-    testing::set_block_timestamp(TEST_START_TIME().into());
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
     contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 2);
 
     contracts.golden_token.mint(OWNER(), 2);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     contracts.eth.approve(contracts.tournament.contract_address, 400000000000000);
     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
@@ -1220,6 +1441,84 @@ fn test_start_tournament_with_free_game_over_entries() {
             tournament_id, false, Option::None, ZERO(), array![1, 2].span(), array![].span()
         );
 }
+
+#[test]
+fn test_start_tournament_season() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = contracts
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            1,
+            Option::None,
+            Option::None,
+        );
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
+
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
+}
+
+#[test]
+fn test_start_tournament_with_free_game_multiple_starts() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = create_basic_tournament(contracts.tournament);
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
+    contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 2);
+
+    contracts.golden_token.mint(OWNER(), 2);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    contracts.eth.approve(contracts.tournament.contract_address, 200000000000000);
+    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+
+    // start one free game so that start count rises by 1
+    contracts.tournament.start_tournament(tournament_id, false, Option::Some(1), ZERO(), array![1].span(), array![].span());
+
+    contracts.eth.approve(contracts.tournament.contract_address, 200000000000000);
+    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![1].span(), array![].span()
+        );
+
+    // check tournament entries
+    assert(contracts.tournament.tournament_entries(tournament_id) == 2, 'Invalid entries');
+
+    // check golden tokens have returned back
+    assert(contracts.golden_token.owner_of(1) == OWNER(), 'Invalid owner');
+}
+
+
 //
 // Test submitting scores
 //
@@ -1232,6 +1531,8 @@ fn test_submit_scores() {
 
     let tournament_id = create_basic_tournament(contracts.tournament);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1240,7 +1541,9 @@ fn test_submit_scores() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1265,6 +1568,8 @@ fn test_submit_multiple_scores() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1272,6 +1577,8 @@ fn test_submit_multiple_scores() {
             Option::None, // zero gated type
             Option::None, // zero entry premium
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     contracts.tournament.enter_tournament(tournament_id, Option::None);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
@@ -1284,7 +1591,9 @@ fn test_submit_multiple_scores() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1320,6 +1629,8 @@ fn test_submit_scores_tiebreaker() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1327,6 +1638,8 @@ fn test_submit_scores_tiebreaker() {
             Option::None, // zero gated type
             Option::None, // zero entry premium
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     // Complete tournament with tied scores but different death dates
     contracts.tournament.enter_tournament(tournament_id, Option::None);
@@ -1338,7 +1651,9 @@ fn test_submit_scores_tiebreaker() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, true, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, true, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1373,6 +1688,8 @@ fn test_submit_scores_after_submission_period() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(), // start time
             TEST_END_TIME().into(), // end time
             MIN_SUBMISSION_PERIOD.into(), // submission period
@@ -1381,17 +1698,20 @@ fn test_submit_scores_after_submission_period() {
             Option::None, // zero entry premium
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     // Enter tournament
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Move to tournament start time
     testing::set_block_timestamp(TEST_START_TIME().into());
 
     // Start tournament
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // Create adventurer with score
     let submitted_adventurer = create_dead_adventurer_with_xp(10);
@@ -1418,6 +1738,8 @@ fn test_submit_scores_before_tournament_ends() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(), // start time
             TEST_END_TIME().into(), // end time
             MIN_SUBMISSION_PERIOD.into(),
@@ -1426,17 +1748,20 @@ fn test_submit_scores_before_tournament_ends() {
             Option::None, // zero entry premium
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     // Enter tournament
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Set timestamp before tournament start time
     testing::set_block_timestamp(TEST_START_TIME().into());
 
     // Start tournament
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // Create adventurer with score
     let submitted_adventurer = create_dead_adventurer_with_xp(10);
@@ -1459,6 +1784,8 @@ fn test_submit_scores_replace_lower_score() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1466,6 +1793,8 @@ fn test_submit_scores_replace_lower_score() {
             Option::None,
             Option::None,
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     // Create multiple players
     let player2 = starknet::contract_address_const::<0x456>();
@@ -1484,26 +1813,31 @@ fn test_submit_scores_replace_lower_score() {
     contracts.lords.mint(player3, STARTING_BALANCE);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Start tournament for all players
     testing::set_block_timestamp(TEST_START_TIME().into());
 
     utils::impersonate(OWNER());
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player2);
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player3);
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1567,6 +1901,8 @@ fn test_distribute_prizes_with_prizes() {
             1
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1575,7 +1911,9 @@ fn test_distribute_prizes_with_prizes() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1622,6 +1960,8 @@ fn test_distribute_prizes_prize_already_claimed() {
             1
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1630,7 +1970,9 @@ fn test_distribute_prizes_prize_already_claimed() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1666,6 +2008,8 @@ fn test_distribute_prizes_with_gated_tokens_criteria() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1680,6 +2024,8 @@ fn test_distribute_prizes_with_gated_tokens_criteria() {
     );
     let gated_submission_type = GatedSubmissionType::token_id(1);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::Some(gated_submission_type));
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1688,7 +2034,9 @@ fn test_distribute_prizes_with_gated_tokens_criteria() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // check tournament entries
     assert(contracts.tournament.tournament_entries(tournament_id) == 2, 'Invalid entries');
@@ -1733,6 +2081,8 @@ fn test_distribute_prizes_with_gated_tokens_uniform() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1747,6 +2097,8 @@ fn test_distribute_prizes_with_gated_tokens_uniform() {
     );
     let gated_submission_type = GatedSubmissionType::token_id(1);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::Some(gated_submission_type));
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1755,7 +2107,9 @@ fn test_distribute_prizes_with_gated_tokens_uniform() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // check tournament entries
     assert(contracts.tournament.tournament_entries(tournament_id) == 3, 'Invalid entries');
@@ -1796,6 +2150,8 @@ fn test_distribute_prizes_with_gated_tournaments() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1803,6 +2159,8 @@ fn test_distribute_prizes_with_gated_tournaments() {
             Option::None, // zero gated type
             Option::None, // zero entry premium
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
@@ -1812,7 +2170,9 @@ fn test_distribute_prizes_with_gated_tournaments() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1834,8 +2194,13 @@ fn test_distribute_prizes_with_gated_tournaments() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            current_time,
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time + 1 + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into(),
+            current_time + MIN_REGISTRATION_PERIOD.into(),
+            current_time
+               
+                + MIN_REGISTRATION_PERIOD.into()
+                + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1, // single top score
             Option::Some(gated_type), // zero gated type
@@ -1849,18 +2214,27 @@ fn test_distribute_prizes_with_gated_tournaments() {
     // submit game id 1
     let gated_submission_type = GatedSubmissionType::game_id(array![1].span());
 
+    testing::set_block_timestamp(current_time);
+
     contracts.tournament.enter_tournament(tournament_id, Option::Some(gated_submission_type));
 
-    testing::set_block_timestamp(current_time + MIN_REGISTRATION_PERIOD.into());
+    testing::set_block_timestamp(
+        current_time + MIN_REGISTRATION_PERIOD.into()
+    );
 
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(
-        current_time + 1 + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into()
+        current_time
+           
+            + MIN_REGISTRATION_PERIOD.into()
+            + MIN_TOURNAMENT_LENGTH.into()
     );
 
     // this is now adventurer 2
@@ -1890,6 +2264,8 @@ fn test_distribute_prizes_with_premiums() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1907,6 +2283,8 @@ fn test_distribute_prizes_with_premiums() {
     // handle approval for the premium
     contracts.erc20.approve(contracts.tournament.contract_address, 1);
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
     // check owner now has 1 less premium token
@@ -1914,9 +2292,7 @@ fn test_distribute_prizes_with_premiums() {
 
     // check tournament now has premium funds
     assert(
-        contracts.erc20.balance_of(contracts.tournament.contract_address) == 1,
-        'Invalid
-    balance'
+        contracts.erc20.balance_of(contracts.tournament.contract_address) == 1, 'Invalid balance'
     );
 
     testing::set_block_timestamp(TEST_START_TIME().into());
@@ -1925,7 +2301,9 @@ fn test_distribute_prizes_with_premiums() {
 
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -1961,6 +2339,8 @@ fn test_distribute_prizes_with_premium_creator_fee() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -1968,6 +2348,8 @@ fn test_distribute_prizes_with_premium_creator_fee() {
             Option::None, // zero gated type
             Option::Some(entry_premium), // premium with creator fee
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     // Enter tournament with two players
     utils::impersonate(OWNER());
@@ -1980,16 +2362,17 @@ fn test_distribute_prizes_with_premium_creator_fee() {
     contracts.erc20.approve(contracts.tournament.contract_address, 100);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Start tournament and submit scores
-    testing::set_block_timestamp(TEST_START_TIME().into());
-
     let creator_initial_balance = contracts.erc20.balance_of(OWNER());
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     utils::impersonate(OWNER());
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player2);
     contracts.eth.mint(player2, STARTING_BALANCE);
@@ -1997,7 +2380,9 @@ fn test_distribute_prizes_with_premium_creator_fee() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -2051,6 +2436,8 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -2058,6 +2445,8 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
             Option::None, // zero gated type
             Option::Some(entry_premium), // premium with distribution
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     // Create and enter with 4 players
     let player2 = starknet::contract_address_const::<0x456>();
@@ -2087,7 +2476,6 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
     contracts.erc20.approve(contracts.tournament.contract_address, 100);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Start tournament
     testing::set_block_timestamp(TEST_START_TIME().into());
 
     let third_initial = contracts.erc20.balance_of(OWNER());
@@ -2097,7 +2485,9 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player2);
     contracts.eth.mint(player2, STARTING_BALANCE);
@@ -2105,7 +2495,9 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player3);
     contracts.eth.mint(player3, STARTING_BALANCE);
@@ -2113,7 +2505,9 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player4);
     contracts.eth.mint(player4, STARTING_BALANCE);
@@ -2121,7 +2515,9 @@ fn test_distribute_prizes_with_premium_multiple_winners() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
 
@@ -2192,6 +2588,8 @@ fn test_tournament_with_no_submissions() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -2199,6 +2597,8 @@ fn test_tournament_with_no_submissions() {
             Option::None,
             Option::Some(entry_premium),
         );
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
 
     // Add some prizes
     contracts.erc20.approve(contracts.tournament.contract_address, STARTING_BALANCE);
@@ -2239,17 +2639,18 @@ fn test_tournament_with_no_submissions() {
     contracts.erc20.approve(contracts.tournament.contract_address, 100);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
 
-    // Start tournament for all players
-    testing::set_block_timestamp(TEST_START_TIME().into());
-
     // Store initial balances
     let creator_initial = contracts.erc20.balance_of(OWNER());
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
 
     utils::impersonate(OWNER());
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player2);
     contracts.eth.mint(player2, STARTING_BALANCE);
@@ -2257,7 +2658,9 @@ fn test_tournament_with_no_submissions() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     utils::impersonate(player3);
     contracts.eth.mint(player3, STARTING_BALANCE);
@@ -2265,7 +2668,9 @@ fn test_tournament_with_no_submissions() {
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
     contracts
         .tournament
-        .start_tournament(tournament_id, false, Option::None, ZERO(), array![].span(), array![].span());
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![].span(), array![].span()
+        );
 
     // Move to after tournament and submission period without any score submissions
     testing::set_block_timestamp((TEST_END_TIME() + MIN_SUBMISSION_PERIOD).into());
@@ -2311,6 +2716,8 @@ fn test_tournament_with_no_starts() {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -2339,6 +2746,8 @@ fn test_tournament_with_no_starts() {
             1
         );
 
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
     // Create multiple players
     let player2 = starknet::contract_address_const::<0x456>();
     let player3 = starknet::contract_address_const::<0x789>();
@@ -2357,9 +2766,6 @@ fn test_tournament_with_no_starts() {
     contracts.erc20.mint(player3, 100);
     contracts.erc20.approve(contracts.tournament.contract_address, 100);
     contracts.tournament.enter_tournament(tournament_id, Option::None);
-
-    // Start tournament for all players
-    testing::set_block_timestamp(TEST_START_TIME().into());
 
     // Store initial balances
     let creator_initial = contracts.erc20.balance_of(OWNER());

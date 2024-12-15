@@ -125,3 +125,30 @@ export const cleanObject = (obj: any): any =>
     if (obj[key] !== undefined) acc[key] = obj[key];
     return acc;
   }, {} as { [key: string]: any });
+
+export const calculatePayouts = (
+  totalPlaces: number,
+  weightingFactor: number
+): number[] => {
+  // Calculate the weights for each place
+  const weights: number[] = [];
+  for (let i = 1; i <= totalPlaces; i++) {
+    weights.push(1 / Math.pow(i, weightingFactor));
+  }
+
+  // Calculate the total weight
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+
+  // Calculate the percentage payouts
+  const payouts: number[] = weights.map(
+    (weight) => (weight / totalWeight) * 100
+  );
+
+  return payouts;
+};
+
+export const getRandomInt = (min: number, max: number): number => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};

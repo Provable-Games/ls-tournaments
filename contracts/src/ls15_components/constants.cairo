@@ -7,7 +7,7 @@ pub const VRF_COST_PER_GAME: u32 = 50000000; // $0.50 with 8 decimals
 //
 
 // PRODUCTION VALUES
-pub const MIN_REGISTRATION_PERIOD: u32 = 300; // 5 minutes
+pub const MIN_REGISTRATION_PERIOD: u32 = 3600; // 1 hour
 pub const MAX_REGISTRATION_PERIOD: u32 = 2592000; // 1 month
 pub const MIN_TOURNAMENT_LENGTH: u32 = 3600; // 1 hour
 pub const MAX_TOURNAMENT_LENGTH: u32 = 15552000; // 6 months
@@ -33,6 +33,10 @@ pub fn LORDS_ADDRESS() -> ContractAddress {
 
 pub fn SURVIVORS_ADDRESS() -> ContractAddress {
     contract_address_const::<0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4>()
+}
+
+pub fn BEASTS_ADDRESS() -> ContractAddress {
+    contract_address_const::<0x0158160018d590d93528995b340260e65aedd76d28a686e9daa5c4e8fad0c5dd>()
 }
 
 pub const ETH_SAFE_AMOUNT: u128 = 1000000000000000; // 0.001 ETH

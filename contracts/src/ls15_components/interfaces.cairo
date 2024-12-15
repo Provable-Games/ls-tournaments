@@ -1,7 +1,6 @@
 use starknet::ContractAddress;
 use adventurer::{adventurer::Adventurer, adventurer_meta::AdventurerMetadata, bag::Bag};
 use dojo::world::{WorldStorage, WorldStorageTrait, IWorldDispatcher};
-use tournament::presets::ls_tournament::{ILSTournamentDispatcher};
 use tournament::ls15_components::models::tournament::FreeGameTokenType;
 
 use tournament::ls15_components::libs::utils::ZERO;
@@ -73,22 +72,5 @@ pub impl WorldImpl of WorldTrait {
         (WorldStorageTrait::new(dispatcher, namespace))
     }
 
-    //
-    // addresses
-    //
-
-    #[inline(always)]
-    fn ls_tournament_address(self: @WorldStorage) -> ContractAddress {
-        (self.contract_address(@"LSTournament"))
-    }
-
-    //
-    // dispatchers
-    //
-
-    #[inline(always)]
-    fn ls_tournament_dispatcher(self: @WorldStorage) -> ILSTournamentDispatcher {
-        (ILSTournamentDispatcher { contract_address: self.ls_tournament_address() })
-    }
 }
 

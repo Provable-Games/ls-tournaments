@@ -1,29 +1,37 @@
 import { useMemo, useState } from "react";
-import { useGetUpcomingTournamentsQuery } from "@/hooks/useSdkQueries";
+// import { useGetUpcomingTournamentsQuery } from "@/hooks/useSdkQueries";
 import UpcomingRow from "@/components/overview/UpcomingRow";
 import Pagination from "@/components/table/Pagination";
+import { useDojoStore } from "@/hooks/useDojoStore";
+import { bigintToHex } from "@/lib/utils";
+import { addAddressPadding } from "starknet";
 
 const UpcomingTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const hexTimestamp = useMemo(
-    () => (BigInt(new Date().getTime()) / 1000n).toString(16),
+    () => bigintToHex(BigInt(new Date().getTime()) / 1000n),
     []
   );
-  const { entities: tournaments, isLoading } =
-    useGetUpcomingTournamentsQuery(hexTimestamp);
+  // const { entities: tournaments, isLoading } =
+  //   useGetUpcomingTournamentsQuery(hexTimestamp);
+  const state = useDojoStore();
+  const upcomingTournaments = state.getEntities((entity) => {
+    const startTime = entity.models.tournament.TournamentModel?.start_time!;
+    return startTime > addAddressPadding(hexTimestamp);
+  });
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
 
   const totalPages = useMemo(() => {
-    if (!tournaments) return 0;
-    return Math.ceil(tournaments.length / 10);
-  }, [tournaments]);
+    if (!upcomingTournaments) return 0;
+    return Math.ceil(upcomingTournaments.length / 10);
+  }, [upcomingTournaments]);
 
   const pagedTournaments = useMemo(() => {
-    if (!tournaments) return [];
-    return tournaments.slice((currentPage - 1) * 10, currentPage * 10);
-  }, [tournaments, currentPage]);
+    if (!upcomingTournaments) return [];
+    return upcomingTournaments.slice((currentPage - 1) * 10, currentPage * 10);
+  }, [upcomingTournaments, currentPage]);
 
   return (
     <div className="w-3/5 flex flex-col items-center border-4 border-terminal-green/75 h-full">
@@ -31,7 +39,7 @@ const UpcomingTable = () => {
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Upcoming</p>
         <div className="w-1/4 flex justify-end">
-          {tournaments && tournaments.length > 10 && (
+          {upcomingTournaments && upcomingTournaments.length > 10 && (
             <Pagination
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -48,6 +56,7 @@ const UpcomingTable = () => {
                 <th className="px-2 text-left">Name</th>
                 <th className="text-left">Entries</th>
                 <th className="text-left">Start</th>
+                <th className="text-left">Phase</th>
                 <th className="text-left">Duration</th>
                 <th className="text-left">Entry Fee</th>
                 <th className="text-left">Creator Fee</th>
@@ -55,16 +64,23 @@ const UpcomingTable = () => {
               </tr>
             </thead>
             <tbody>
-              {tournaments && tournaments.length > 0 ? (
+              {upcomingTournaments && upcomingTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel = tournament.TournamentModel;
+                  const tournamentModel =
+                    tournament.models.tournament.TournamentModel;
                   const tournamentPrizeKeys =
-                    tournament.TournamentPrizeKeysModel;
+                    tournament.models.tournament.TournamentPrizeKeysModel;
                   return (
                     <UpcomingRow
                       key={tournament.entityId}
                       tournamentId={tournamentModel?.tournament_id}
                       name={tournamentModel?.name}
+                      registrationStartTime={
+                        tournamentModel?.registration_start_time
+                      }
+                      registrationEndTime={
+                        tournamentModel?.registration_end_time
+                      }
                       startTime={tournamentModel?.start_time}
                       endTime={tournamentModel?.end_time}
                       entryPremium={tournamentModel?.entry_premium}
@@ -72,10 +88,6 @@ const UpcomingTable = () => {
                     />
                   );
                 })
-              ) : isLoading ? (
-                <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">Loading...</p>
-                </div>
               ) : (
                 <div className="absolute flex items-center justify-center w-full h-full">
                   <p className="text-2xl text-center">

@@ -21,6 +21,8 @@ pub trait ITournamentMock<TState> {
         ref self: TState,
         name: felt252,
         description: ByteArray,
+        registration_start_time: u64,
+        registration_end_time: u64,
         start_time: u64,
         end_time: u64,
         submission_period: u64,

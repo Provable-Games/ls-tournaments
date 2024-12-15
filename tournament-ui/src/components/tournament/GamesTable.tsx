@@ -6,38 +6,34 @@ import { bigintToHex } from "@/lib/utils";
 import { addAddressPadding } from "starknet";
 
 interface ScoreTableProps {
-  tournamentScores: any;
   adventurersData: any;
 }
 
-const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
+const ScoreTable = ({ adventurersData }: ScoreTableProps) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
-    if (!tournamentScores) return 0;
-    return Math.ceil(tournamentScores.top_score_ids.length / 10);
-  }, [tournamentScores]);
+    if (!adventurersData) return 0;
+    return Math.ceil(adventurersData.length / 10);
+  }, [adventurersData]);
 
-  const pagedScores = useMemo(() => {
-    if (!tournamentScores) return [];
-    return tournamentScores.top_score_ids.slice(
-      (currentPage - 1) * 10,
-      currentPage * 10
-    );
-  }, [tournamentScores, currentPage]);
+  const pagedAdventurers = useMemo(() => {
+    if (!adventurersData) return [];
+    return adventurersData.slice((currentPage - 1) * 10, currentPage * 10);
+  }, [adventurersData, currentPage]);
 
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
-      {tournamentScores && tournamentScores.length > 10 ? (
+      {adventurersData && adventurersData.length > 0 ? (
         <>
           <div className="flex flex-row items-center justify-between w-full">
             <div className="w-1/4"></div>
             <p className="w-1/2 text-4xl text-center uppercase">Scores</p>
             <div className="w-1/4 flex justify-end">
-              {tournamentScores && tournamentScores.length > 10 && (
+              {adventurersData && adventurersData.length > 10 && (
                 <Pagination
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
@@ -58,9 +54,9 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
               </tr>
             </thead>
             <tbody>
-              {tournamentScores &&
-                tournamentScores.top_score_ids.length > 0 &&
-                pagedScores.map((gameId: any, index: any) => {
+              {adventurersData &&
+                adventurersData.length > 0 &&
+                pagedAdventurers.map((gameId: any, index: any) => {
                   const adventurer = isMainnet
                     ? adventurersData?.find(
                         (adventurer: any) =>
@@ -86,9 +82,7 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
         </>
       ) : (
         <div className="flex items-center justify-center h-full">
-          <p className="text-xl uppercase">
-            Tournament has no scores submitted
-          </p>
+          <p className="text-xl uppercase">Tournament has no games played</p>
         </div>
       )}
     </div>

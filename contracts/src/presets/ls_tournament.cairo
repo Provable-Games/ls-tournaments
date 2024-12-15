@@ -175,5 +175,23 @@ pub mod LSTournament {
                 "STARKNET BROTHER",
                 "BROTHER"
             );
+        self
+            .tournament
+            .initialize_erc721(
+                contract_address_const::<
+                    0x00539f522b29ae9251dbf7443c7a950cf260372e69efab3710a11bf17a9599f1
+                >(),
+                "Blobert",
+                "BLOB"
+            );
+        self
+            .tournament
+            .initialize_erc721(
+                contract_address_const::<
+                    0x0158160018d590d93528995b340260e65aedd76d28a686e9daa5c4e8fad0c5dd
+                >(),
+                "Beasts",
+                "BEASTS"
+            );
     }
 }

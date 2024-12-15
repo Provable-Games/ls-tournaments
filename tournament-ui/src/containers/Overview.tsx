@@ -5,9 +5,11 @@ import { useDojoStore } from "@/hooks/useDojoStore";
 import { ParsedEntity } from "@dojoengine/sdk";
 import { SchemaType } from "@/generated/models.gen";
 import { feltToString } from "@/lib/utils";
+import { useGetAllTournamentsQuery } from "@/hooks/useSdkQueries";
 
 const Overview = () => {
   const state = useDojoStore((state) => state);
+  useGetAllTournamentsQuery();
   const tournamentTotals = state.getEntitiesByModel(
     "tournament",
     "TournamentTotalsModel"
@@ -49,9 +51,9 @@ const Overview = () => {
           </p>
         </div>
       </div>
-      <div className="flex flex-row gap-2 w-full py-4 uppercase h-[525px]">
+      <div className="flex flex-row gap-5 w-full py-4 uppercase h-[525px]">
         <UpcomingTable />
-        <div className="w-2/5 flex flex-col gap-2">
+        <div className="w-2/5 flex flex-col gap-5">
           <LiveTable />
           <EndTable />
         </div>

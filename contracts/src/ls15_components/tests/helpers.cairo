@@ -1,7 +1,10 @@
 use starknet::get_block_timestamp;
 use tournament::ls15_components::constants::MIN_SUBMISSION_PERIOD;
 use tournament::tests::{
-    constants::{TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, TEST_START_TIME, TEST_END_TIME},
+    constants::{
+        TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, TEST_REGISTRATION_START_TIME,
+        TEST_REGISTRATION_END_TIME, TEST_START_TIME, TEST_END_TIME
+    },
 };
 use tournament::ls15_components::tests::interfaces::{
     IERC20MockDispatcher, IERC20MockDispatcherTrait
@@ -25,6 +28,8 @@ pub fn create_basic_tournament(tournament: ITournamentMockDispatcher) -> u64 {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),

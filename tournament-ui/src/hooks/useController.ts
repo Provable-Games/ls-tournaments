@@ -1,6 +1,6 @@
-import { useCallback, useRef, useMemo } from "react";
+import { useCallback, useRef, useMemo, useState, useEffect } from "react";
 import { useAccount, useConnect, Connector } from "@starknet-react/core";
-import { Policy, ControllerOptions } from "@cartridge/controller";
+import { Policy, lookupAddresses } from "@cartridge/controller";
 import { ControllerConnector } from "@cartridge/connector";
 import { ContractInterfaces } from "@/config";
 import { DojoManifest } from "@/hooks/useDojoSystem";
@@ -38,22 +38,6 @@ export const makeControllerConnector = (
 ): Connector => {
   const policies = _makeControllerPolicies(manifest);
 
-  // TODO: remove fixed addresses
-
-  policies.push({
-    target:
-      "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-    method: "approve",
-    description: "eth::approve()",
-  });
-
-  policies.push({
-    target:
-      "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
-    method: "approve",
-    description: "lords::approve()",
-  });
-
   // tokens to display
   // const tokens: Tokens = {
   //   erc20: [
@@ -63,19 +47,11 @@ export const makeControllerConnector = (
   //   // erc721: [],
   // }
 
-  const options: ControllerOptions = {
-    // ProviderOptions
+  const connector = new ControllerConnector({
     rpc: rpcUrl,
-    // IFrameOptions
-    // theme: "tournament",
-    // colorMode: "dark",
-    // KeychainOptions
+    theme: "loot-survivor",
     policies,
-    // namespace,
-    // slot,
-    // tokens,
-  };
-  const connector = new ControllerConnector(options) as never as Connector;
+  }) as never as Connector;
   return connector;
 };
 
@@ -123,6 +99,48 @@ export const useConnectedController = () => {
     [connector]
   );
   return controllerConnector;
+};
+
+export const useControllerUsername = () => {
+  const { connector } = useConnect();
+  const [username, setUsername] = useState<string | undefined>(undefined);
+
+  const getUsername = useCallback(async () => {
+    if (!connector) return;
+    const username = await (
+      connector as unknown as ControllerConnector
+    ).username();
+    setUsername(username || "");
+  }, [connector]);
+
+  useEffect(() => {
+    getUsername();
+  }, []);
+
+  return {
+    username,
+  };
+};
+
+export const useGetUsernames = (addresses: string[]) => {
+  const [usernames, setUsernames] = useState<Map<string, string> | undefined>(
+    undefined
+  );
+
+  const fetchUsernames = useCallback(async () => {
+    if (!addresses.length) return;
+    const addressMap = await lookupAddresses(addresses);
+    setUsernames(addressMap);
+  }, [addresses]);
+
+  useEffect(() => {
+    fetchUsernames();
+  }, [addresses]);
+
+  return {
+    usernames,
+    refetch: fetchUsernames,
+  };
 };
 
 // export const useControllerAccount = (contractAddress: BigNumberish) => {

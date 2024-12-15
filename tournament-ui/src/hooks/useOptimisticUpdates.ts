@@ -202,6 +202,22 @@ export const useOptimisticUpdates = () => {
     };
   };
 
+  // const applyTournamentSubmitScoresUpdate = (
+  //   tournamentId: BigNumberish,
+  //   gameIds: BigNumberish[]
+  // ) => {
+  //   const entityId = getEntityIdFromKeys([BigInt(tournamentId)]);
+  //   const transactionId = uuidv4();
+
+  //   state.applyOptimisticUpdate(transactionId, (draft) => {
+  //     if (draft.entities[entityId]?.models?.tournament?.TournamentScoresModel) {
+  //       draft.entities[
+  //         entityId
+  //       ].models.tournament.TournamentScoresModel.scores = gameIds;
+  //     }
+  //   });
+  // };
+
   const applyTournamentPrizeUpdate = (
     tournamentId: BigNumberish,
     prizeKey: BigNumberish

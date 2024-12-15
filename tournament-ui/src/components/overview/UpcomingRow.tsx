@@ -8,6 +8,8 @@ import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries.ts";
 interface UpcomingRowProps {
   tournamentId?: any;
   name?: any;
+  registrationStartTime?: any;
+  registrationEndTime?: any;
   startTime?: any;
   endTime?: any;
   entryPremium?: any;
@@ -17,12 +19,17 @@ interface UpcomingRowProps {
 const UpcomingRow = ({
   tournamentId,
   name,
+  registrationStartTime,
+  registrationEndTime,
   startTime,
   endTime,
   // entryPremium,
   prizeKeys,
 }: UpcomingRowProps) => {
   const navigate = useNavigate();
+  const currentTime = new Date().getTime();
+  const registrationStartTimestamp = Number(registrationStartTime) * 1000;
+  const registrationEndTimestamp = Number(registrationEndTime) * 1000;
   const startTimestamp = Number(startTime) * 1000;
   const startDate = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
@@ -37,6 +44,13 @@ const UpcomingRow = ({
     tournamentDetails && entryIndex !== -1
       ? tournamentDetails[entryIndex].TournamentEntriesModel
       : { entry_count: 0 };
+
+  const status =
+    registrationStartTimestamp > currentTime
+      ? "Pre Registration"
+      : registrationEndTimestamp < currentTime
+      ? "Registration Closed"
+      : "Registration Open";
   return (
     <tr
       className="h-10 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
@@ -53,6 +67,7 @@ const UpcomingRow = ({
         {BigInt(tournamentEntries?.entry_count ?? 0).toString()}
       </td>
       <td>{startDate}</td>
+      <td>{status}</td>
       <td>{formatTime(Number(endTime) - Number(startTime))}</td>
       <td>
         -

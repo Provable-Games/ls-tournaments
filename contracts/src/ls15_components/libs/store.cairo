@@ -28,70 +28,70 @@ pub impl StoreImpl of StoreTrait {
     // Tournament
 
     #[inline(always)]
-    fn get_tournament_totals(ref self: Store, contract: ContractAddress) -> TournamentTotalsModel {
+    fn get_tournament_totals(self: Store, contract: ContractAddress) -> TournamentTotalsModel {
         (self.world.read_model(contract))
     }
 
     #[inline(always)]
-    fn get_tournament(ref self: Store, tournament_id: u64) -> TournamentModel {
+    fn get_tournament(self: Store, tournament_id: u64) -> TournamentModel {
         (self.world.read_model(tournament_id))
     }
 
     #[inline(always)]
-    fn get_total_entries(ref self: Store, tournament_id: u64) -> TournamentEntriesModel {
+    fn get_total_entries(self: Store, tournament_id: u64) -> TournamentEntriesModel {
         (self.world.read_model(tournament_id))
     }
 
     #[inline(always)]
     fn get_address_entries(
-        ref self: Store, tournament_id: u64, account: ContractAddress
+        self: Store, tournament_id: u64, account: ContractAddress
     ) -> TournamentEntriesAddressModel {
         (self.world.read_model((tournament_id, account),))
     }
 
     #[inline(always)]
     fn get_tournament_entry_addresses(
-        ref self: Store, tournament_id: u64
+        self: Store, tournament_id: u64
     ) -> TournamentEntryAddressesModel {
         (self.world.read_model(tournament_id))
     }
 
     #[inline(always)]
     fn get_tournament_starts(
-        ref self: Store, tournament_id: u64, address: ContractAddress
+        self: Store, tournament_id: u64, address: ContractAddress
     ) -> TournamentStartsAddressModel {
         (self.world.read_model((tournament_id, address),))
     }
 
     #[inline(always)]
     fn get_tournament_game(
-        ref self: Store, tournament_id: u64, game_id: felt252
+        self: Store, tournament_id: u64, game_id: felt252
     ) -> TournamentGameModel {
         (self.world.read_model((tournament_id, game_id),))
     }
 
     #[inline(always)]
-    fn get_tournament_scores(ref self: Store, tournament_id: u64) -> TournamentScoresModel {
+    fn get_tournament_scores(self: Store, tournament_id: u64) -> TournamentScoresModel {
         (self.world.read_model(tournament_id))
     }
 
     #[inline(always)]
-    fn get_prize_keys(ref self: Store, tournament_id: u64) -> TournamentPrizeKeysModel {
+    fn get_prize_keys(self: Store, tournament_id: u64) -> TournamentPrizeKeysModel {
         (self.world.read_model(tournament_id))
     }
 
     #[inline(always)]
-    fn get_prize(ref self: Store, prize_key: u64) -> PrizesModel {
+    fn get_prize(self: Store, prize_key: u64) -> PrizesModel {
         (self.world.read_model(prize_key))
     }
 
     #[inline(always)]
-    fn get_token(ref self: Store, token: ContractAddress) -> TokenModel {
+    fn get_token(self: Store, token: ContractAddress) -> TokenModel {
         (self.world.read_model(token))
     }
 
     #[inline(always)]
-    fn get_tournament_config(ref self: Store, contract: ContractAddress) -> TournamentConfig {
+    fn get_tournament_config(self: Store, contract: ContractAddress) -> TournamentConfig {
         (self.world.read_model(contract))
     }
     // Setters

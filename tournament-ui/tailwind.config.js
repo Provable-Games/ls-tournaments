@@ -34,5 +34,45 @@ export default {
 		},
   	}
   },
-  plugins: [tailwindcssAnimate],
+  plugins: [
+		function ({ addUtilities, theme }) {
+		  const newUtilities = {
+			".custom-range-input": {
+			  "&::-webkit-slider-thumb": {
+				"-webkit-appearance": "none",
+				appearance: "none",
+				width: "15px",
+				height: "15px",
+				"background-color": "rgba(74, 246, 38, 1)",
+				cursor: "pointer",
+			  },
+			  "&::-moz-range-thumb": {
+				width: "15px",
+				height: "15px",
+				"background-color": "rgba(74, 246, 38, 1)",
+				cursor: "pointer",
+			  },
+			  "&::-webkit-slider-runnable-track": {
+				"background-color": "rgba(0, 0, 0, 1)",
+				"border-radius": "0px",
+			  },
+			  ".no-scrollbar": {
+				/* IE and Edge */
+				"-ms-overflow-style": "none",
+	
+				/* Firefox */
+				"scrollbar-width": "none",
+	
+				/* Safari and Chrome */
+				"&::-webkit-scrollbar": {
+				  display: "none",
+				},
+			  },
+			},
+		  };
+		  addUtilities(newUtilities);
+		},
+
+	tailwindcssAnimate,
+  ],
 }
