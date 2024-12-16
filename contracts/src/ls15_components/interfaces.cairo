@@ -71,6 +71,5 @@ pub impl WorldImpl of WorldTrait {
     fn storage(dispatcher: IWorldDispatcher, namespace: @ByteArray) -> WorldStorage {
         (WorldStorageTrait::new(dispatcher, namespace))
     }
-
 }
 

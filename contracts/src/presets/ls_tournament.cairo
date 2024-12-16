@@ -21,6 +21,8 @@ pub trait ILSTournament<TState> {
         ref self: TState,
         name: felt252,
         description: ByteArray,
+        registration_start_time: u64,
+        registration_end_time: u64,
         start_time: u64,
         end_time: u64,
         submission_period: u64,
@@ -32,7 +34,12 @@ pub trait ILSTournament<TState> {
         ref self: TState, tournament_id: u64, gated_submission_type: Option<GatedSubmissionType>
     );
     fn start_tournament(
-        ref self: TState, tournament_id: u64, start_all: bool, start_count: Option<u64>
+        ref self: TState,
+        tournament_id: u64,
+        start_all: bool,
+        start_count: Option<u64>,
+        golden_token_free_game_ids: Span<u256>,
+        blobert_free_game_ids: Span<u256>,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(

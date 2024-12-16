@@ -64,10 +64,11 @@ pub mod tournament_component {
     use core::num::traits::Zero;
 
     use tournament::ls15_components::constants::{
-        VRF_COST_PER_GAME, MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD,
-        MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD, TEST_MIN_REGISTRATION_PERIOD, TEST_MIN_SUBMISSION_PERIOD,
-        TEST_MIN_TOURNAMENT_LENGTH, GAME_EXPIRATION_PERIOD, ETHEREUM_ADDRESS, LORDS_ADDRESS,
-        SURVIVORS_ADDRESS, BEASTS_ADDRESS, ETH_SAFE_AMOUNT, LORDS_SAFE_AMOUNT
+        VRF_COST_PER_GAME, MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_TOURNAMENT_LENGTH,
+        MAX_TOURNAMENT_LENGTH, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
+        TEST_MIN_REGISTRATION_PERIOD, TEST_MIN_SUBMISSION_PERIOD, TEST_MIN_TOURNAMENT_LENGTH,
+        GAME_EXPIRATION_PERIOD, ETHEREUM_ADDRESS, LORDS_ADDRESS, SURVIVORS_ADDRESS, BEASTS_ADDRESS,
+        ETH_SAFE_AMOUNT, LORDS_SAFE_AMOUNT
     };
     use tournament::ls15_components::interfaces::{
         ILootSurvivorDispatcher, ILootSurvivorDispatcherTrait, IPragmaABIDispatcher,
@@ -505,7 +506,7 @@ pub mod tournament_component {
             // check we actually need to pay for a game
             if (paid_starts > 0) {
                 lords_dispatcher
-                .transfer_from(get_caller_address(), get_contract_address(), entries_cost);
+                    .transfer_from(get_caller_address(), get_contract_address(), entries_cost);
                 lords_dispatcher.approve(tournament_config.loot_survivor, entries_cost);
             }
 
@@ -979,18 +980,12 @@ pub mod tournament_component {
         //
 
         fn _assert_future_start_time(
-            self: @ComponentState<TContractState>,
-            registration_start_time: u64,
-            start_time: u64
+            self: @ComponentState<TContractState>, registration_start_time: u64, start_time: u64
         ) {
             assert(
-                registration_start_time >= get_block_timestamp(),
-                Errors::START_TIME_NOT_IN_FUTURE
+                registration_start_time >= get_block_timestamp(), Errors::START_TIME_NOT_IN_FUTURE
             );
-            assert(
-                start_time >= get_block_timestamp(),
-                Errors::START_TIME_NOT_IN_FUTURE
-            );
+            assert(start_time >= get_block_timestamp(), Errors::START_TIME_NOT_IN_FUTURE);
         }
 
         fn _assert_bigger_than_min_registration_period(

@@ -1,8 +1,6 @@
 use starknet::{ContractAddress, contract_address_const};
 
-use tournament::ls15_components::constants::{
-    MIN_REGISTRATION_PERIOD, MIN_TOURNAMENT_LENGTH
-};
+use tournament::ls15_components::constants::{MIN_REGISTRATION_PERIOD, MIN_TOURNAMENT_LENGTH};
 
 pub fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()

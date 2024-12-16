@@ -7,8 +7,8 @@ use dojo_cairo_test::{
 };
 
 use tournament::ls15_components::constants::{
-    MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_SUBMISSION_PERIOD,
-    MAX_SUBMISSION_PERIOD, MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH
+    MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
+    MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH
 };
 
 use tournament::ls15_components::tests::interfaces::WorldTrait;
@@ -41,18 +41,13 @@ use tournament::ls15_components::tests::helpers::{
     create_adventurer_metadata_with_death_date, create_dead_adventurer_with_xp
 };
 use tournament::ls15_components::tests::mocks::{
-    erc20_mock::erc20_mock,
-    erc721_mock::erc721_mock,
-    tournament_mock::tournament_mock,
-    pragma_mock::pragma_mock,
-    loot_survivor_mock::loot_survivor_mock,
+    erc20_mock::erc20_mock, erc721_mock::erc721_mock, tournament_mock::tournament_mock,
+    pragma_mock::pragma_mock, loot_survivor_mock::loot_survivor_mock,
 };
 use tournament::ls15_components::tests::interfaces::{
-    ILootSurvivorMockDispatcher, ILootSurvivorMockDispatcherTrait,
-    ITournamentMockDispatcher, ITournamentMockDispatcherTrait,
-    IERC20MockDispatcher, IERC20MockDispatcherTrait,
-    IERC721MockDispatcher, IERC721MockDispatcherTrait,
-    IPragmaMockDispatcher,
+    ILootSurvivorMockDispatcher, ILootSurvivorMockDispatcherTrait, ITournamentMockDispatcher,
+    ITournamentMockDispatcherTrait, IERC20MockDispatcher, IERC20MockDispatcherTrait,
+    IERC721MockDispatcher, IERC721MockDispatcherTrait, IPragmaMockDispatcher,
 };
 
 use openzeppelin_token::erc721::interface;
@@ -698,10 +693,7 @@ fn test_create_gated_tournament_with_unsettled_tournament() {
             current_time, // start after first tournament
             current_time + MIN_REGISTRATION_PERIOD.into(),
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time
-               
-                + MIN_REGISTRATION_PERIOD.into()
-                + MIN_TOURNAMENT_LENGTH.into(),
+            current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1,
             Option::Some(gated_type), // Gate by first tournament
@@ -799,10 +791,7 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
             current_time,
             current_time + MIN_REGISTRATION_PERIOD.into(),
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time
-               
-                + MIN_REGISTRATION_PERIOD.into()
-                + MIN_TOURNAMENT_LENGTH.into(),
+            current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1,
             Option::Some(gated_type),
@@ -813,9 +802,7 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
     let gated_tournament = contracts.tournament.tournament(gated_tournament_id);
     assert(gated_tournament.gated_type == Option::Some(gated_type), 'Invalid tournament gate type');
 
-    testing::set_block_timestamp(
-        current_time + MIN_REGISTRATION_PERIOD.into()
-    );
+    testing::set_block_timestamp(current_time + MIN_REGISTRATION_PERIOD.into());
 
     let gated_submission_type = GatedSubmissionType::game_id(array![1, 2].span());
     // This should succeed since we completed both required tournaments
@@ -1055,10 +1042,7 @@ fn test_enter_tournament_wrong_submission_type() {
             current_time,
             current_time + MIN_REGISTRATION_PERIOD.into(),
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time
-               
-                + MIN_REGISTRATION_PERIOD.into()
-                + MIN_TOURNAMENT_LENGTH.into(),
+            current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1,
             Option::Some(gated_type),
@@ -1068,9 +1052,7 @@ fn test_enter_tournament_wrong_submission_type() {
     // Try to enter with wrong submission type (token_id instead of game_id)
     let wrong_submission_type = GatedSubmissionType::token_id(1);
 
-    testing::set_block_timestamp(
-        current_time + MIN_REGISTRATION_PERIOD.into()
-    );
+    testing::set_block_timestamp(current_time + MIN_REGISTRATION_PERIOD.into());
 
     // This should panic because we're using token_id submission type for a tournament-gated
     // tournament
@@ -1500,7 +1482,11 @@ fn test_start_tournament_with_free_game_multiple_starts() {
     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
 
     // start one free game so that start count rises by 1
-    contracts.tournament.start_tournament(tournament_id, false, Option::Some(1), ZERO(), array![1].span(), array![].span());
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::Some(1), ZERO(), array![1].span(), array![].span()
+        );
 
     contracts.eth.approve(contracts.tournament.contract_address, 200000000000000);
     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
@@ -2197,10 +2183,7 @@ fn test_distribute_prizes_with_gated_tournaments() {
             current_time,
             current_time + MIN_REGISTRATION_PERIOD.into(),
             current_time + MIN_REGISTRATION_PERIOD.into(),
-            current_time
-               
-                + MIN_REGISTRATION_PERIOD.into()
-                + MIN_TOURNAMENT_LENGTH.into(),
+            current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into(),
             MIN_SUBMISSION_PERIOD.into(),
             1, // single top score
             Option::Some(gated_type), // zero gated type
@@ -2218,9 +2201,7 @@ fn test_distribute_prizes_with_gated_tournaments() {
 
     contracts.tournament.enter_tournament(tournament_id, Option::Some(gated_submission_type));
 
-    testing::set_block_timestamp(
-        current_time + MIN_REGISTRATION_PERIOD.into()
-    );
+    testing::set_block_timestamp(current_time + MIN_REGISTRATION_PERIOD.into());
 
     approve_game_costs(contracts.eth, contracts.lords, contracts.tournament, 1);
 
@@ -2231,10 +2212,7 @@ fn test_distribute_prizes_with_gated_tournaments() {
         );
 
     testing::set_block_timestamp(
-        current_time
-           
-            + MIN_REGISTRATION_PERIOD.into()
-            + MIN_TOURNAMENT_LENGTH.into()
+        current_time + MIN_REGISTRATION_PERIOD.into() + MIN_TOURNAMENT_LENGTH.into()
     );
 
     // this is now adventurer 2

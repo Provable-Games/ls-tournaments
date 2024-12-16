@@ -39,10 +39,6 @@ private_key = "0xc5b2fcab997346f3ea1c00b002ecf6f382c5f9c9659a3894eb783c5320f912"
 
 [init_call_args]
 "tournament-LSTournament" = [
-    "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-    "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
-    "0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4",
-    "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
     "1", # safe_mode
     "1" # test_mode
 ]
