@@ -12,9 +12,18 @@ import useModel from "@/useModel";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { addAddressPadding } from "starknet";
+import { useDojo } from "@/DojoContext";
 
 export function ConfigStoreSync() {
-  const tournament = useDojoSystem("LSTournament").contractAddress;
+  const {
+    setup: { selectedChainConfig },
+  } = useDojo();
+
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+
+  const tournament = isMainnet
+    ? useDojoSystem("LSTournament").contractAddress
+    : useDojoSystem("tournament_mock").contractAddress;
   const query_get: TournamentGetQuery = {
     tournament: {
       TournamentConfig: {
@@ -48,7 +57,15 @@ export function ConfigStoreSync() {
 }
 
 export const useConfig = () => {
-  const tournament = useDojoSystem("LSTournament").contractAddress;
+  const {
+    setup: { selectedChainConfig },
+  } = useDojo();
+
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+
+  const tournament = isMainnet
+    ? useDojoSystem("LSTournament").contractAddress
+    : useDojoSystem("tournament_mock").contractAddress;
   const entityId = useMemo(
     () => getEntityIdFromKeys([BigInt(tournament)]),
     [tournament]
@@ -61,5 +78,9 @@ export const useConfig = () => {
     lordsAddress: config?.lords,
     lootSurvivorAddress: config?.loot_survivor,
     oracleAddress: config?.oracle,
+    goldenTokenAddress: config?.golden_token,
+    blobertAddress: config?.blobert,
+    safeModeAddress: config?.safe_mode,
+    testMode: config?.test_mode,
   };
 };

@@ -1,11 +1,16 @@
 import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
+import SelectToken from "@/components/buttons/SelectToken";
+import { InputTokenModel } from "@/generated/models.gen";
 
 const TournamentGating = () => {
   const { formData, setFormData } = useUIStore();
   const [tournamentGatingDisabled, setTournamentGatingDisabled] =
     useState(true);
+  const [selectedToken, setSelectedToken] = useState<InputTokenModel | null>(
+    null
+  );
   const [gatedType, setGatedType] = useState<number>(0);
   const [_, setUniformEntryCount] = useState(0);
   // const [_, setEntryCriteria] = useState<
@@ -122,13 +127,12 @@ const TournamentGating = () => {
         <div className="flex flex-row px-5 gap-5">
           <div className="flex flex-col py-2">
             <p className="text-xl uppercase text-terminal-green/75">Token</p>
-            <Button
-              variant="token"
-              className="border-terminal-green/75"
+            <SelectToken
+              selectedToken={selectedToken}
+              setSelectedToken={setSelectedToken}
               disabled={tournamentGatingDisabled}
-            >
-              <p className="text-terminal-green/75">Select Token</p>
-            </Button>
+              type="erc721"
+            />
           </div>
           <div className="h-full w-0.5 bg-terminal-green/50" />
           <div className="flex flex-col py-2">

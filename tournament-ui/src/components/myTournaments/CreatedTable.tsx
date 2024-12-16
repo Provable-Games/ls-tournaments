@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { useAccount } from "@starknet-react/core";
 import { addAddressPadding } from "starknet";
-import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
+import { useDojoStore } from "@/hooks/useDojoStore";
+// import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
 import CreatedRow from "@/components/myTournaments/CreatedRow";
 import Pagination from "@/components/table/Pagination";
 
@@ -12,21 +13,26 @@ const CreatedTable = () => {
     () => addAddressPadding(account?.address ?? "0x0"),
     [account]
   );
-  const { entities: tournaments, isLoading } =
-    useGetAccountCreatedTournamentsQuery(address);
+  const state = useDojoStore();
+  // const { entities: tournaments, isLoading } =
+  //   useGetAccountCreatedTournamentsQuery(address);
+  const createdTournaments = state.getEntities((entity) => {
+    const creator = entity.models.tournament.TournamentModel?.creator!;
+    return creator === address;
+  });
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
 
   const totalPages = useMemo(() => {
-    if (!tournaments) return 0;
-    return Math.ceil(tournaments.length / 5);
-  }, [tournaments]);
+    if (!createdTournaments) return 0;
+    return Math.ceil(createdTournaments.length / 5);
+  }, [createdTournaments]);
 
   const pagedTournaments = useMemo(() => {
-    if (!tournaments) return [];
-    return tournaments.slice((currentPage - 1) * 5, currentPage * 5);
-  }, [tournaments, currentPage]);
+    if (!createdTournaments) return [];
+    return createdTournaments.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [createdTournaments, currentPage]);
 
   return (
     <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
@@ -34,7 +40,7 @@ const CreatedTable = () => {
         <div className="w-1/4"></div>
         <p className="text-4xl">Created Tournaments</p>
         <div className="w-1/4 flex justify-end">
-          {tournaments && tournaments.length > 10 ? (
+          {createdTournaments && createdTournaments.length > 10 ? (
             <Pagination
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -58,11 +64,12 @@ const CreatedTable = () => {
               </tr>
             </thead>
             <tbody>
-              {tournaments && tournaments.length > 0 ? (
+              {createdTournaments && createdTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel = tournament.TournamentModel;
+                  const tournamentModel =
+                    tournament.models.tournament.TournamentModel;
                   const tournamentPrizeKeys =
-                    tournament.TournamentPrizeKeysModel;
+                    tournament.models.tournament.TournamentPrizeKeysModel;
                   return (
                     <CreatedRow
                       key={tournament.entityId}
@@ -75,10 +82,6 @@ const CreatedTable = () => {
                     />
                   );
                 })
-              ) : isLoading ? (
-                <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">Loading...</p>
-                </div>
               ) : (
                 <div className="absolute flex items-center justify-center w-full h-full">
                   <p className="text-2xl text-center">No Created Tournaments</p>

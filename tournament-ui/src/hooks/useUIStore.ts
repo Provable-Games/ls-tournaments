@@ -7,7 +7,8 @@ export type ScreenPage =
   | "my tournaments"
   | "create"
   | "register token"
-  | "guide";
+  | "guide"
+  | "token";
 
 export type DialogConfig = {
   type: string;

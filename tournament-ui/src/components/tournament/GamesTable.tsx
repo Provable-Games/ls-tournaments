@@ -1,15 +1,13 @@
 import { useMemo, useState } from "react";
 import Pagination from "@/components/table/Pagination";
-import ScoreRow from "@/components/tournament/ScoreRow";
+import GameRow from "@/components/tournament/GameRow";
 import { useDojo } from "@/DojoContext";
-import { bigintToHex } from "@/lib/utils";
-import { addAddressPadding } from "starknet";
 
-interface ScoreTableProps {
+interface GamesTableProps {
   adventurersData: any;
 }
 
-const ScoreTable = ({ adventurersData }: ScoreTableProps) => {
+const GamesTable = ({ adventurersData }: GamesTableProps) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
@@ -31,7 +29,9 @@ const ScoreTable = ({ adventurersData }: ScoreTableProps) => {
         <>
           <div className="flex flex-row items-center justify-between w-full">
             <div className="w-1/4"></div>
-            <p className="w-1/2 text-4xl text-center uppercase">Scores</p>
+            <p className="w-1/2 text-4xl text-center uppercase">
+              Games In Play
+            </p>
             <div className="w-1/4 flex justify-end">
               {adventurersData && adventurersData.length > 10 && (
                 <Pagination
@@ -50,27 +50,18 @@ const ScoreTable = ({ adventurersData }: ScoreTableProps) => {
                 <th className="text-left">ID</th>
                 <th className="text-left">Level</th>
                 <th className="text-left">XP</th>
-                <th className="text-left">Prizes</th>
+                <th className="text-left">Health</th>
               </tr>
             </thead>
             <tbody>
               {adventurersData &&
                 adventurersData.length > 0 &&
-                pagedAdventurers.map((gameId: any, index: any) => {
+                pagedAdventurers.map((data: any, index: any) => {
                   const adventurer = isMainnet
-                    ? adventurersData?.find(
-                        (adventurer: any) =>
-                          addAddressPadding(
-                            bigintToHex(BigInt(adventurer.id))
-                          ) === gameId
-                      )
-                    : adventurersData.find(
-                        (entity: any) =>
-                          entity.models.tournament.AdventurerModel
-                            .adventurer_id === gameId
-                      );
+                    ? data
+                    : data.models.tournament.AdventurerModel;
                   return (
-                    <ScoreRow
+                    <GameRow
                       key={index}
                       rank={index + 1}
                       adventurer={adventurer}
@@ -89,4 +80,4 @@ const ScoreTable = ({ adventurersData }: ScoreTableProps) => {
   );
 };
 
-export default ScoreTable;
+export default GamesTable;

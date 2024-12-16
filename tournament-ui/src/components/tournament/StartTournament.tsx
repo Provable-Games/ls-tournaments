@@ -45,10 +45,12 @@ const StartTournament = ({
   const { tokenBalance } = useUIStore();
   const navigate = useNavigate();
 
-  const { eth, lords } = useTournamentContracts();
+  const { eth, lords, goldenToken, blobert } = useTournamentContracts();
 
-  const { approveERC20General, startTournament } = useSystemCalls();
+  const { approveERC20General, approveERC721General, startTournament } =
+    useSystemCalls();
 
+  // lords cost
   const totalGamesCost = lordsCost ? lordsCost * BigInt(entryCount) : 0n;
   const totalGamesAddressCost = lordsCost
     ? lordsCost * BigInt(entryAddressCount)
@@ -58,6 +60,33 @@ const StartTournament = ({
     [customStartCount, lordsCost]
   );
 
+  // free game savings
+  const freeGameSavings = useMemo(() => {
+    return lordsCost
+      ? lordsCost *
+          BigInt(usableGoldenTokens.length + usableBlobertTokens.length)
+      : 0n;
+  }, [usableGoldenTokens, usableBlobertTokens, lordsCost]);
+
+  const totalGamesWithSavings = useMemo(() => {
+    return BigInt(
+      Math.max(Number(totalGamesCost) - Number(freeGameSavings), 0)
+    );
+  }, [totalGamesCost, freeGameSavings]);
+
+  const addressGamesCostWithSavings = useMemo(() => {
+    return BigInt(
+      Math.max(Number(totalGamesAddressCost) - Number(freeGameSavings), 0)
+    );
+  }, [totalGamesAddressCost, freeGameSavings]);
+
+  const customGamesCostWithSavings = useMemo(() => {
+    return BigInt(
+      Math.max(Number(totalGamesCustomCost) - Number(freeGameSavings), 0)
+    );
+  }, [totalGamesCustomCost, freeGameSavings]);
+
+  // balance checks
   const lordsBalanceForStartAll = useMemo(() => {
     return tokenBalance.lords >= totalGamesAddressCost;
   }, [tokenBalance, totalGamesAddressCost]);
@@ -126,12 +155,19 @@ const StartTournament = ({
     if (dollarPrice) {
       const totalVRFCost = BigInt(dollarPrice) * BigInt(entryCount);
 
-      const lordsTokenDataType = new CairoCustomEnum({
-        erc20: {
-          token_amount: totalGamesCustomCost,
-        },
-        erc721: undefined,
-      }) as TokenDataTypeEnum;
+      if (customGamesCostWithSavings > 0) {
+        const lordsTokenDataType = new CairoCustomEnum({
+          erc20: {
+            token_amount: customGamesCostWithSavings,
+          },
+          erc721: undefined,
+        }) as TokenDataTypeEnum;
+
+        await approveERC20General({
+          token: lords,
+          tokenDataType: lordsTokenDataType,
+        });
+      }
 
       const ethTokenDataType = new CairoCustomEnum({
         erc20: {
@@ -140,10 +176,6 @@ const StartTournament = ({
         erc721: undefined,
       }) as TokenDataTypeEnum;
 
-      await approveERC20General({
-        token: lords,
-        tokenDataType: lordsTokenDataType,
-      });
       await approveERC20General({
         token: eth,
         tokenDataType: ethTokenDataType,
@@ -161,9 +193,37 @@ const StartTournament = ({
         formatUsableBlobertTokens?.length > 0
           ? formatUsableBlobertTokens.slice(
               0,
-              Math.min(formatUsableBlobertTokens.length, customStartCount)
+              Math.min(
+                formatUsableBlobertTokens.length,
+                customStartCount - slicedUsableGoldenTokens.length
+              ) // account for the golden tokens already we are already providing
             )
           : [];
+
+      for (const goldenTokenId of slicedUsableGoldenTokens) {
+        const goldenTokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: goldenTokenId.low,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({
+          token: goldenToken,
+          tokenDataType: goldenTokenDataType,
+        });
+      }
+      for (const blobertTokenId of slicedUsableBlobertTokens) {
+        const blobertTokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: blobertTokenId.low,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({
+          token: blobert,
+          tokenDataType: blobertTokenDataType,
+        });
+      }
       await startTournament(
         tournamentModel?.tournament_id!,
         feltToString(tournamentModel?.name!),
@@ -184,72 +244,20 @@ const StartTournament = ({
     if (dollarPrice) {
       const totalVRFCost =
         (BigInt(dollarPrice) * BigInt(entryAddressCount) * 11n) / 10n;
-      console.log(totalVRFCost);
-      console.log(totalGamesAddressCost);
 
-      const lordsTokenDataType = new CairoCustomEnum({
-        erc20: {
-          // token_amount: totalGamesAddressCost,
-          token_amount: 10000000000000000000000n,
-        },
-        erc721: undefined,
-      }) as TokenDataTypeEnum;
+      if (addressGamesCostWithSavings > 0) {
+        const lordsTokenDataType = new CairoCustomEnum({
+          erc20: {
+            token_amount: addressGamesCostWithSavings,
+          },
+          erc721: undefined,
+        }) as TokenDataTypeEnum;
 
-      const ethTokenDataType = new CairoCustomEnum({
-        erc20: {
-          // token_amount: totalVRFCost,
-          token_amount: 1000000000000000000000n,
-        },
-        erc721: undefined,
-      }) as TokenDataTypeEnum;
-
-      await approveERC20General({
-        token: lords,
-        tokenDataType: lordsTokenDataType,
-      });
-      await approveERC20General({
-        token: eth,
-        tokenDataType: ethTokenDataType,
-      });
-      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
-      const slicedUsableGoldenTokens =
-        formatUsableGoldenTokens?.length > 0
-          ? formatUsableGoldenTokens.slice(
-              0,
-              Math.min(formatUsableGoldenTokens.length, Number(entryCount))
-            )
-          : [];
-      const slicedUsableBlobertTokens =
-        formatUsableBlobertTokens?.length > 0
-          ? formatUsableBlobertTokens.slice(
-              0,
-              Math.min(formatUsableBlobertTokens.length, Number(entryCount))
-            )
-          : [];
-      console.log("slicedUsableGoldenTokens", slicedUsableGoldenTokens);
-      console.log("slicedUsableBlobertTokens", slicedUsableBlobertTokens);
-      await startTournament(
-        tournamentModel?.tournament_id!,
-        feltToString(tournamentModel?.name!),
-        false,
-        new CairoOption(CairoOptionVariant.None),
-        slicedUsableGoldenTokens,
-        slicedUsableBlobertTokens,
-        entryAddressCount
-      );
-    }
-  };
-
-  const handleStartTournamentForEveryone = async () => {
-    if (dollarPrice) {
-      const totalVRFCost = BigInt(dollarPrice) * BigInt(entryCount);
-
-      const lordsTokenDataType = new CairoCustomEnum({
-        erc20: {
-          token_amount: totalGamesCost,
-        },
-        erc721: undefined,
-      }) as TokenDataTypeEnum;
+        await approveERC20General({
+          token: lords,
+          tokenDataType: lordsTokenDataType,
+        });
+      }
 
       const ethTokenDataType = new CairoCustomEnum({
         erc20: {
@@ -259,14 +267,9 @@ const StartTournament = ({
       }) as TokenDataTypeEnum;
 
       await approveERC20General({
-        token: lords,
-        tokenDataType: lordsTokenDataType,
-      });
-      await approveERC20General({
         token: eth,
         tokenDataType: ethTokenDataType,
       });
-
       await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
       const slicedUsableGoldenTokens =
         formatUsableGoldenTokens?.length > 0
@@ -284,10 +287,120 @@ const StartTournament = ({
               0,
               Math.min(
                 formatUsableBlobertTokens.length,
-                Number(entryAddressCount)
+                Number(entryAddressCount) - slicedUsableGoldenTokens.length
               )
             )
           : [];
+
+      for (const goldenTokenId of slicedUsableGoldenTokens) {
+        const goldenTokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: goldenTokenId.low,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({
+          token: goldenToken,
+          tokenDataType: goldenTokenDataType,
+        });
+      }
+      for (const blobertTokenId of slicedUsableBlobertTokens) {
+        const blobertTokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: blobertTokenId.low,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({
+          token: blobert,
+          tokenDataType: blobertTokenDataType,
+        });
+      }
+      await startTournament(
+        tournamentModel?.tournament_id!,
+        feltToString(tournamentModel?.name!),
+        false,
+        new CairoOption(CairoOptionVariant.None),
+        slicedUsableGoldenTokens,
+        slicedUsableBlobertTokens,
+        entryAddressCount
+      );
+    }
+  };
+
+  const handleStartTournamentForEveryone = async () => {
+    if (dollarPrice) {
+      const totalVRFCost = BigInt(dollarPrice) * BigInt(entryCount);
+
+      if (totalGamesWithSavings > 0) {
+        const lordsTokenDataType = new CairoCustomEnum({
+          erc20: {
+            token_amount: totalGamesWithSavings,
+          },
+          erc721: undefined,
+        }) as TokenDataTypeEnum;
+
+        await approveERC20General({
+          token: lords,
+          tokenDataType: lordsTokenDataType,
+        });
+      }
+
+      const ethTokenDataType = new CairoCustomEnum({
+        erc20: {
+          token_amount: totalVRFCost,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+
+      await approveERC20General({
+        token: eth,
+        tokenDataType: ethTokenDataType,
+      });
+
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 second
+      const slicedUsableGoldenTokens =
+        formatUsableGoldenTokens?.length > 0
+          ? formatUsableGoldenTokens.slice(
+              0,
+              Math.min(formatUsableGoldenTokens.length, Number(entryCount))
+            )
+          : [];
+      const slicedUsableBlobertTokens =
+        formatUsableBlobertTokens?.length > 0
+          ? formatUsableBlobertTokens.slice(
+              0,
+              Math.min(
+                formatUsableBlobertTokens.length,
+                Number(entryCount) - slicedUsableGoldenTokens.length
+              )
+            )
+          : [];
+
+      for (const goldenTokenId of slicedUsableGoldenTokens) {
+        const goldenTokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: goldenTokenId.low,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({
+          token: goldenToken,
+          tokenDataType: goldenTokenDataType,
+        });
+      }
+      for (const blobertTokenId of slicedUsableBlobertTokens) {
+        const blobertTokenDataType = new CairoCustomEnum({
+          erc20: undefined,
+          erc721: {
+            token_id: blobertTokenId.low,
+          },
+        }) as TokenDataTypeEnum;
+        await approveERC721General({
+          token: blobert,
+          tokenDataType: blobertTokenDataType,
+        });
+      }
       await startTournament(
         tournamentModel?.tournament_id!,
         feltToString(tournamentModel?.name!),
@@ -327,13 +440,26 @@ const StartTournament = ({
               <p className="text-xl uppercase text-terminal-green/75 no-text-shadow">
                 Total Games Cost
               </p>
-              <div className="flex flex-col">
-                <p className="uppercase text-xl">
-                  {`${
-                    Number(
-                      lordsCost ? lordsCost / BigInt(10) ** BigInt(18) : 0
-                    ) * Number(tournamentEntriesAddressModel?.entry_count)
-                  } LORDS`}
+              <div className="relative flex flex-col">
+                {freeGameSavings > 0 && (
+                  <p className="absolute text-xl top-[-20px] text-terminal-yellow uppercase">
+                    {addressGamesCostWithSavings > 0
+                      ? `${Number(
+                          addressGamesCostWithSavings / BigInt(10) ** BigInt(18)
+                        )} LORDS`
+                      : "Free"}
+                  </p>
+                )}
+                <p
+                  className={`uppercase text-xl ${
+                    freeGameSavings > 0
+                      ? "line-through text-terminal-green/75 no-text-shadow"
+                      : ""
+                  }`}
+                >
+                  {`${Number(
+                    totalGamesAddressCost / BigInt(10) ** BigInt(18)
+                  )} LORDS`}
                 </p>
                 <p className="uppercase text-xl">
                   {`$${(
@@ -427,15 +553,6 @@ const StartTournament = ({
                 Start
               </Button>
             </div>
-            <Button
-              disabled={
-                !tournamentEntriesAddressModel ||
-                entryAddressCount === currentAddressStartCount
-              }
-              onClick={() => handleStartTournamentCustom(customStartCount)}
-            >
-              Play Loot Survivor
-            </Button>
           </div>
         </div>
       ) : (

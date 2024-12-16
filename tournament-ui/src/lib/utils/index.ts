@@ -140,9 +140,22 @@ export const calculatePayouts = (
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
 
   // Calculate the percentage payouts
-  const payouts: number[] = weights.map(
-    (weight) => (weight / totalWeight) * 100
+  const payouts: number[] = weights.map((weight) =>
+    Math.floor((weight / totalWeight) * 100)
   );
+
+  // Calculate the sum of rounded payouts
+  const totalPayout = payouts.reduce((sum, payout) => sum + payout, 0);
+
+  // Distribute the remaining percentage points
+  // to the highest weighted positions until we reach 100
+  let remaining = 100 - totalPayout;
+  let index = 0;
+  while (remaining > 0) {
+    payouts[index] += 1;
+    remaining -= 1;
+    index = (index + 1) % totalPlaces;
+  }
 
   return payouts;
 };

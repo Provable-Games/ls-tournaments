@@ -51,6 +51,8 @@ const EnterTournament = ({
     );
   }
 
+  // TODO: Handle approvals when entr fees are visible
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-col">

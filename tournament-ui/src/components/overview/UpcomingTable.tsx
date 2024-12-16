@@ -56,7 +56,7 @@ const UpcomingTable = () => {
                 <th className="px-2 text-left">Name</th>
                 <th className="text-left">Entries</th>
                 <th className="text-left">Start</th>
-                <th className="text-left">Phase</th>
+                <th className="text-left">Registration</th>
                 <th className="text-left">Duration</th>
                 <th className="text-left">Entry Fee</th>
                 <th className="text-left">Creator Fee</th>

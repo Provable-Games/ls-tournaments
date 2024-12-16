@@ -1,20 +1,21 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
-import { Distribution } from "@/lib/types";
+import { InputTokenModel } from "@/generated/models.gen";
+import { calculatePayouts } from "@/lib/utils";
+import SelectToken from "@/components/buttons/SelectToken";
+import { CairoOption, CairoOptionVariant } from "starknet";
 
 const TournamentEntryFee = () => {
-  const { formData } = useUIStore();
+  const { formData, setFormData } = useUIStore();
   const [entryFeeDisabled, setEntryFeeDisabled] = useState(true);
-  // const [selectedToken, setSelectedToken] = useState<string | null>(null);
+  const [selectedToken, setSelectedToken] = useState<InputTokenModel | null>(
+    null
+  );
   const [amount, setAmount] = useState<number>(0);
   const [creatorFee, setCreatorFee] = useState<number>(0);
-  const [distributions, setDistributions] = useState<Distribution[]>([
-    { position: 0, percentage: 0 },
-  ]);
-  const [selectedScoreboardIndex, setSelectedScoreboardIndex] =
-    useState<number>(0);
+  const [distributionWeight, setDistributionWeight] = useState<number>(0);
 
   const handleChangeAmount = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -26,14 +27,9 @@ const TournamentEntryFee = () => {
     setCreatorFee(parseInt(value));
   };
 
-  const handleChangePositionDistribution = (
-    index: number,
-    e: ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeDistributionWeight = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    const newDistributions = [...distributions];
-    newDistributions[index].percentage = parseInt(value);
-    setDistributions(newDistributions);
+    setDistributionWeight(Number(value));
   };
 
   // const totalPercentage = distributions
@@ -55,6 +51,22 @@ const TournamentEntryFee = () => {
     !formData.endTime ||
     !formData.submissionPeriod ||
     !formData.scoreboardSize;
+
+  const payouts = useMemo(
+    () => calculatePayouts(scoreboardSize, distributionWeight),
+    [scoreboardSize, distributionWeight]
+  );
+
+  useEffect(() => {
+    const entryFeeValue = new CairoOption(CairoOptionVariant.Some, {
+      token: selectedToken?.token!,
+      token_amount: amount,
+      token_distribution: payouts,
+      creator_fee: creatorFee,
+    });
+
+    setFormData({ ...formData, entryFee: entryFeeValue });
+  }, [amount, creatorFee, payouts, selectedToken]);
 
   return (
     <div className="flex flex-col w-full">
@@ -97,22 +109,19 @@ const TournamentEntryFee = () => {
           >
             <p className="text-lg">Entry Fee</p>
           </Button>
-          <div className="py-1 px-2 leading-none text-terminal-green/75">
+          <div className="flex items-center py-1 px-2 leading-none text-terminal-green/75">
             <p>Set an entry fee for your tournament.</p>
           </div>
         </div>
         <div className="flex flex-row px-2 gap-2">
           <div className="flex flex-col py-2">
             <p className="text-xl uppercase text-terminal-green/75">Token</p>
-            <Button
-              variant="token"
-              className="border-terminal-green/75"
+            <SelectToken
+              selectedToken={selectedToken}
+              setSelectedToken={setSelectedToken}
               disabled={entryFeeDisabled}
-            >
-              <p className="text-terminal-green/75 whitespace-nowrap">
-                Select Token
-              </p>
-            </Button>
+              type="erc20"
+            />
           </div>
           <div className="h-full w-0.5 bg-terminal-green/50" />
           <div className="flex flex-col py-2">
@@ -190,15 +199,16 @@ const TournamentEntryFee = () => {
           <div className="flex flex-col py-2 overflow-hidden w-full">
             <p className="text-xl uppercase text-terminal-green/75">Split</p>
             <div className="flex flex-col gap-2">
+              {/* <p className="text-lg text-terminal-green/75">
+                Distribution Weight
+              </p> */}
               <input
                 type="range"
-                name="scoreboardSize"
-                min={1}
-                max={100}
-                value={formData.scoreboardSize}
-                onChange={(e) =>
-                  handleChangePositionDistribution(selectedScoreboardIndex, e)
-                }
+                min={0}
+                max={8}
+                step={0.1}
+                value={distributionWeight}
+                onChange={handleChangeDistributionWeight}
                 className="w-40 ml-auto mr-2 h-2 appearance-none cursor-pointer custom-range-input outline"
                 disabled={entryFeeDisabled}
               />
@@ -208,13 +218,23 @@ const TournamentEntryFee = () => {
                     variant="token"
                     className="border-terminal-green/75 !p-2 !h-8"
                     disabled={entryFeeDisabled}
-                    onClick={() => setSelectedScoreboardIndex(index)}
+                    // onClick={() => setSelectedScoreboardIndex(index)}
                   >
                     <div className="flex flex-row items-center gap-1">
-                      <span className={`w-4 h-4 $ text-terminal-gold`}>
-                        <TrophyIcon />
+                      <span
+                        className={`flex items-center w-4 h-4 text-xl ${
+                          index === 0
+                            ? "text-terminal-gold"
+                            : index === 1
+                            ? "text-terminal-silver"
+                            : index === 2
+                            ? "text-terminal-bronze"
+                            : "text-terminal-green"
+                        }`}
+                      >
+                        {index <= 2 ? <TrophyIcon /> : index + 1}
                       </span>
-                      <p>70%</p>
+                      <p>{payouts[index]}%</p>
                     </div>
                   </Button>
                 ))}

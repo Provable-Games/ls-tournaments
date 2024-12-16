@@ -47,10 +47,10 @@ const UpcomingRow = ({
 
   const status =
     registrationStartTimestamp > currentTime
-      ? "Pre Registration"
+      ? "Not Started"
       : registrationEndTimestamp < currentTime
-      ? "Registration Closed"
-      : "Registration Open";
+      ? "Closed"
+      : "Open";
   return (
     <tr
       className="h-10 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"

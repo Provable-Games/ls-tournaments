@@ -18,6 +18,7 @@ import {
   useGetTournamentCountsQuery,
   useGetTokensQuery,
   useSubscribeTournamentCountsQuery,
+  useGetAllTournamentsQuery,
 } from "@/hooks/useSdkQueries";
 import { useSystemCalls } from "@/useSystemCalls";
 import { Toaster } from "@/components/ui/toaster";
@@ -39,6 +40,7 @@ function App() {
   // const isMainnet = false;
 
   // Getters
+  useGetAllTournamentsQuery();
   useGetTournamentCountsQuery(tournament);
   useGetTokensQuery();
 

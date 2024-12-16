@@ -4,6 +4,7 @@ import { soundSelector, useUiSounds } from "@/hooks/useUiSound";
 import { Menu } from "@/lib/types";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useDojo } from "@/DojoContext";
 
 export interface ButtonData {
   id: number;
@@ -22,11 +23,16 @@ const HorizontalKeyboardControl: React.FC<HorizontalKeyboardControlProps> = ({
   buttonsData,
   disabled,
 }) => {
+  const {
+    setup: { selectedChainConfig },
+  } = useDojo();
   const navigate = useNavigate();
   const location = useLocation();
   const { play } = useUiSounds(soundSelector.click);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
@@ -98,6 +104,15 @@ const HorizontalKeyboardControl: React.FC<HorizontalKeyboardControlProps> = ({
           {buttonData.label}
         </Button>
       ))}
+      {isMainnet && (
+        <Button
+          className="px-2.5 sm:px-3 h-10 w-auto"
+          variant="outline"
+          onClick={() => window.open("https://lootsurvivor.io/", "_blank")}
+        >
+          Play Loot Survivor
+        </Button>
+      )}
     </div>
   );
 };

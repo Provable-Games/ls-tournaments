@@ -104,7 +104,7 @@ const SubmitScores = ({
       </div>
       {tournamentStartIdsModel ? (
         <>
-          <div className="flex flex-col gap-2 p-2 h-10">
+          <div className="flex flex-col gap-2 p-5">
             <h3 className="text-xl uppercase">Scores Submitted</h3>
             {tournamentEntriesAddressModel ? (
               <div className="flex flex-row items-center justify-between px-5">
@@ -119,6 +119,8 @@ const SubmitScores = ({
                 You have no entries
               </p>
             )}
+            {/* TODO: Add your top score */}
+            {/* TODO: Show qualifying scores */}
           </div>
           <div className="flex flex-row gap-5">
             <Button onClick={handleSubmitScores} disabled={!!tournamentScores}>

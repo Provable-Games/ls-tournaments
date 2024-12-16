@@ -5,11 +5,9 @@ import { useDojoStore } from "@/hooks/useDojoStore";
 import { ParsedEntity } from "@dojoengine/sdk";
 import { SchemaType } from "@/generated/models.gen";
 import { feltToString } from "@/lib/utils";
-import { useGetAllTournamentsQuery } from "@/hooks/useSdkQueries";
 
 const Overview = () => {
   const state = useDojoStore((state) => state);
-  useGetAllTournamentsQuery();
   const tournamentTotals = state.getEntitiesByModel(
     "tournament",
     "TournamentTotalsModel"

@@ -63,7 +63,7 @@ const TopScores = () => {
             >
               10
             </Button>
-            <Button
+            {/* <Button
               variant={formData.scoreboardSize === 25 ? "default" : "token"}
               onClick={() => setFormData({ ...formData, scoreboardSize: 25 })}
               className={`border-terminal-green/75 ${
@@ -74,7 +74,7 @@ const TopScores = () => {
               disabled={sectionDisabled}
             >
               25
-            </Button>
+            </Button> */}
             {formData.scoreboardSize > 0 && (
               <span className="flex flex-row items-center gap-2">
                 <span className="w-5 h-5 text-terminal-green">

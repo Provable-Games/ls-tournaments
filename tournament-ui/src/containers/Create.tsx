@@ -15,10 +15,12 @@ import TopScores from "@/components/create/TopScores";
 import TournamentGating from "@/components/create/TournamentGating";
 import TournamentEntryFee from "@/components/create/TournamentEntryFee";
 import TournamentPrizes from "@/components/create/TournamentPrizes";
+import { useConfig } from "@/hooks/useConfig";
 
 const Create = () => {
   const { account } = useAccount();
   const { formData } = useUIStore();
+  const { testMode } = useConfig();
 
   const { tournament } = useTournamentContracts();
 
@@ -123,13 +125,13 @@ const Create = () => {
       <div className="flex flex-row gap-20">
         <div className="w-1/2 flex flex-col gap-2">
           <TournamentDetails />
-          <TournamentType />
+          <TournamentType testMode={testMode} />
           <TopScores />
         </div>
-        <div className="w-1/2 flex flex-col gap-2">
+        <div className="w-1/2 flex flex-col gap-4">
           <TournamentGating />
           <TournamentEntryFee />
-          <TournamentPrizes />
+          <TournamentPrizes tournamentCount={tournamentCount} />
         </div>
       </div>
       <div className="hidden sm:flex items-center justify-center">

@@ -135,14 +135,14 @@ export const useSystemCalls = () => {
         gatedSubmissionType
       );
 
-      await wait();
-
       if (tx) {
         toast({
           title: "Entered Tournament!",
           description: `Entered tournament ${tournamentName}`,
         });
       }
+
+      await wait();
     } catch (error) {
       revert();
       console.error("Error executing enter tournament:", error);
@@ -187,14 +187,14 @@ export const useSystemCalls = () => {
         usableBlobertTokens
       );
 
-      await wait();
-
       if (tx) {
         toast({
           title: "Started Tournament!",
           description: `Started tournament ${tournamentName}`,
         });
       }
+
+      await wait();
     } catch (error) {
       revert();
       console.error("Error executing create tournament:", error);
@@ -267,14 +267,14 @@ export const useSystemCalls = () => {
         prize.position
       );
 
-      await wait();
-
       if (showToast && tx) {
         toast({
           title: "Added Prize!",
           description: `Added prize for tournament ${tournamentName}`,
         });
       }
+
+      await wait();
     } catch (error) {
       revert();
       console.error("Error executing add prize:", error);
@@ -493,7 +493,7 @@ export const useSystemCalls = () => {
   };
 
   const approveERC20General = async (token: Token) => {
-    (account as Account)?.execute([
+    await (account as Account)?.execute([
       {
         contractAddress: token.token,
         entrypoint: "approve",
@@ -507,7 +507,7 @@ export const useSystemCalls = () => {
   };
 
   const approveERC721General = async (token: Token) => {
-    (account as Account)?.execute([
+    await (account as Account)?.execute([
       {
         contractAddress: token.token,
         entrypoint: "approve",

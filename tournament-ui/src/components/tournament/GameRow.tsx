@@ -3,21 +3,18 @@ import { FirstIcon, SecondIcon, ThirdIcon } from "../Icons";
 import { displayAddress } from "@/lib/utils";
 
 // First, define the props interface
-interface ScoreRowProps {
+interface GameRowProps {
   rank: number;
   adventurer: any;
 }
 
-const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
+const GameRow = ({ rank, adventurer }: GameRowProps) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
-  console.log(adventurer);
   if (!adventurer) return null;
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
-  const formattedAdventurer = isMainnet
-    ? adventurer
-    : adventurer.models.tournament.AdventurerModel.adventurer;
+  const formattedAdventurer = isMainnet ? adventurer : adventurer.adventurer;
   return (
     <tr className="h-10">
       <td className="px-2">
@@ -43,9 +40,9 @@ const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
       <td>{formattedAdventurer.id ?? "-"}</td>
       <td>{formattedAdventurer.level ?? "-"}</td>
       <td>{formattedAdventurer.xp ?? "-"}</td>
-      <td>{formattedAdventurer.prizes ?? "-"}</td>
+      <td>{formattedAdventurer.health ?? "-"}</td>
     </tr>
   );
 };
 
-export default ScoreRow;
+export default GameRow;

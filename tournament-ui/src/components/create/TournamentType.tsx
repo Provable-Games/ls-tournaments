@@ -1,29 +1,25 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { Button } from "@/components/buttons/Button";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import useUIStore from "@/hooks/useUIStore";
 import { ClockIcon } from "@/components/Icons";
 import { formatTime } from "@/lib/utils";
 
-const TournamentType = () => {
+interface TournamentTypeProps {
+  testMode: boolean;
+}
+
+const TournamentType = ({ testMode }: TournamentTypeProps) => {
   const { formData, setFormData } = useUIStore();
   const [tournamentType, setTournamentType] = useState(0);
 
-  // const [_, setOverMaxSubmission] = useState(false);
-
-  // const handleChangeSubmissionPeriod = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value } = e.target;
-  //   const submissionPeriodSeconds = parseInt(value) * 60 * 60;
-  //   setFormData({
-  //     ...formData,
-  //     [name]: submissionPeriodSeconds,
-  //   });
-  //   if (parseInt(value) > 336) {
-  //     setOverMaxSubmission(true);
-  //   } else {
-  //     setOverMaxSubmission(false);
-  //   }
-  // };
+  const handleChangeSubmissionPeriod = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
 
   const sectionDisabled = !formData.tournamentName;
 
@@ -132,7 +128,7 @@ const TournamentType = () => {
                 <span className="w-5 h-5 text-terminal-green">
                   <ClockIcon />
                 </span>
-                <p className="text-xl">
+                <p className="text-lg">
                   {formatTime(
                     (formData.endTime.getTime() -
                       formData.startTime.getTime()) /
@@ -208,6 +204,15 @@ const TournamentType = () => {
                     <p>1 WEEK</p>
                   </Button>
                 </div>
+                {testMode && (
+                  <input
+                    type="number"
+                    name="submissionPeriod"
+                    onChange={handleChangeSubmissionPeriod}
+                    className="text-lg p-1 w-16 h-8 bg-terminal-black border border-terminal-green"
+                    disabled={sectionDisabled}
+                  />
+                )}
               </div>
             </div>
           </div>

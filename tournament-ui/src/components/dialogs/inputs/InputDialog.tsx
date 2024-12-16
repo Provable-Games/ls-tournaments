@@ -5,6 +5,7 @@ import GatedTokenDialog from "@/components/dialogs/inputs/GatedToken";
 import GatedAddressesDialog from "@/components/dialogs/inputs/GatedAddresses";
 import GatedTournamentsDialog from "@/components/dialogs/inputs/GatedTournament";
 import EntryFeeDialog from "@/components/dialogs/inputs/EntryFee";
+import TokenDialog from "@/components/dialogs/inputs/Token";
 
 const InputDialog = () => {
   const { inputDialog } = useUIStore();
@@ -19,8 +20,11 @@ const InputDialog = () => {
     "gated-addresses": GatedAddressesDialog,
     "gated-tournaments": GatedTournamentsDialog,
     "entry-fee": EntryFeeDialog,
+    token: TokenDialog,
     // ... other dialogs
   };
+
+  console.log(inputDialog.props);
 
   const DialogComponent = dialogComponents[inputDialog.type];
   if (!DialogComponent) return null;

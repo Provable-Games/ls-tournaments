@@ -186,23 +186,37 @@ export async function setupWorld(provider: DojoProvider) {
     usableGoldenTokens: any[],
     usableBlobertTokens: any[]
   ) => {
+    console.log(
+      CallData.compile([
+        tournamentId,
+        startAll,
+        startCount,
+        clientRewardAddress,
+        usableGoldenTokens,
+        usableBlobertTokens,
+      ])
+    );
     try {
-      return await provider.execute(
-        snAccount,
-        {
-          contractName: "tournament_mock",
-          entrypoint: "start_tournament",
-          calldata: CallData.compile([
-            tournamentId,
-            startAll,
-            startCount,
-            clientRewardAddress,
-            usableGoldenTokens,
-            usableBlobertTokens,
-          ]),
-        },
-        "tournament"
-      );
+      return await provider
+        .execute(
+          snAccount,
+          {
+            contractName: "tournament_mock",
+            entrypoint: "start_tournament",
+            calldata: CallData.compile([
+              tournamentId,
+              startAll,
+              startCount,
+              clientRewardAddress,
+              usableGoldenTokens,
+              usableBlobertTokens,
+            ]),
+          },
+          "tournament"
+        )
+        .catch((error) => {
+          console.error(error);
+        });
     } catch (error) {
       console.error(error);
     }

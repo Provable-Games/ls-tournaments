@@ -159,6 +159,8 @@ const Tournament = () => {
   const isSeason =
     tournamentModel?.start_time === tournamentModel?.registration_start_time;
 
+  console.log(tournamentModel);
+
   if (!tournamentModel?.tournament_id)
     return (
       <div className="flex flex-col gap-2 items-center w-full h-full justify-center py-2">
@@ -182,7 +184,7 @@ const Tournament = () => {
             <div className="w-1/4 flex flex-row gap-5 justify-end">
               {!countDownExpired ? (
                 <>
-                  <h2 className="text-4xl uppercase text-terminal-green/75 no-text-shadow">
+                  <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
                     Tournament Ends
                   </h2>
                   <Countdown
@@ -191,8 +193,29 @@ const Tournament = () => {
                   />
                 </>
               ) : (
-                <h2 className="text-4xl uppercase text-terminal-green/75 no-text-shadow">
+                <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
                   Tournament Ended
+                </h2>
+              )}
+            </div>
+          ) : isSubmissionLive ? (
+            <div className="w-1/4 flex flex-row gap-5 justify-end">
+              {!countDownExpired ? (
+                <>
+                  <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                    Submission Ends
+                  </h2>
+                  <Countdown
+                    targetTime={
+                      endDate.getTime() +
+                      Number(tournamentModel?.submission_period) * 1000
+                    }
+                    countDownExpired={() => setCountDownExpired(true)}
+                  />
+                </>
+              ) : (
+                <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                  Submission Ended
                 </h2>
               )}
             </div>
@@ -315,18 +338,18 @@ const Tournament = () => {
           )}
         </div>
       </div>
-      <div className="flex flex-row gap-5">
+      <div className="flex flex-row gap-5 h-[250px]">
         {!started && !isSeason && (
           <EntriesTable tournamentEntires={allTournamentEntries} />
         )}
         {isLive && <GameTable adventurersData={adventurersData} />}
-        {isSubmissionLive && (
+        {ended && (
           <ScoreTable
             tournamentScores={tournamentScores}
             adventurersData={adventurersData}
           />
         )}
-        <div className="w-1/2 flex flex-col gap-2 border-4 border-terminal-green/75 h-[275px]">
+        <div className="w-1/2 flex flex-col gap-2 border-4 border-terminal-green/75 h-[250px]">
           {!started ? (
             <EnterTournament
               tournamentModel={tournamentModel}

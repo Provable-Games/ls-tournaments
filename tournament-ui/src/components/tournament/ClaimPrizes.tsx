@@ -48,18 +48,26 @@ const ClaimPrizes = ({
 
   return (
     <>
-      <div className="flex flex-col">
-        <p className="text-4xl text-center uppercase">Claim Prizes</p>
-        <div className="w-full bg-terminal-green/50 h-0.5" />
-      </div>
-      <div className="flex flex-row gap-5">
-        <Button
-          onClick={handleDistributeAllPrizes}
-          disabled={!tournamentPrizeKeys || unclaimedPrizes.length === 0}
-        >
-          Distribute Prizes
-        </Button>
-      </div>
+      {tournamentPrizeKeys ? (
+        <>
+          <div className="flex flex-col">
+            <p className="text-4xl text-center uppercase">Claim Prizes</p>
+            <div className="w-full bg-terminal-green/50 h-0.5" />
+          </div>
+          <div className="flex flex-row gap-5">
+            <Button
+              onClick={handleDistributeAllPrizes}
+              disabled={!tournamentPrizeKeys || unclaimedPrizes.length === 0}
+            >
+              Distribute Prizes
+            </Button>
+          </div>
+        </>
+      ) : (
+        <div className="flex w-full h-full justify-center items-center">
+          <p className="text-xl uppercase">There are no prizes to claim</p>
+        </div>
+      )}
     </>
   );
 };

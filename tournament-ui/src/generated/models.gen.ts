@@ -1258,7 +1258,18 @@ export const schema: SchemaType = {
       submission_period: 0,
       winners_count: 0,
       gated_type: new CairoOption(CairoOptionVariant.None),
-      entry_premium: new CairoOption(CairoOptionVariant.None),
+      entry_premium: new CairoOption(CairoOptionVariant.Some, {
+        fieldOrder: [
+          "token",
+          "token_amount",
+          "token_distribution",
+          "creator_fee",
+        ],
+        token: "",
+        token_amount: 0,
+        token_distribution: [0],
+        creator_fee: 0,
+      }),
     },
     Premium: {
       fieldOrder: [
