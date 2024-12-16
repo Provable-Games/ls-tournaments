@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x2b127646258e21186e6c7e6234f42583d0d19bf88a57776a404c2cefeb421f2",
-    "seed": "tournament",
+    "address": "0x62b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d",
+    "seed": "tournament1",
     "name": "Tournament",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x1e684f91a2ca911d17cedf15135af5b6c40e1243fbce33be9046d139e6a4780",
-      "class_hash": "0x23417f7e2d21f9112ef51d6f2ed0a91886415ee37b8d1547f923dde58910a24",
+      "address": "0x3ec6f61148e0bf0dcf68c31441e28c0d1988fda7081db5fdc137889af5bdad2",
+      "class_hash": "0x32b12f5c4ce3a3e31017409f3ffc07857822e986634d492b7ccabb796333d08",
       "abi": [
         {
           "type": "impl",
@@ -1323,22 +1323,6 @@
           "type": "function",
           "name": "dojo_init",
           "inputs": [
-            {
-              "name": "eth_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "lords_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "loot_survivor_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "oracle_address",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
             {
               "name": "safe_mode",
               "type": "core::bool"
@@ -1582,6 +1566,14 @@
               "type": "core::starknet::contract_address::ContractAddress"
             },
             {
+              "name": "registration_start_time",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "registration_end_time",
+              "type": "core::integer::u64"
+            },
+            {
               "name": "start_time",
               "type": "core::integer::u64"
             },
@@ -1604,54 +1596,6 @@
             {
               "name": "entry_premium",
               "type": "core::option::Option::<tournament::ls15_components::models::tournament::Premium>"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::ERC20Data",
-          "members": [
-            {
-              "name": "token_amount",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::ERC721Data",
-          "members": [
-            {
-              "name": "token_id",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "tournament::ls15_components::models::tournament::TokenDataType",
-          "variants": [
-            {
-              "name": "erc20",
-              "type": "tournament::ls15_components::models::tournament::ERC20Data"
-            },
-            {
-              "name": "erc721",
-              "type": "tournament::ls15_components::models::tournament::ERC721Data"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::Token",
-          "members": [
-            {
-              "name": "token",
-              "type": "core::starknet::contract_address::ContractAddress"
-            },
-            {
-              "name": "token_data_type",
-              "type": "tournament::ls15_components::models::tournament::TokenDataType"
             }
           ]
         },
@@ -1718,6 +1662,50 @@
             {
               "name": "None",
               "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "core::array::Span::<core::integer::u256>",
+          "members": [
+            {
+              "name": "snapshot",
+              "type": "@core::array::Array::<core::integer::u256>"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "tournament::ls15_components::models::tournament::ERC20Data",
+          "members": [
+            {
+              "name": "token_amount",
+              "type": "core::integer::u128"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "tournament::ls15_components::models::tournament::ERC721Data",
+          "members": [
+            {
+              "name": "token_id",
+              "type": "core::integer::u128"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "tournament::ls15_components::models::tournament::TokenDataType",
+          "variants": [
+            {
+              "name": "erc20",
+              "type": "tournament::ls15_components::models::tournament::ERC20Data"
+            },
+            {
+              "name": "erc721",
+              "type": "tournament::ls15_components::models::tournament::ERC721Data"
             }
           ]
         },
@@ -1818,18 +1806,6 @@
             },
             {
               "type": "function",
-              "name": "register_tokens",
-              "inputs": [
-                {
-                  "name": "tokens",
-                  "type": "core::array::Array::<tournament::ls15_components::models::tournament::Token>"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
               "name": "create_tournament",
               "inputs": [
                 {
@@ -1839,6 +1815,14 @@
                 {
                   "name": "description",
                   "type": "core::byte_array::ByteArray"
+                },
+                {
+                  "name": "registration_start_time",
+                  "type": "core::integer::u64"
+                },
+                {
+                  "name": "registration_end_time",
+                  "type": "core::integer::u64"
                 },
                 {
                   "name": "start_time",
@@ -1903,6 +1887,18 @@
                 {
                   "name": "start_count",
                   "type": "core::option::Option::<core::integer::u64>"
+                },
+                {
+                  "name": "client_reward_address",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "golden_token_free_game_token_ids",
+                  "type": "core::array::Span::<core::integer::u256>"
+                },
+                {
+                  "name": "blobert_free_game_token_ids",
+                  "type": "core::array::Span::<core::integer::u256>"
                 }
               ],
               "outputs": [],
@@ -2031,10 +2027,6 @@
         }
       ],
       "init_calldata": [
-        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-        "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
-        "0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4",
-        "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
         "1",
         "1"
       ],
@@ -2043,7 +2035,6 @@
       "systems": [
         "dojo_init",
         "upgrade",
-        "register_tokens",
         "create_tournament",
         "enter_tournament",
         "start_tournament",
@@ -2068,7 +2059,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x71bd6392a00912a7252a5c6711c88c252ce519ae1ad8300206738343623a6e0",
+      "class_hash": "0x6c8cd421a29492799f81c1c8754c842ae485eac586aa8162c24d2dfe0cb8252",
       "tag": "tournament-TournamentConfig",
       "selector": "0x547cd590eea00da15c7206cf56bafbdacb70341a5648eef169c86d20c7ad77f"
     },
@@ -2098,7 +2089,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x5321591258855c98a0237e65b77ab37caeac8165c9dfe057cf924b00808ca5a",
+      "class_hash": "0x2a5caae81f997ca91f32eb1f6f60e5cf1b61050dc97d987d6979d1be86a688e",
       "tag": "tournament-TournamentModel",
       "selector": "0x452449132e96ffddd83f75e1471014c0f4752fb593b27aafb0f425e9836c504"
     },

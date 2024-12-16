@@ -1,30 +1,40 @@
 import { useMemo, useState } from "react";
-import { useGetLiveTournamentsQuery } from "@/hooks/useSdkQueries";
 import LiveRow from "@/components/overview/LiveRow";
 import Pagination from "@/components/table/Pagination";
+import { useDojoStore } from "@/hooks/useDojoStore";
+// import { useGetLiveTournamentsQuery } from "@/hooks/useSdkQueries";
+import { bigintToHex } from "@/lib/utils";
+import { addAddressPadding } from "starknet";
 
 const LiveTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const hexTimestamp = (BigInt(new Date().getTime()) / 1000n).toString(16);
-  const { entities: tournaments, isLoading } =
-    useGetLiveTournamentsQuery(hexTimestamp);
+  const hexTimestamp = bigintToHex(BigInt(new Date().getTime()) / 1000n);
+  const state = useDojoStore((state) => state);
+  const liveTournaments = state.getEntities((entity) => {
+    const startTime = entity.models.tournament.TournamentModel?.start_time!;
+    const endTime = entity.models.tournament.TournamentModel?.end_time!;
+    return (
+      startTime < addAddressPadding(hexTimestamp) &&
+      endTime > addAddressPadding(hexTimestamp)
+    );
+  });
 
   const totalPages = useMemo(() => {
-    if (!tournaments) return 0;
-    return Math.ceil(tournaments.length / 5);
-  }, [tournaments]);
+    if (!liveTournaments) return 0;
+    return Math.ceil(liveTournaments.length / 5);
+  }, [liveTournaments]);
 
   const pagedTournaments = useMemo(() => {
-    if (!tournaments) return [];
-    return tournaments.slice((currentPage - 1) * 5, currentPage * 5);
-  }, [tournaments, currentPage]);
+    if (!liveTournaments) return [];
+    return liveTournaments.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [liveTournaments, currentPage]);
 
   return (
     <div className="flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Live</p>
-        {tournaments && tournaments.length > 10 ? (
+        {liveTournaments && liveTournaments.length > 10 ? (
           <div className="w-1/4 flex justify-end">
             <Pagination
               currentPage={currentPage}
@@ -49,9 +59,10 @@ const LiveTable = () => {
               </tr>
             </thead>
             <tbody>
-              {tournaments && tournaments.length > 0 ? (
+              {liveTournaments && liveTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel = tournament.TournamentModel;
+                  const tournamentModel =
+                    tournament.models.tournament.TournamentModel;
                   return (
                     <LiveRow
                       key={tournament.entityId}
@@ -62,10 +73,6 @@ const LiveTable = () => {
                     />
                   );
                 })
-              ) : isLoading ? (
-                <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">Loading...</p>
-                </div>
               ) : (
                 <div className="absolute flex items-center justify-center w-full h-full">
                   <p className="text-2xl text-center">No Live Tournaments</p>

@@ -25,6 +25,8 @@ export type Menu = {
 export type FormData = {
   tournamentName: string;
   tournamentDescription: string;
+  registrationStartTime: Date | undefined;
+  registrationEndTime: Date | undefined;
   startTime: Date | undefined;
   endTime: Date | undefined;
   submissionPeriod: number;

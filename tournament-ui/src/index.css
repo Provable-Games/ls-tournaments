@@ -4,13 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body,
-input[type="text"] {
-  font-family  : "VT323", monospace;
-  font-weight  : 400;
-  text-shadow  : rgb(173, 216, 230, 0.9) 1px 0 10px;
-  animation    : textShadow 0.3s infinite;
-  outline-color: rgba(74, 246, 38, 1);
+body {
+  font-family: "VT323", monospace;
+  font-weight: 400;
+  text-shadow: rgb(173, 216, 230, 0.9) 1px 0 10px;
 }
 
 .crt-frame {

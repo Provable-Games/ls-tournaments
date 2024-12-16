@@ -49,9 +49,9 @@ const Overview = () => {
           </p>
         </div>
       </div>
-      <div className="flex flex-row gap-2 w-full py-4 uppercase h-[525px]">
+      <div className="flex flex-row gap-5 w-full py-4 uppercase h-[525px]">
         <UpcomingTable />
-        <div className="w-2/5 flex flex-col gap-2">
+        <div className="w-2/5 flex flex-col gap-5">
           <LiveTable />
           <EndTable />
         </div>

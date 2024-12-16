@@ -16,11 +16,10 @@ import {
   byteArray,
   CallData,
 } from "starknet";
-import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useToast } from "@/hooks/useToast";
 import useUIStore from "@/hooks/useUIStore";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
-import { feltToString } from "@/lib/utils";
+import { feltToString, getRandomInt } from "@/lib/utils";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 export function selectTournament(client: any, isMainnet: boolean): any {
@@ -29,7 +28,6 @@ export function selectTournament(client: any, isMainnet: boolean): any {
 
 export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
-  const tournament_mock = useDojoSystem("tournament_mock");
 
   const {
     setup: { client, selectedChainConfig },
@@ -49,25 +47,22 @@ export const useSystemCalls = () => {
   // Tournament
 
   const registerTokens = async (tokens: Token[]) => {
-    const entityId = getEntityIdFromKeys([
-      BigInt(tournament_mock.contractAddress),
-    ]);
+    const entityId = getEntityIdFromKeys([BigInt(tournament)]);
 
     const transactionId = uuidv4();
 
-    state.applyOptimisticUpdate(transactionId, (draft) => {
-      if (draft.entities[entityId]?.models?.tournament_mock?.TokenModel) {
-        draft.entities[entityId].models.tournament_mock.TokenModel = tokens; // Create the model from provided data
-      }
-    });
+    // state.applyOptimisticUpdate(transactionId, (draft) => {
+    //   if (draft.entities[entityId]?.models?.tournament_mock?.TokenModel) {
+    //     draft.entities[entityId].models.tournament_mock.TokenModel = tokens; // Create the model from provided data
+    //   }
+    // });
 
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      // TODO Remove await if on slot (there is a reace condition)
+
       await tournamentContract.registerTokens(account!, tokens);
 
-      // Wait for the entity to be updated with the new state
       await state.waitForEntityChange(entityId, (entity) => {
         return entity?.models?.tournament_mock?.TokenModel === tokens;
       });
@@ -86,10 +81,12 @@ export const useSystemCalls = () => {
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      await tournamentContract.createTournament(
+      const tx = await tournamentContract.createTournament(
         account!,
         tournament.name,
         byteArray.byteArrayFromString(tournament.description),
+        tournament.registration_start_time,
+        tournament.registration_end_time,
         tournament.start_time,
         tournament.end_time,
         tournament.submission_period,
@@ -98,12 +95,14 @@ export const useSystemCalls = () => {
         tournament.entry_premium as CairoOption<Premium>
       );
 
-      toast({
-        title: "Created Tournament!",
-        description: `Created tournament ${feltToString(tournament.name)}`,
-      });
+      if (tx) {
+        toast({
+          title: "Created Tournament!",
+          description: `Created tournament ${feltToString(tournament.name)}`,
+        });
 
-      resetFormData();
+        resetFormData();
+      }
     } catch (error) {
       state.revertOptimisticUpdate(transactionId);
       console.error("Error executing create tournament:", error);
@@ -127,20 +126,23 @@ export const useSystemCalls = () => {
       account?.address
     );
 
-    toast({
-      title: "Entered Tournament!",
-      description: `Entered tournament ${tournamentName}`,
-    });
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      await tournamentContract.enterTournament(
-        account as Account,
+      const tx = await tournamentContract.enterTournament(
+        account!,
         tournamentId,
         gatedSubmissionType
       );
 
       await wait();
+
+      if (tx) {
+        toast({
+          title: "Entered Tournament!",
+          description: `Entered tournament ${tournamentName}`,
+        });
+      }
     } catch (error) {
       revert();
       console.error("Error executing enter tournament:", error);
@@ -155,8 +157,17 @@ export const useSystemCalls = () => {
     tournamentName: string,
     startAll: boolean,
     startCount: CairoOption<number>,
+    usableGoldenTokens: any[],
+    usableBlobertTokens: any[],
     newAddressStartCount: BigNumberish
   ) => {
+    const randomInt = getRandomInt(
+      0,
+      (selectedChainConfig?.clientRewardAddress?.length ?? 1) - 1
+    );
+    const selectedRevenueAddress =
+      selectedChainConfig?.clientRewardAddress?.[randomInt];
+
     const { wait, revert, confirm } = applyTournamentStartUpdate(
       tournamentId,
       newAddressStartCount,
@@ -166,18 +177,26 @@ export const useSystemCalls = () => {
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      await tournamentContract.startTournament(
+      const tx = await tournamentContract.startTournament(
         account!,
         Number(tournamentId),
         startAll,
-        startCount
+        startCount,
+        selectedRevenueAddress,
+        usableGoldenTokens,
+        usableBlobertTokens
       );
 
+      console.log(tx);
+
       await wait();
-      toast({
-        title: "Started Tournament!",
-        description: `Started tournament ${tournamentName}`,
-      });
+
+      if (tx) {
+        toast({
+          title: "Started Tournament!",
+          description: `Started tournament ${tournamentName}`,
+        });
+      }
     } catch (error) {
       revert();
       console.error("Error executing create tournament:", error);
@@ -204,11 +223,18 @@ export const useSystemCalls = () => {
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      await tournamentContract.submitScores(account!, tournamentId, gameIds);
-      toast({
-        title: "Submitted Scores!",
-        description: `Submitted scores for tournament ${tournamentName}`,
-      });
+      const tx = await tournamentContract.submitScores(
+        account!,
+        tournamentId,
+        gameIds
+      );
+
+      if (tx) {
+        toast({
+          title: "Submitted Scores!",
+          description: `Submitted scores for tournament ${tournamentName}`,
+        });
+      }
     } catch (error) {
       // Revert the optimistic update if an error occurs
       state.revertOptimisticUpdate(transactionId);
@@ -235,7 +261,7 @@ export const useSystemCalls = () => {
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      await tournamentContract.addPrize(
+      const tx = await tournamentContract.addPrize(
         account!,
         tournamentId,
         prize.token,
@@ -245,7 +271,7 @@ export const useSystemCalls = () => {
 
       await wait();
 
-      if (showToast) {
+      if (showToast && tx) {
         toast({
           title: "Added Prize!",
           description: `Added prize for tournament ${tournamentName}`,
@@ -270,15 +296,18 @@ export const useSystemCalls = () => {
     try {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
-      await tournamentContract.distributePrizes(
+      const tx = await tournamentContract.distributePrizes(
         account!,
         tournamentId,
         prizeKeys
       );
-      toast({
-        title: "Distributed Prizes!",
-        description: `Distributed prizes for tournament ${tournamentName}`,
-      });
+
+      if (tx) {
+        toast({
+          title: "Distributed Prizes!",
+          description: `Distributed prizes for tournament ${tournamentName}`,
+        });
+      }
     } catch (error) {
       state.revertOptimisticUpdate(transactionId);
       console.error("Error executing distribute prizes:", error);
@@ -456,7 +485,7 @@ export const useSystemCalls = () => {
     return await resolvedClient.erc721_mock.balanceOf(address);
   };
 
-  const getERC20BalanceGeneral = async (tokenAddress: string) => {
+  const getBalanceGeneral = async (tokenAddress: string) => {
     const result = await (account as Account)?.callContract({
       contractAddress: tokenAddress,
       entrypoint: "balance_of",
@@ -466,7 +495,7 @@ export const useSystemCalls = () => {
   };
 
   const approveERC20General = async (token: Token) => {
-    (account as Account)?.execute([
+    await (account as Account)?.execute([
       {
         contractAddress: token.token,
         entrypoint: "approve",
@@ -480,7 +509,7 @@ export const useSystemCalls = () => {
   };
 
   const approveERC721General = async (token: Token) => {
-    (account as Account)?.execute([
+    await (account as Account)?.execute([
       {
         contractAddress: token.token,
         entrypoint: "approve",
@@ -517,7 +546,7 @@ export const useSystemCalls = () => {
     mintErc721,
     approveErc721,
     getErc721Balance,
-    getERC20BalanceGeneral,
+    getBalanceGeneral,
     approveERC20General,
     approveERC721General,
   };

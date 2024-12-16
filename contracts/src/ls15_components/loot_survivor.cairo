@@ -1,5 +1,9 @@
 use starknet::ContractAddress;
-use tournament::ls15_components::models::loot_survivor::{Adventurer, AdventurerMetadata, Bag};
+use tournament::ls15_components::models::loot_survivor::{
+    Adventurer, AdventurerMetadataStorage, Bag
+};
+use tournament::ls15_components::models::tournament::FreeGameTokenType;
+use adventurer::{adventurer_meta::AdventurerMetadata};
 
 #[starknet::interface]
 trait ILootSurvivor<TState> {
@@ -7,6 +11,9 @@ trait ILootSurvivor<TState> {
     fn get_adventurer_meta(self: @TState, adventurer_id: felt252) -> AdventurerMetadata;
     fn get_bag(self: @TState, adventurer_id: felt252) -> Bag;
     fn get_cost_to_play(self: @TState) -> u128;
+    fn free_game_available(
+        self: @TState, free_game_type: FreeGameTokenType, token_id: u128
+    ) -> bool;
     fn new_game(
         ref self: TState,
         client_reward_address: ContractAddress,
@@ -20,9 +27,10 @@ trait ILootSurvivor<TState> {
     ) -> felt252;
     fn set_adventurer(ref self: TState, adventurer_id: felt252, adventurer: Adventurer);
     fn set_adventurer_meta(
-        ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadata
+        ref self: TState, adventurer_id: felt252, adventurer_meta: AdventurerMetadataStorage
     );
     fn set_bag(ref self: TState, adventurer_id: felt252, bag: Bag);
+    fn set_free_game_available(self: @TState, free_game_type: FreeGameTokenType, token_id: u128);
 }
 
 ///
@@ -37,12 +45,15 @@ pub mod loot_survivor_component {
     use starknet::{ContractAddress, get_block_timestamp, get_caller_address, get_contract_address};
     use dojo::contract::components::world_provider::{IWorldProvider};
 
+    use adventurer::{adventurer_meta::AdventurerMetadata};
+
     use tournament::ls15_components::models::loot_survivor::{
-        Adventurer, AdventurerMetadata, Bag, Stats, Equipment, Item, AdventurerModel,
-        AdventurerMetaModel, BagModel, GameCountModel, Contracts
+        Adventurer, AdventurerMetadataStorage, Bag, Stats, Equipment, Item, AdventurerModel,
+        AdventurerMetaModel, BagModel, GameCountModel, FreeGameAvailableModel, Contracts
     };
+    use tournament::ls15_components::models::tournament::FreeGameTokenType;
     use tournament::ls15_components::interfaces::{WorldTrait, WorldImpl};
-    use tournament::ls15_components::libs::store::{Store, StoreTrait};
+    use tournament::ls15_components::tests::libs::store::{Store, StoreTrait};
     use tournament::ls15_components::libs::utils::{pow};
 
     use openzeppelin_introspection::src5::SRC5Component;
@@ -94,7 +105,18 @@ pub mod loot_survivor_component {
                 self.get_contract().world_dispatcher(), @"tournament"
             );
             let mut store: Store = StoreTrait::new(world);
-            store.get_adventurer_meta_model(adventurer_id).adventurer_meta
+            let adventurer_meta = store.get_adventurer_meta_model(adventurer_id).adventurer_meta;
+            let formatted_adventurer_meta = AdventurerMetadata {
+                birth_date: adventurer_meta.birth_date,
+                death_date: adventurer_meta.death_date,
+                level_seed: adventurer_meta.level_seed,
+                item_specials_seed: adventurer_meta.item_specials_seed,
+                rank_at_death: adventurer_meta.rank_at_death,
+                delay_stat_reveal: adventurer_meta.delay_stat_reveal,
+                golden_token_id: adventurer_meta.golden_token_id,
+                launch_tournament_winner_token_id: 0,
+            };
+            formatted_adventurer_meta
         }
 
         fn get_bag(self: @ComponentState<TContractState>, adventurer_id: felt252) -> Bag {
@@ -107,6 +129,16 @@ pub mod loot_survivor_component {
 
         fn get_cost_to_play(self: @ComponentState<TContractState>) -> u128 {
             50000000000000000000
+        }
+
+        fn free_game_available(
+            self: @ComponentState<TContractState>, free_game_type: FreeGameTokenType, token_id: u128
+        ) -> bool {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store.get_free_game_available_model(free_game_type, token_id).available
         }
 
         fn new_game(
@@ -127,11 +159,15 @@ pub mod loot_survivor_component {
             let contracts = store.get_contracts_model(get_contract_address());
             let cost_to_play = self.get_cost_to_play();
             // transfer base game cost
-            let lords_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
-                contract_address: contracts.lords
-            };
-            lords_dispatcher
-                .transfer_from(get_caller_address(), get_contract_address(), cost_to_play.into());
+            if (golden_token_id.is_zero() && launch_tournament_winner_token_id.is_zero()) {
+                let lords_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
+                    contract_address: contracts.lords
+                };
+                lords_dispatcher
+                    .transfer_from(
+                        get_caller_address(), get_contract_address(), cost_to_play.into()
+                    );
+            }
 
             // transfer VRF cost
             let eth_dispatcher: IERC20Dispatcher = IERC20Dispatcher {
@@ -187,7 +223,7 @@ pub mod loot_survivor_component {
                     @AdventurerModel { adventurer_id: adventurer_id.into(), adventurer }
                 );
 
-            let adventurer_meta = AdventurerMetadata {
+            let adventurer_meta = AdventurerMetadataStorage {
                 birth_date: get_block_timestamp().into(),
                 death_date: 0,
                 level_seed: 0,
@@ -222,7 +258,7 @@ pub mod loot_survivor_component {
         fn set_adventurer_meta(
             ref self: ComponentState<TContractState>,
             adventurer_id: felt252,
-            adventurer_meta: AdventurerMetadata
+            adventurer_meta: AdventurerMetadataStorage
         ) {
             let mut world = WorldTrait::storage(
                 self.get_contract().world_dispatcher(), @"tournament"
@@ -238,6 +274,19 @@ pub mod loot_survivor_component {
             );
             let mut store: Store = StoreTrait::new(world);
             store.set_bag_model(@BagModel { adventurer_id, bag });
+        }
+
+        fn set_free_game_available(
+            self: @ComponentState<TContractState>, free_game_type: FreeGameTokenType, token_id: u128
+        ) {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store
+                .set_free_game_available_model(
+                    @FreeGameAvailableModel { free_game_type, token_id, available: true }
+                );
         }
     }
 

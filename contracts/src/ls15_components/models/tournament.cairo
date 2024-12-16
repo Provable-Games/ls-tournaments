@@ -67,6 +67,11 @@ pub enum EntryStatus {
     Submitted,
 }
 
+#[derive(Copy, Drop, PartialEq, Introspect, Serde)]
+pub enum FreeGameTokenType {
+    GoldenToken,
+    LaunchTournamentChampion,
+}
 
 ///
 /// Model
@@ -80,6 +85,8 @@ pub struct TournamentModel {
     pub name: felt252,
     pub description: ByteArray,
     pub creator: ContractAddress,
+    pub registration_start_time: u64,
+    pub registration_end_time: u64,
     pub start_time: u64,
     pub end_time: u64,
     pub submission_period: u64,
@@ -203,6 +210,8 @@ pub struct TournamentConfig {
     pub lords: ContractAddress,
     pub loot_survivor: ContractAddress,
     pub oracle: ContractAddress,
+    pub golden_token: ContractAddress,
+    pub blobert: ContractAddress,
     pub safe_mode: bool,
-    pub test_mode: bool
+    pub test_mode: bool,
 }

@@ -11,6 +11,8 @@ interface ContractAddresses {
   lords: string;
   lootSurvivor: string;
   oracle: string;
+  goldenToken: string;
+  blobert: string;
 }
 
 const TOURNAMENT_SYSTEM_NAME = "LSTournament";
@@ -25,7 +27,9 @@ export function useTournamentContracts(): ContractAddresses {
   const ethMock = useDojoSystem("eth_mock").contractAddress;
   const lordsMock = useDojoSystem("lords_mock").contractAddress;
   const lootSurvivorMock = useDojoSystem("loot_survivor_mock").contractAddress;
-  const oracleMock = useDojoSystem("oracle_mock").contractAddress;
+  const oracleMock = useDojoSystem("pragma_mock").contractAddress;
+  const goldenTokenMock = useDojoSystem("erc721_mock").contractAddress;
+  const blobertMock = useDojoSystem("erc721_mock").contractAddress;
 
   const tournament = useDojoSystem(TOURNAMENT_SYSTEM_NAME).contractAddress;
   const entityId = useMemo(
@@ -44,6 +48,8 @@ export function useTournamentContracts(): ContractAddresses {
       lords: lordsMock,
       lootSurvivor: lootSurvivorMock,
       oracle: oracleMock,
+      goldenToken: goldenTokenMock,
+      blobert: blobertMock,
     };
   }
 
@@ -53,5 +59,7 @@ export function useTournamentContracts(): ContractAddresses {
     lords: configModel?.lords,
     lootSurvivor: configModel?.loot_survivor,
     oracle: configModel?.oracle,
+    goldenToken: configModel?.golden_token,
+    blobert: configModel?.blobert,
   };
 }

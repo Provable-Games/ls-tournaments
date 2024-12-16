@@ -41,6 +41,8 @@ const CreatedRow = ({
 
   const tournamentModel = useModel(entityId, Models.TournamentModel);
 
+  console.log(tournamentModel);
+
   // Calculate dates
   const endDate = new Date(Number(tournamentModel?.end_time) * 1000);
   const submissionEndDate = new Date(
@@ -89,12 +91,12 @@ const CreatedRow = ({
       <td>
         {!entryPremium || entryPremium === "None"
           ? "-"
-          : BigInt(entryPremium.Some?.token_amount).toString()}
+          : (entryPremium.Some?.token_amount as unknown as string)}
       </td>
       <td>
         {!entryPremium || entryPremium === "None"
           ? "-"
-          : BigInt(entryPremium.Some?.creator_fee).toString()}
+          : (entryPremium.Some as unknown as string)}
       </td>
       <td>
         <div className="flex flex-col gap-2">

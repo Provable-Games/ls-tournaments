@@ -2,7 +2,7 @@
 name = "Tournament"
 description = "Loot Survivor Tournaments"
 website = "https://github.com/Provable-Games/ls-tournaments"
-seed = "tournament"
+seed = "tournament1"
 
 [world.socials]
 x = "https://x.com/provablegames"
@@ -14,7 +14,7 @@ default = "tournament"
 [env]
 chain_id = "SN_MAINNET"
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
-world_address = "0x02b127646258e21186e6c7e6234f42583d0d19bf88a57776a404c2cefeb421f2"  # Uncomment and update this line with your world address.
+# world_address = "0x062b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d"  # Uncomment and update this line with your world address.
 
 [writers]
 "tournament-TournamentModel" = ["tournament-LSTournament"]
@@ -33,10 +33,6 @@ world_address = "0x02b127646258e21186e6c7e6234f42583d0d19bf88a57776a404c2cefeb42
 
 [init_call_args]
 "tournament-LSTournament" = [
-    "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-    "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
-    "0x018108b32cea514a78ef1b0e4a0753e855cdf620bc0565202c02456f618c4dc4",
-    "0x2a85bd616f912537c50a49a4076db02c00b29b2cdc8a197ce92ed1837fa875b",
     "1", # safe_mode
     "1" # test_mode
 ]

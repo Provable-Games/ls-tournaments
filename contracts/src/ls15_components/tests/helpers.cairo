@@ -1,7 +1,10 @@
 use starknet::get_block_timestamp;
 use tournament::ls15_components::constants::MIN_SUBMISSION_PERIOD;
 use tournament::tests::{
-    constants::{TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, TEST_START_TIME, TEST_END_TIME},
+    constants::{
+        TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, TEST_REGISTRATION_START_TIME,
+        TEST_REGISTRATION_END_TIME, TEST_START_TIME, TEST_END_TIME
+    },
 };
 use tournament::ls15_components::tests::interfaces::{
     IERC20MockDispatcher, IERC20MockDispatcherTrait
@@ -13,7 +16,7 @@ use tournament::ls15_components::tests::interfaces::{
     ITournamentMockDispatcher, ITournamentMockDispatcherTrait
 };
 use adventurer::{adventurer::Adventurer, equipment::Equipment, item::Item, stats::Stats};
-use tournament::ls15_components::models::loot_survivor::AdventurerMetadata;
+use tournament::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
 use tournament::ls15_components::models::tournament::{ERC20Data, ERC721Data, Token, TokenDataType};
 
 //
@@ -25,6 +28,8 @@ pub fn create_basic_tournament(tournament: ITournamentMockDispatcher) -> u64 {
         .create_tournament(
             TOURNAMENT_NAME(),
             TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
             TEST_START_TIME().into(),
             TEST_END_TIME().into(),
             MIN_SUBMISSION_PERIOD.into(),
@@ -42,6 +47,16 @@ pub fn approve_game_costs(
 ) {
     lords.approve(tournament.contract_address, entries * 50000000000000000000);
     eth.approve(tournament.contract_address, entries * 200000000000000);
+}
+
+pub fn approve_free_game_cost(
+    eth: IERC20MockDispatcher,
+    golden_token: IERC721MockDispatcher,
+    token_id: u256,
+    tournament: ITournamentMockDispatcher
+) {
+    eth.approve(tournament.contract_address, 200000000000000);
+    golden_token.approve(tournament.contract_address, token_id);
 }
 
 pub fn create_dead_adventurer_with_xp(xp: u16) -> Adventurer {
@@ -70,8 +85,8 @@ pub fn create_dead_adventurer_with_xp(xp: u16) -> Adventurer {
     }
 }
 
-pub fn create_adventurer_metadata_with_death_date(death_date: u64) -> AdventurerMetadata {
-    AdventurerMetadata {
+pub fn create_adventurer_metadata_with_death_date(death_date: u64) -> AdventurerMetadataStorage {
+    AdventurerMetadataStorage {
         birth_date: get_block_timestamp().into(),
         death_date: death_date,
         level_seed: 0,

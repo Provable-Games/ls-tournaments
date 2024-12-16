@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "./buttons/Button";
 import { CartridgeIcon, ETH, LORDS, LOGO } from "./Icons";
-import useUIStore from "../hooks/useUIStore";
 import {
   displayAddress,
   formatNumber,
@@ -12,22 +11,22 @@ import { useAccount, useConnect } from "@starknet-react/core";
 import { checkCartridgeConnector } from "../lib/connectors";
 import { useDojo } from "../DojoContext";
 import { useConnectToSelectedChain } from "@/lib/dojo/hooks/useChain";
-import { useControllerMenu } from "@/hooks/useController";
+import {
+  useControllerMenu,
+  useControllerUsername,
+} from "@/hooks/useController";
+import useUIStore from "@/hooks/useUIStore";
 
-export interface HeaderProps {
-  ethBalance: bigint;
-  lordsBalance: bigint;
-}
-
-export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
+export default function Header() {
   const { account } = useAccount();
   const { connector } = useConnect();
   const { connect } = useConnectToSelectedChain();
   const { openMenu } = useControllerMenu();
-  const username = useUIStore((state: any) => state.username);
+  const { username } = useControllerUsername();
   const {
     setup: { selectedChainConfig },
   } = useDojo();
+  const { tokenBalance } = useUIStore();
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
@@ -61,7 +60,9 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
                 <ETH />
               </span>
               <p className="text-xl">
-                {formatEth(parseInt((ethBalance ?? 0).toString()) / 10 ** 18)}
+                {formatEth(
+                  parseInt((tokenBalance.eth ?? 0).toString()) / 10 ** 18
+                )}
               </p>
             </span>
           </Button>
@@ -92,7 +93,7 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
                   </span>
                   <p className="text-xl">
                     {formatNumber(
-                      parseInt((lordsBalance ?? 0).toString()) / 10 ** 18
+                      parseInt((tokenBalance.lords ?? 0).toString()) / 10 ** 18
                     )}
                   </p>
                 </>
@@ -100,6 +101,20 @@ export default function Header({ ethBalance, lordsBalance }: HeaderProps) {
                 <p className="text-black">{"Buy Lords"}</p>
               )}
             </span>
+          </Button>
+          <Button variant="outline">
+            <div className="flex flex-row items-center gap-1">
+              <span className="relative h-5 w-5">
+                <img src="/golden-token.png" alt="golden-token" />
+              </span>
+              <p className="text-xl">/</p>
+              <span className="relative h-5 w-5">
+                <img src="/blobert.png" alt="blobert" />
+              </span>
+              <p className="text-xl">
+                {(tokenBalance.goldenToken + tokenBalance.blobert).toString()}
+              </p>
+            </div>
           </Button>
         </div>
         <span className="sm:hidden flex flex-row gap-2 items-center">

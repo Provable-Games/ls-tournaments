@@ -7,24 +7,30 @@ const formatTime = (totalSeconds: number) => {
   const seconds = totalSeconds % 60;
   return (
     <div className="flex flex-row no-text-shadow">
-      <div className="relative flex flex-col ">
-        <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
-          D
-        </span>
-        <span>{`${days.toString().padStart(2, "0")}:`}</span>
-      </div>
-      <div className="relative flex flex-col">
-        <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
-          H
-        </span>
-        <span>{`${hours.toString().padStart(2, "0")}:`}</span>
-      </div>
-      <div className="relative flex flex-col">
-        <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
-          M
-        </span>
-        <span>{`${minutes.toString().padStart(2, "0")}:`}</span>
-      </div>
+      {days > 0 && (
+        <div className="relative flex flex-col">
+          <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+            D
+          </span>
+          <span>{`${days.toString().padStart(2, "0")}:`}</span>
+        </div>
+      )}
+      {(hours > 0 || days > 0) && (
+        <div className="relative flex flex-col">
+          <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+            H
+          </span>
+          <span>{`${hours.toString().padStart(2, "0")}:`}</span>
+        </div>
+      )}
+      {(minutes > 0 || hours > 0 || days > 0) && (
+        <div className="relative flex flex-col">
+          <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+            M
+          </span>
+          <span>{`${minutes.toString().padStart(2, "0")}:`}</span>
+        </div>
+      )}
       <div className="relative flex flex-col">
         <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
           S

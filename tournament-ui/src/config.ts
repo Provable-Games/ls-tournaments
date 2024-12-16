@@ -40,10 +40,11 @@ export enum ChainId {
   SN_MAINNET = "SN_MAINNET",
 }
 
+// TODO: fix for running between katana and mainnet
 const supportedChainIds: ChainId[] = [
-  ChainId.KATANA_LOCAL,
+  // ChainId.KATANA_LOCAL,
   // ChainId.SN_SEPOLIA,
-  ChainId.WP_LS_TOURNAMENTS_KATANA,
+  // ChainId.WP_LS_TOURNAMENTS_KATANA,
   // ChainId.TOURNAMENT_STAGING,
   ChainId.SN_MAINNET,
 ];
@@ -167,11 +168,13 @@ export type DojoChainConfig = {
   rpcUrl?: string;
   toriiUrl?: string;
   relayUrl?: string;
+  blastRpc?: string;
   masterAddress?: string;
   masterPrivateKey?: string;
   accountClassHash?: string;
   ethAddress?: string;
   lordsAddress?: string;
+  clientRewardAddress?: string[];
   connectorIds?: string[];
   // starknet Chain
   network?: string;
@@ -187,6 +190,7 @@ const localKatanaConfig: DojoChainConfig = {
   rpcUrl: LOCAL_KATANA,
   toriiUrl: "http://0.0.0.0:8080", //LOCAL_TORII,
   relayUrl: LOCAL_RELAY,
+  blastRpc: undefined,
   // masterAddress: KATANA_PREFUNDED_ADDRESS,
   // masterPrivateKey: KATANA_PREFUNDED_PRIVATE_KEY,
   masterAddress:
@@ -196,6 +200,9 @@ const localKatanaConfig: DojoChainConfig = {
   accountClassHash: KATANA_CLASS_HASH,
   ethAddress: KATANA_ETH_CONTRACT_ADDRESS,
   lordsAddress: "0x0",
+  clientRewardAddress: [
+    "0x036cE487952f25878a0158bA4A0C2Eb5eb66f0282567163a4B893A0EA5847D2d",
+  ],
   connectorIds: [supportedConnectorIds.CONTROLLER],
   // starknet Chain
   nativeCurrency: ETH_KATANA,
@@ -209,6 +216,7 @@ const slotKatanaConfig: DojoChainConfig = {
   rpcUrl: "https://api.cartridge.gg/x/ls-tournaments-katana/katana",
   toriiUrl: "https://api.cartridge.gg/x/ls-tournaments-katana/torii",
   relayUrl: undefined,
+  blastRpc: undefined,
   // masterAddress: KATANA_PREFUNDED_ADDRESS,
   // masterPrivateKey: KATANA_PREFUNDED_PRIVATE_KEY,
   masterAddress:
@@ -218,6 +226,9 @@ const slotKatanaConfig: DojoChainConfig = {
   accountClassHash: KATANA_CLASS_HASH,
   ethAddress: KATANA_ETH_CONTRACT_ADDRESS,
   lordsAddress: "0x0",
+  clientRewardAddress: [
+    "0x036cE487952f25878a0158bA4A0C2Eb5eb66f0282567163a4B893A0EA5847D2d",
+  ],
   connectorIds: [supportedConnectorIds.CONTROLLER],
   // starknet Chain
   nativeCurrency: ETH_KATANA,
@@ -231,12 +242,20 @@ const snMainnetConfig: DojoChainConfig = {
   rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
   toriiUrl: "https://api.cartridge.gg/x/ls-tournaments/torii",
   relayUrl: undefined,
+  blastRpc:
+    "https://starknet-mainnet.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",
   masterAddress: undefined,
   masterPrivateKey: undefined,
   accountClassHash: undefined,
   ethAddress: mainnet.nativeCurrency.address,
   lordsAddress:
     "0x0124aeb495b947201f5fac96fd1138e326ad86195b98df6dec9009158a533b49",
+  clientRewardAddress: [
+    "0x036cE487952f25878a0158bA4A0C2Eb5eb66f0282567163a4B893A0EA5847D2d",
+    "0x0616E6a5F9b1f86a0Ece6E965B2f3b27E3D784be79Cb2F6304D92Db100C7D29E",
+    "0x049FB4281D13E1f5f488540Cd051e1507149E99CC2E22635101041Ec5E4e4557",
+    "0x02CD97240DB3f679De98A729aE91EB996cAb9Fd92a9A578Df11a72F49bE1c356",
+  ],
   connectorIds: [
     supportedConnectorIds.CONTROLLER,
     // supportedConnectorIds.ARGENT,

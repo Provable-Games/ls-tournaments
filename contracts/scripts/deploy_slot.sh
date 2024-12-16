@@ -33,6 +33,8 @@ export ETH_ADDRESS=$(get_contract_address "tournament-eth_mock")
 export LORDS_ADDRESS=$(get_contract_address "tournament-lords_mock")
 export LOOT_SURVIVOR_ADDRESS=$(get_contract_address "tournament-loot_survivor_mock")
 export ORACLE_ADDRESS=$(get_contract_address "tournament-pragma_mock")
+export TEST_ERC20=$(get_contract_address "tournament-erc20_mock")
+export TEST_ERC721=$(get_contract_address "tournament-erc721_mock")
 
 #-----------------
 # initialize tournament
@@ -42,12 +44,16 @@ echo "ETH_ADDRESS: $ETH_ADDRESS"
 echo "LORDS_ADDRESS: $LORDS_ADDRESS"
 echo "LOOT_SURVIVOR_ADDRESS: $LOOT_SURVIVOR_ADDRESS"
 echo "ORACLE_ADDRESS: $ORACLE_ADDRESS"
+echo "TEST_ERC20: $TEST_ERC20"
+echo "TEST_ERC721: $TEST_ERC721"
 
 echo "Waiting 10 seconds before execution..."
 sleep 10
 
-sozo -P slot execute tournament_mock initializer --calldata $ETH_ADDRESS,$LORDS_ADDRESS,$LOOT_SURVIVOR_ADDRESS,$ORACLE_ADDRESS,0,1
+sozo -P slot execute tournament_mock initializer --calldata $ETH_ADDRESS,$LORDS_ADDRESS,$LOOT_SURVIVOR_ADDRESS,$ORACLE_ADDRESS,$TEST_ERC721,$TEST_ERC721,0,1,$TEST_ERC20,$TEST_ERC721
 sozo -P slot execute loot_survivor_mock initializer --calldata $ETH_ADDRESS,$LORDS_ADDRESS,$ORACLE_ADDRESS
+sozo -P slot execute loot_survivor_mock set_free_game_available --calldata 0,1
+sozo -P slot execute loot_survivor_mock set_free_game_available --calldata 1,1
 
 #------------------
 echo "--- DONE! 👍"
