@@ -1,9 +1,9 @@
 {
   "world": {
     "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x2b127646258e21186e6c7e6234f42583d0d19bf88a57776a404c2cefeb421f2",
-    "seed": "tournament",
-    "name": "Tournament mocks",
+    "address": "0x62b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d",
+    "seed": "tournament1",
+    "name": "Tournament",
     "entrypoints": [
       "uuid",
       "set_metadata",
@@ -1252,7 +1252,7 @@
   },
   "contracts": [
     {
-      "address": "0x1a4ee4c4b16cd36d2bb4cb861a622f8e814daf5035716517d76af76fa2a4dfa",
+      "address": "0x3ec6f61148e0bf0dcf68c31441e28c0d1988fda7081db5fdc137889af5bdad2",
       "class_hash": "0x32b12f5c4ce3a3e31017409f3ffc07857822e986634d492b7ccabb796333d08",
       "abi": [
         {

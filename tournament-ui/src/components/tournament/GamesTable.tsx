@@ -45,7 +45,7 @@ const GamesTable = ({ adventurersData }: GamesTableProps) => {
           <table className="w-full">
             <thead className="bg-terminal-green/75 text-terminal-black text-lg h-10 uppercase">
               <tr>
-                <th className="text-center">Name</th>
+                <th className="text-center">Rank</th>
                 <th className="text-left">Address</th>
                 <th className="text-left">ID</th>
                 <th className="text-left">Level</th>

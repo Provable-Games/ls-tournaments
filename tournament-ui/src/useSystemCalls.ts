@@ -130,10 +130,12 @@ export const useSystemCalls = () => {
       const resolvedClient = await client;
       const tournamentContract = selectTournament(resolvedClient, isMainnet);
       const tx = await tournamentContract.enterTournament(
-        account as Account,
+        account!,
         tournamentId,
         gatedSubmissionType
       );
+
+      await wait();
 
       if (tx) {
         toast({
@@ -141,8 +143,6 @@ export const useSystemCalls = () => {
           description: `Entered tournament ${tournamentName}`,
         });
       }
-
-      await wait();
     } catch (error) {
       revert();
       console.error("Error executing enter tournament:", error);
@@ -187,14 +187,16 @@ export const useSystemCalls = () => {
         usableBlobertTokens
       );
 
+      console.log(tx);
+
+      await wait();
+
       if (tx) {
         toast({
           title: "Started Tournament!",
           description: `Started tournament ${tournamentName}`,
         });
       }
-
-      await wait();
     } catch (error) {
       revert();
       console.error("Error executing create tournament:", error);
@@ -267,14 +269,14 @@ export const useSystemCalls = () => {
         prize.position
       );
 
+      await wait();
+
       if (showToast && tx) {
         toast({
           title: "Added Prize!",
           description: `Added prize for tournament ${tournamentName}`,
         });
       }
-
-      await wait();
     } catch (error) {
       revert();
       console.error("Error executing add prize:", error);

@@ -40,10 +40,11 @@ export enum ChainId {
   SN_MAINNET = "SN_MAINNET",
 }
 
+// TODO: fix for running between katana and mainnet
 const supportedChainIds: ChainId[] = [
-  ChainId.KATANA_LOCAL,
+  // ChainId.KATANA_LOCAL,
   // ChainId.SN_SEPOLIA,
-  ChainId.WP_LS_TOURNAMENTS_KATANA,
+  // ChainId.WP_LS_TOURNAMENTS_KATANA,
   // ChainId.TOURNAMENT_STAGING,
   ChainId.SN_MAINNET,
 ];

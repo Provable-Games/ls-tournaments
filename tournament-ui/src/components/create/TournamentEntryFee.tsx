@@ -58,14 +58,16 @@ const TournamentEntryFee = () => {
   );
 
   useEffect(() => {
-    const entryFeeValue = new CairoOption(CairoOptionVariant.Some, {
-      token: selectedToken?.token!,
-      token_amount: amount,
-      token_distribution: payouts,
-      creator_fee: creatorFee,
-    });
+    if (amount && creatorFee && payouts && selectedToken) {
+      const entryFeeValue = new CairoOption(CairoOptionVariant.Some, {
+        token: selectedToken?.token!,
+        token_amount: amount,
+        token_distribution: payouts,
+        creator_fee: creatorFee,
+      });
 
-    setFormData({ ...formData, entryFee: entryFeeValue });
+      setFormData({ ...formData, entryFee: entryFeeValue });
+    }
   }, [amount, creatorFee, payouts, selectedToken]);
 
   return (

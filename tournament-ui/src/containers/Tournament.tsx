@@ -37,6 +37,7 @@ const Tournament = () => {
   } = useDojo();
   const { setInputDialog } = useUIStore();
   const { usableGoldenTokens, usableBlobertTokens } = useFreeGames();
+  console.log(usableBlobertTokens);
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 

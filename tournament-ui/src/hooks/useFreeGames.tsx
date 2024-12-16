@@ -15,8 +15,8 @@ const useFreeGames = () => {
   const { tokenBalance } = useUIStore();
   const { provider } = useProvider();
   const { goldenToken, blobert, lootSurvivor } = useTournamentContracts();
-  const [usableGoldenTokens, setUsableGoldenTokens] = useState<number[]>([]);
-  const [usableBlobertTokens, setUsableBlobertTokens] = useState<number[]>([]);
+  const [usableGoldenTokens, setUsableGoldenTokens] = useState<string[]>([]);
+  const [usableBlobertTokens, setUsableBlobertTokens] = useState<string[]>([]);
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
@@ -71,7 +71,7 @@ const useFreeGames = () => {
 
   const blobertTokenVariables = useMemo(() => {
     return {
-      token: indexAddress(blobert),
+      token: indexAddress(blobert ?? ""),
       owner: indexAddress(account?.address ?? "").toLowerCase(),
     };
   }, [account?.address]);
@@ -81,30 +81,34 @@ const useFreeGames = () => {
     blobertTokenVariables
   );
 
-  const getUsableBlobertToken = async (tokenIds: number[]) => {
-    for (let tokenId of tokenIds) {
+  const getUsableBlobertToken = async (bloberts: any[]) => {
+    const usableTokens: string[] = [];
+    for (let blobert of bloberts) {
       const canPlay = await provider.callContract({
         contractAddress: lootSurvivor,
         entrypoint: "free_game_available",
-        calldata: ["1", tokenId.toString()],
+        calldata: ["1", blobert.tokenId.toString()],
       });
-      if (canPlay) {
-        setUsableBlobertTokens([...usableBlobertTokens, tokenId]);
+      if ((canPlay[0] as unknown as string) !== "0x0") {
+        usableTokens.push(blobert.tokenId.toString());
       }
     }
+    setUsableBlobertTokens(usableTokens);
   };
 
   const getUsableGoldenToken = async (tokenIds: number[]) => {
+    const usableTokens: string[] = [];
     for (let tokenId of tokenIds) {
       const canPlay = await provider.callContract({
         contractAddress: lootSurvivor,
         entrypoint: "free_game_available",
         calldata: ["0", tokenId.toString()],
       });
-      if (canPlay) {
-        setUsableGoldenTokens([...usableGoldenTokens, tokenId]);
+      if ((canPlay[0] as unknown as string) !== "0x0") {
+        usableTokens.push(tokenId.toString());
       }
     }
+    setUsableGoldenTokens(usableTokens);
   };
 
   useEffect(() => {
@@ -117,21 +121,22 @@ const useFreeGames = () => {
     } else {
       const arr = Array.from(
         { length: Number(tokenBalance.goldenToken) },
-        (_, i) => i + 1
+        (_, i) => String(i + 1)
       );
       setUsableGoldenTokens(arr);
     }
   }, [account?.address, tokenBalance.goldenToken, isMainnet]);
 
+  console.log(blobertsData);
+
   useEffect(() => {
     if (isMainnet) {
       if (blobertsData) {
-        getUsableBlobertToken(blobertsData);
+        getUsableBlobertToken(blobertsData.tokens);
       }
     } else {
-      const arr = Array.from(
-        { length: Number(tokenBalance.blobert) },
-        (_, i) => i + 1
+      const arr = Array.from({ length: Number(tokenBalance.blobert) }, (_, i) =>
+        String(i + 1)
       );
       setUsableBlobertTokens(arr);
     }

@@ -26,8 +26,8 @@ interface StartTournamentProps {
   currentAddressStartCount: BigNumberish;
   entryAddressCount: BigNumberish;
   entryCount: BigNumberish;
-  usableGoldenTokens: number[];
-  usableBlobertTokens: number[];
+  usableGoldenTokens: string[];
+  usableBlobertTokens: string[];
 }
 
 const StartTournament = ({
@@ -259,6 +259,8 @@ const StartTournament = ({
         });
       }
 
+      console.log(totalVRFCost);
+
       const ethTokenDataType = new CairoCustomEnum({
         erc20: {
           token_amount: totalVRFCost,
@@ -291,6 +293,7 @@ const StartTournament = ({
               )
             )
           : [];
+      console.log(slicedUsableBlobertTokens);
 
       for (const goldenTokenId of slicedUsableGoldenTokens) {
         const goldenTokenDataType = new CairoCustomEnum({
