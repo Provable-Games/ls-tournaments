@@ -259,8 +259,6 @@ const StartTournament = ({
         });
       }
 
-      console.log(totalVRFCost);
-
       const ethTokenDataType = new CairoCustomEnum({
         erc20: {
           token_amount: totalVRFCost,
@@ -293,7 +291,6 @@ const StartTournament = ({
               )
             )
           : [];
-      console.log(slicedUsableBlobertTokens);
 
       for (const goldenTokenId of slicedUsableGoldenTokens) {
         const goldenTokenDataType = new CairoCustomEnum({

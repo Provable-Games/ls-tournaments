@@ -29,9 +29,6 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
     );
   }, [tournamentScores, currentPage]);
 
-  console.log(tournamentScores);
-  console.log(pagedScores);
-
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
       {tournamentScores && tournamentScores.top_score_ids.length > 0 ? (

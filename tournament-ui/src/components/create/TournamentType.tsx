@@ -4,6 +4,7 @@ import { DateTimePicker } from "@/components/ui/datetime-picker";
 import useUIStore from "@/hooks/useUIStore";
 import { ClockIcon } from "@/components/Icons";
 import { formatTime } from "@/lib/utils";
+import { TrophyIcon } from "@/components/Icons";
 
 interface TournamentTypeProps {
   testMode: boolean;
@@ -24,7 +25,7 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
   const sectionDisabled = !formData.tournamentName;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <p
         className={`text-xl uppercase text-terminal-green ${
           sectionDisabled ? "opacity-50" : ""
@@ -66,8 +67,8 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
             </p>
           </div>
         </div>
-        <div className="flex flex-col gap-2 py-2">
-          <div className="px-5 flex flex-row items-center gap-5">
+        <div className="flex flex-col">
+          <div className="px-5 flex flex-row items-center gap-5 py-2">
             <div className="flex flex-col items-center w-2/5">
               <p className="text-xl text-center uppercase text-terminal-green/90">
                 Start
@@ -139,12 +140,12 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
             )}
           </div>
           <div className="w-full bg-terminal-green/50 h-0.5" />
-          <div className="px-5 flex flex-col">
-            <p className="text-xl uppercase text-terminal-green/90">
-              Submission Period
-            </p>
-            <div className="flex flex-row items-center gap-5">
-              <div className="flex flex-row items-center gap-10">
+          <div className="flex flex-row">
+            <div className="px-5 flex flex-col py-2">
+              <p className="text-xl uppercase text-terminal-green/90">
+                Submission Period
+              </p>
+              <div className="flex flex-row items-center gap-5">
                 <div className="flex flex-row items-center gap-2">
                   <Button
                     variant={
@@ -212,6 +213,64 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                     className="text-lg p-1 w-16 h-8 bg-terminal-black border border-terminal-green"
                     disabled={sectionDisabled}
                   />
+                )}
+              </div>
+            </div>
+            <div className="h-full w-0.5 bg-terminal-green/50" />
+            <div className="px-5 flex flex-col py-2">
+              <p className="text-xl uppercase text-terminal-green/90">
+                Top Scores
+              </p>
+              <div className="flex flex-row w-full items-center gap-2">
+                <Button
+                  variant={formData.scoreboardSize === 1 ? "default" : "token"}
+                  onClick={() =>
+                    setFormData({ ...formData, scoreboardSize: 1 })
+                  }
+                  className={`border-terminal-green/75 ${
+                    formData.scoreboardSize === 1
+                      ? "text-terminal-black"
+                      : "text-terminal-green/75"
+                  }`}
+                  disabled={sectionDisabled}
+                >
+                  1
+                </Button>
+                <Button
+                  variant={formData.scoreboardSize === 3 ? "default" : "token"}
+                  onClick={() =>
+                    setFormData({ ...formData, scoreboardSize: 3 })
+                  }
+                  className={`border-terminal-green/75 ${
+                    formData.scoreboardSize === 3
+                      ? "text-terminal-black"
+                      : "text-terminal-green/75"
+                  }`}
+                  disabled={sectionDisabled}
+                >
+                  3
+                </Button>
+                <Button
+                  variant={formData.scoreboardSize === 10 ? "default" : "token"}
+                  onClick={() =>
+                    setFormData({ ...formData, scoreboardSize: 10 })
+                  }
+                  className={`border-terminal-green/75 ${
+                    formData.scoreboardSize === 10
+                      ? "text-terminal-black"
+                      : "text-terminal-green/75"
+                  }`}
+                  disabled={sectionDisabled}
+                >
+                  10
+                </Button>
+                {formData.scoreboardSize > 0 && (
+                  <span className="flex flex-row items-center gap-2">
+                    <span className="w-5 h-5 text-terminal-green">
+                      <TrophyIcon />
+                    </span>
+                    <p className="text-2xl">{formData.scoreboardSize}</p>
+                  </span>
                 )}
               </div>
             </div>

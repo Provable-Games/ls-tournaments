@@ -186,16 +186,6 @@ export async function setupWorld(provider: DojoProvider) {
     usableGoldenTokens: any[],
     usableBlobertTokens: any[]
   ) => {
-    console.log(
-      CallData.compile([
-        tournamentId,
-        startAll,
-        startCount,
-        clientRewardAddress,
-        usableGoldenTokens,
-        usableBlobertTokens,
-      ])
-    );
     try {
       return await provider
         .execute(
@@ -1418,7 +1408,6 @@ export async function setupWorld(provider: DojoProvider) {
     snAccount: Account | AccountInterface,
     tokens: Array<Token>
   ) => {
-    console.log(tokens);
     try {
       return await provider.execute(
         snAccount,

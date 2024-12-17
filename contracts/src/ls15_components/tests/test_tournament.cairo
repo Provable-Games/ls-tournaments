@@ -37,8 +37,7 @@ use tournament::tests::{
     },
 };
 use tournament::ls15_components::tests::helpers::{
-    approve_game_costs, approve_free_game_cost, create_basic_tournament,
-    create_adventurer_metadata_with_death_date, create_dead_adventurer_with_xp
+    approve_game_costs, approve_free_game_cost, create_basic_tournament, create_dead_adventurer_with_xp
 };
 use tournament::ls15_components::tests::mocks::{
     erc20_mock::erc20_mock, erc721_mock::erc721_mock, tournament_mock::tournament_mock,
@@ -1605,7 +1604,7 @@ fn test_submit_multiple_scores() {
 }
 
 #[test]
-fn test_submit_scores_tiebreaker() {
+fn test_submit_scores_earliest_submission_wins() {
     let contracts = setup();
 
     utils::impersonate(OWNER());
@@ -1647,12 +1646,6 @@ fn test_submit_scores_tiebreaker() {
     let adventurer2 = create_dead_adventurer_with_xp(1);
     contracts.loot_survivor.set_adventurer(1, adventurer1);
     contracts.loot_survivor.set_adventurer(2, adventurer2);
-
-    // Same score (1) but different death timestamps
-    let adventurer1_metadata = create_adventurer_metadata_with_death_date(100);
-    let adventurer2_metadata = create_adventurer_metadata_with_death_date(50);
-    contracts.loot_survivor.set_adventurer_meta(1, adventurer1_metadata);
-    contracts.loot_survivor.set_adventurer_meta(2, adventurer2_metadata);
 
     contracts.tournament.submit_scores(tournament_id, array![2, 1]);
 

@@ -37,7 +37,6 @@ const Tournament = () => {
   } = useDojo();
   const { setInputDialog } = useUIStore();
   const { usableGoldenTokens, usableBlobertTokens } = useFreeGames();
-  console.log(usableBlobertTokens);
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
@@ -159,8 +158,6 @@ const Tournament = () => {
 
   const isSeason =
     tournamentModel?.start_time === tournamentModel?.registration_start_time;
-
-  console.log(tournamentModel);
 
   if (!tournamentModel?.tournament_id)
     return (

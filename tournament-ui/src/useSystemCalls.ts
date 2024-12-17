@@ -187,8 +187,6 @@ export const useSystemCalls = () => {
         usableBlobertTokens
       );
 
-      console.log(tx);
-
       await wait();
 
       if (tx) {

@@ -70,6 +70,15 @@ const TournamentEntryFee = () => {
     }
   }, [amount, creatorFee, payouts, selectedToken]);
 
+  useEffect(() => {
+    if (entryFeeDisabled) {
+      setSelectedToken(null);
+      setAmount(0);
+      setCreatorFee(0);
+      setDistributionWeight(0);
+    }
+  }, [entryFeeDisabled]);
+
   return (
     <div className="flex flex-col w-full">
       <div className="flex flex-row items-center gap-5">
@@ -104,17 +113,6 @@ const TournamentEntryFee = () => {
           entryFeeDisabled ? "opacity-50" : ""
         }`}
       >
-        <div className="flex flex-row border border-terminal-green/75 h-10">
-          <Button
-            className="!h-full bg-terminal-green/75"
-            disabled={entryFeeDisabled}
-          >
-            <p className="text-lg">Entry Fee</p>
-          </Button>
-          <div className="flex items-center py-1 px-2 leading-none text-terminal-green/75">
-            <p>Set an entry fee for your tournament.</p>
-          </div>
-        </div>
         <div className="flex flex-row px-2 gap-2">
           <div className="flex flex-col py-2">
             <p className="text-xl uppercase text-terminal-green/75">Token</p>
@@ -200,7 +198,7 @@ const TournamentEntryFee = () => {
           <div className="h-full w-0.5 bg-terminal-green/50" />
           <div className="flex flex-col py-2 overflow-hidden w-full">
             <p className="text-xl uppercase text-terminal-green/75">Split</p>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 w-[150px]">
               {/* <p className="text-lg text-terminal-green/75">
                 Distribution Weight
               </p> */}

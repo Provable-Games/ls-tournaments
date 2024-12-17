@@ -4,7 +4,11 @@ import { Chain } from "@starknet-react/chains";
 import { jsonRpcProvider, StarknetConfig } from "@starknet-react/core";
 import React from "react";
 import { useChainConnectors } from "../lib/connectors";
-import { DojoAppConfig, dojoContextConfig } from "../config";
+import {
+  DojoAppConfig,
+  dojoContextConfig,
+  getDojoChainConfig,
+} from "../config";
 import { getStarknetProviderChains } from "@/config";
 
 export function StarknetProvider({
@@ -14,11 +18,13 @@ export function StarknetProvider({
   children: React.ReactNode;
   dojoAppConfig: DojoAppConfig;
 }) {
-  function rpc(_chain: Chain) {
+  function rpc(chain: Chain) {
+    const nodeUrl = chain.rpcUrls.default.http[0];
     return {
-      nodeUrl: _chain.rpcUrls.default.http[0],
+      nodeUrl,
     };
   }
+  const provider = jsonRpcProvider({ rpc });
 
   const chains: Chain[] = useMemo(
     () => getStarknetProviderChains(dojoAppConfig.supportedChainIds),
@@ -31,13 +37,15 @@ export function StarknetProvider({
   );
 
   const selectedChainConfig = useMemo(
-    () => dojoContextConfig[selectedChainId],
+    () => getDojoChainConfig(selectedChainId),
     [dojoContextConfig, selectedChainId]
   );
 
+  console.log(selectedChainConfig);
+
   const chainConnectors = useChainConnectors(
     dojoAppConfig,
-    selectedChainConfig
+    selectedChainConfig!
   );
 
   return (
@@ -45,7 +53,7 @@ export function StarknetProvider({
       autoConnect={true}
       chains={chains}
       connectors={chainConnectors}
-      provider={jsonRpcProvider({ rpc })}
+      provider={() => provider(selectedChainConfig?.chain!)}
     >
       {children}
     </StarknetConfig>

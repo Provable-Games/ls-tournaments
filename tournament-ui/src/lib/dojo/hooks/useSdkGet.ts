@@ -42,8 +42,6 @@ export const useSdkGetEntities = ({
   const [entities, setEntities] = useState<EntityResult[] | null>(null);
   const { setEntities: setStoreEntities } = useDojoStore((state) => state);
 
-  console.log(query);
-
   const fetchEntities = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -55,7 +53,6 @@ export const useSdkGetEntities = ({
             return;
           }
           if (resp.data) {
-            console.log(resp.data);
             setStoreEntities(resp.data);
             setEntities(
               resp.data.map(

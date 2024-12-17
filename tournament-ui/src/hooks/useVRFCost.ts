@@ -8,8 +8,6 @@ export const useVRFCost = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { oracle } = useTournamentContracts();
   const { provider } = useProvider();
-  console.log("oracle", oracle);
-  console.log("provider", provider);
 
   useEffect(() => {
     if (!oracle || !provider) {

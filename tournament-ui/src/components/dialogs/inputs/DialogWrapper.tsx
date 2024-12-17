@@ -20,10 +20,10 @@ export const DialogWrapper = ({
         } bg-terminal-black border border-terminal-green py-5`}
       >
         <div className="flex flex-col">
-          <div className="flex relative text-4xl h-20 w-full font-bold uppercase items-center justify-center">
+          <div className="flex relative text-4xl h-16 w-full font-bold uppercase items-center justify-center">
             <p className="text-center">{title}</p>
             <span
-              className="absolute top-5 right-5 w-10 h-10 text-terminal-green cursor-pointer"
+              className="absolute top-2 right-2 w-10 h-10 text-terminal-green cursor-pointer"
               onClick={onClose}
             >
               <CloseIcon />

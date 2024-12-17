@@ -11,7 +11,7 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import useModel from "@/useModel.ts";
 import TournamentDetails from "@/components/create/TournamentDetails";
 import TournamentType from "@/components/create/TournamentType";
-import TopScores from "@/components/create/TopScores";
+// import TopScores from "@/components/create/TopScores";
 import TournamentGating from "@/components/create/TournamentGating";
 import TournamentEntryFee from "@/components/create/TournamentEntryFee";
 import TournamentPrizes from "@/components/create/TournamentPrizes";
@@ -121,14 +121,14 @@ const Create = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5 w-full no-text-shadow">
+    <div className="flex flex-col gap-10 w-full no-text-shadow p-5">
       <div className="flex flex-row gap-20">
-        <div className="w-1/2 flex flex-col gap-2">
+        <div className="w-1/2 flex flex-col gap-5">
           <TournamentDetails />
           <TournamentType testMode={testMode} />
-          <TopScores />
+          {/* <TopScores /> */}
         </div>
-        <div className="w-1/2 flex flex-col gap-4">
+        <div className="w-1/2 flex flex-col gap-5">
           <TournamentGating />
           <TournamentEntryFee />
           <TournamentPrizes tournamentCount={tournamentCount} />
@@ -136,7 +136,7 @@ const Create = () => {
       </div>
       <div className="hidden sm:flex items-center justify-center">
         <Button
-          size={"lg"}
+          size={"md"}
           onClick={() => handleCreateTournament()}
           disabled={
             !formData.tournamentName ||
