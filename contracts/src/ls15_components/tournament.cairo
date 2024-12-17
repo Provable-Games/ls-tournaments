@@ -11,6 +11,8 @@ use tournament::ls15_components::models::tournament::{
 trait ITournament<TState> {
     fn total_tournaments(self: @TState) -> u64;
     fn tournament(self: @TState, tournament_id: u64) -> TournamentModel;
+    fn tournament_addresses(self: @TState, tournament_id: u64) -> Array<ContractAddress>;
+    fn tournament_address_games(self: @TState, tournament_id: u64, address: ContractAddress) -> Array<u64>;
     fn tournament_entries(self: @TState, tournament_id: u64) -> u64;
     fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
@@ -204,6 +206,20 @@ pub mod tournament_component {
             );
             let mut store: Store = StoreTrait::new(world);
             store.get_tournament(tournament_id)
+        }
+        fn tournament_addresses(self: @ComponentState<TContractState>, tournament_id: u64) -> Array<ContractAddress> {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store.get_tournament_entry_addresses(tournament_id).addresses
+        }
+        fn tournament_address_games(self: @ComponentState<TContractState>, tournament_id: u64, address: ContractAddress) -> Array<u64> {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store.get_tournament_start_ids(tournament_id, address).game_ids
         }
         fn tournament_entries(self: @ComponentState<TContractState>, tournament_id: u64) -> u64 {
             let mut world = WorldTrait::storage(

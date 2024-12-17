@@ -1503,6 +1503,43 @@ fn test_start_tournament_with_free_game_multiple_starts() {
     assert(contracts.golden_token.owner_of(1) == OWNER(), 'Invalid owner');
 }
 
+#[test]
+fn test_start_tournament_with_free_game_blobert_and_golden() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = create_basic_tournament(contracts.tournament);
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
+    contracts.loot_survivor.set_free_game_available(FreeGameTokenType::LaunchTournamentChampion, 1);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    contracts.eth.approve(contracts.tournament.contract_address, 400000000000000);
+    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+    contracts.blobert.approve(contracts.tournament.contract_address, 1);
+
+    // start one free game so that start count rises by 1
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![1].span(), array![1].span()
+        );
+
+    // check tournament entries
+    assert(contracts.tournament.tournament_entries(tournament_id) == 2, 'Invalid entries');
+
+    // check golden tokens have returned back
+    assert(contracts.golden_token.owner_of(1) == OWNER(), 'Invalid owner');
+    assert(contracts.blobert.owner_of(1) == OWNER(), 'Invalid owner');
+}
+
 
 //
 // Test submitting scores

@@ -11,6 +11,8 @@ pub trait ILSTournament<TState> {
 
     fn total_tournaments(self: @TState) -> u64;
     fn tournament(self: @TState, tournament_id: u64) -> TournamentModel;
+    fn tournament_addresses(self: @TState, tournament_id: u64) -> Array<ContractAddress>;
+    fn tournament_address_games(self: @TState, tournament_id: u64, address: ContractAddress) -> Array<u64>;
     fn tournament_entries(self: @TState, tournament_id: u64) -> u64;
     fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
