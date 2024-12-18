@@ -14,7 +14,8 @@ default = "tournament"
 [env]
 chain_id = "SN_MAINNET"
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
-# world_address = "0x062b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d"  # Uncomment and update this line with your world address.
+world_address = "0x062b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d"  # Uncomment and update this line with your world address.
+world_block = 987725
 
 [writers]
 "tournament-TournamentModel" = ["tournament-LSTournament"]

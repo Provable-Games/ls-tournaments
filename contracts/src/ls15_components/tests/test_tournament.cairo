@@ -37,8 +37,7 @@ use tournament::tests::{
     },
 };
 use tournament::ls15_components::tests::helpers::{
-    approve_game_costs, approve_free_game_cost, create_basic_tournament,
-    create_adventurer_metadata_with_death_date, create_dead_adventurer_with_xp
+    approve_game_costs, approve_free_game_cost, create_basic_tournament, create_dead_adventurer_with_xp
 };
 use tournament::ls15_components::tests::mocks::{
     erc20_mock::erc20_mock, erc721_mock::erc721_mock, tournament_mock::tournament_mock,
@@ -1504,6 +1503,43 @@ fn test_start_tournament_with_free_game_multiple_starts() {
     assert(contracts.golden_token.owner_of(1) == OWNER(), 'Invalid owner');
 }
 
+#[test]
+fn test_start_tournament_with_free_game_blobert_and_golden() {
+    let contracts = setup();
+
+    utils::impersonate(OWNER());
+
+    let tournament_id = create_basic_tournament(contracts.tournament);
+
+    testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
+
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+    contracts.tournament.enter_tournament(tournament_id, Option::None);
+
+    contracts.loot_survivor.set_free_game_available(FreeGameTokenType::GoldenToken, 1);
+    contracts.loot_survivor.set_free_game_available(FreeGameTokenType::LaunchTournamentChampion, 1);
+
+    testing::set_block_timestamp(TEST_START_TIME().into());
+
+    contracts.eth.approve(contracts.tournament.contract_address, 400000000000000);
+    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+    contracts.blobert.approve(contracts.tournament.contract_address, 1);
+
+    // start one free game so that start count rises by 1
+    contracts
+        .tournament
+        .start_tournament(
+            tournament_id, false, Option::None, ZERO(), array![1].span(), array![1].span()
+        );
+
+    // check tournament entries
+    assert(contracts.tournament.tournament_entries(tournament_id) == 2, 'Invalid entries');
+
+    // check golden tokens have returned back
+    assert(contracts.golden_token.owner_of(1) == OWNER(), 'Invalid owner');
+    assert(contracts.blobert.owner_of(1) == OWNER(), 'Invalid owner');
+}
+
 
 //
 // Test submitting scores
@@ -1605,7 +1641,7 @@ fn test_submit_multiple_scores() {
 }
 
 #[test]
-fn test_submit_scores_tiebreaker() {
+fn test_submit_scores_earliest_submission_wins() {
     let contracts = setup();
 
     utils::impersonate(OWNER());
@@ -1647,12 +1683,6 @@ fn test_submit_scores_tiebreaker() {
     let adventurer2 = create_dead_adventurer_with_xp(1);
     contracts.loot_survivor.set_adventurer(1, adventurer1);
     contracts.loot_survivor.set_adventurer(2, adventurer2);
-
-    // Same score (1) but different death timestamps
-    let adventurer1_metadata = create_adventurer_metadata_with_death_date(100);
-    let adventurer2_metadata = create_adventurer_metadata_with_death_date(50);
-    contracts.loot_survivor.set_adventurer_meta(1, adventurer1_metadata);
-    contracts.loot_survivor.set_adventurer_meta(2, adventurer2_metadata);
 
     contracts.tournament.submit_scores(tournament_id, array![2, 1]);
 

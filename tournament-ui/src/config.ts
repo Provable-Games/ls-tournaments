@@ -42,9 +42,9 @@ export enum ChainId {
 
 // TODO: fix for running between katana and mainnet
 const supportedChainIds: ChainId[] = [
-  // ChainId.KATANA_LOCAL,
+  ChainId.KATANA_LOCAL,
   // ChainId.SN_SEPOLIA,
-  // ChainId.WP_LS_TOURNAMENTS_KATANA,
+  ChainId.WP_LS_TOURNAMENTS_KATANA,
   // ChainId.TOURNAMENT_STAGING,
   ChainId.SN_MAINNET,
 ];
@@ -93,7 +93,6 @@ export const getDojoChainConfig = (
     result.chain!.rpcUrls.default.http = [result.rpcUrl];
     result.chain!.rpcUrls.public.http = [result.rpcUrl];
   }
-  // console.log(result)
 
   return result;
 };

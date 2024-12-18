@@ -127,8 +127,6 @@ const useFreeGames = () => {
     }
   }, [account?.address, tokenBalance.goldenToken, isMainnet]);
 
-  console.log(blobertsData);
-
   useEffect(() => {
     if (isMainnet) {
       if (blobertsData) {

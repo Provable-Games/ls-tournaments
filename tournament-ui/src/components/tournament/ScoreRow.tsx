@@ -12,7 +12,7 @@ const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
   const {
     setup: { selectedChainConfig },
   } = useDojo();
-  console.log(adventurer);
+
   if (!adventurer) return null;
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const formattedAdventurer = isMainnet

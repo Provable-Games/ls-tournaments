@@ -71,6 +71,11 @@ pub impl StoreImpl of StoreTrait {
     }
 
     #[inline(always)]
+    fn get_tournament_start_ids(self: Store, tournament_id: u64, address: ContractAddress) -> TournamentStartIdsModel {
+        (self.world.read_model((tournament_id, address),))
+    }
+
+    #[inline(always)]
     fn get_tournament_scores(self: Store, tournament_id: u64) -> TournamentScoresModel {
         (self.world.read_model(tournament_id))
     }

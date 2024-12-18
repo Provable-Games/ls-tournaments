@@ -27,7 +27,7 @@ const TournamentDetails = () => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <p className="text-xl uppercase">Tournament details</p>
       <div className="flex flex-col gap-2 border-2 border-terminal-green/75">
         <div className="flex flex-col gap-2 py-2">

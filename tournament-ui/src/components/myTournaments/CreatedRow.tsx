@@ -41,8 +41,6 @@ const CreatedRow = ({
 
   const tournamentModel = useModel(entityId, Models.TournamentModel);
 
-  console.log(tournamentModel);
-
   // Calculate dates
   const endDate = new Date(Number(tournamentModel?.end_time) * 1000);
   const submissionEndDate = new Date(

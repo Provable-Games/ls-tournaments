@@ -1253,7 +1253,7 @@
   "contracts": [
     {
       "address": "0x3ec6f61148e0bf0dcf68c31441e28c0d1988fda7081db5fdc137889af5bdad2",
-      "class_hash": "0x32b12f5c4ce3a3e31017409f3ffc07857822e986634d492b7ccabb796333d08",
+      "class_hash": "0x61fab53dc0342ee6775afe3d30378179e011285292bc029c28bf962cabd8be0",
       "abi": [
         {
           "type": "impl",
@@ -1736,6 +1736,22 @@
               "outputs": [
                 {
                   "type": "tournament::ls15_components::models::tournament::TournamentModel"
+                }
+              ],
+              "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "tournament_games",
+              "inputs": [
+                {
+                  "name": "tournament_id",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [
+                {
+                  "type": "core::array::Array::<core::integer::u64>"
                 }
               ],
               "state_mutability": "view"

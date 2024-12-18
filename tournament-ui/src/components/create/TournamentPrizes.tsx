@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useMemo } from "react";
+import { ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
@@ -7,6 +7,7 @@ import { InputTokenModel, TokenDataTypeEnum } from "@/generated/models.gen";
 import SelectToken from "@/components/buttons/SelectToken";
 import { BigNumberish, CairoCustomEnum } from "starknet";
 import { calculatePayouts } from "@/lib/utils";
+import PrizeBoxes from "@/components/create/PrizeBoxes";
 
 interface TournamentPrizesProps {
   tournamentCount: BigNumberish;
@@ -107,10 +108,22 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
     !formData.submissionPeriod ||
     !formData.scoreboardSize;
 
-  console.log(formData.prizes);
+  useEffect(() => {
+    if (prizesDisabled) {
+      setPrizesList({
+        0: {
+          selectedToken: null,
+          amount: 0,
+          distributionWeight: 0,
+          position: 0,
+        },
+      });
+      setPrizeIndex(0);
+    }
+  }, [prizesDisabled]);
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="relative flex flex-col w-full">
       <div className="flex flex-row items-center gap-5">
         <p
           className={`text-xl uppercase text-terminal-green ${
@@ -143,17 +156,6 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
           prizesDisabled ? "opacity-50" : ""
         }`}
       >
-        <div className="flex flex-row border border-terminal-green/75 h-10">
-          <Button className="!h-full" disabled={prizesDisabled}>
-            <p className="text-lg">Prizes</p>
-          </Button>
-          <div className="flex items-center py-1 px-2 leading-none text-terminal-green/75">
-            <p>
-              Add bonus prizes to your tournament. Prizes can be added throught
-              the tournament Period.
-            </p>
-          </div>
-        </div>
         <div className="flex flex-row px-5 gap-5">
           <div className="flex flex-col py-2">
             <p className="text-xl uppercase text-terminal-green/75">Token</p>
@@ -286,7 +288,6 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                             variant="token"
                             className="border-terminal-green/75 !p-2 !h-8"
                             disabled={prizesDisabled}
-                            // onClick={() => setSelectedScoreboardIndex(index)}
                           >
                             <div className="flex flex-row items-center gap-1">
                               <span
@@ -363,10 +364,22 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                       <div className="flex flex-row gap-1 w-full overflow-x-auto">
                         {Array.from({ length: scoreboardSize }, (_, index) => (
                           <Button
-                            variant="token"
-                            className="border-terminal-green/75 !p-2 !h-8"
+                            variant={"token"}
+                            className={`border-terminal-green/75 !p-2 !h-8  ${
+                              currentPrize.position === index + 1
+                                ? "bg-terminal-green/50 text-terminal-black"
+                                : ""
+                            }`}
                             disabled={prizesDisabled}
-                            // onClick={() => setSelectedScoreboardIndex(index)}
+                            onClick={() => {
+                              setPrizesList((prev) => ({
+                                ...prev,
+                                [prizeIndex]: {
+                                  ...prev[prizeIndex],
+                                  position: index + 1,
+                                },
+                              }));
+                            }}
                           >
                             <span
                               className={`flex items-center w-4 h-4 text-xl ${
@@ -376,17 +389,8 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                                   ? "text-terminal-silver"
                                   : index === 2
                                   ? "text-terminal-bronze"
-                                  : "text-terminal-green"
+                                  : ""
                               }`}
-                              onClick={() => {
-                                setPrizesList((prev) => ({
-                                  ...prev,
-                                  [prizeIndex]: {
-                                    ...prev[prizeIndex],
-                                    position: index + 1,
-                                  },
-                                }));
-                              }}
                             >
                               {index <= 2 ? <TrophyIcon /> : index + 1}
                             </span>
@@ -429,6 +433,9 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
             </>
           )}
         </div>
+      </div>
+      <div className="absolute w-3/4 justify-end right-0 bottom-[-80px] h-16 flex flex-row gap-2">
+        <PrizeBoxes prizes={formData.prizes} />
       </div>
     </div>
   );

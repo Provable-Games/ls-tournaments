@@ -24,8 +24,6 @@ const InputDialog = () => {
     // ... other dialogs
   };
 
-  console.log(inputDialog.props);
-
   const DialogComponent = dialogComponents[inputDialog.type];
   if (!DialogComponent) return null;
 

@@ -11,6 +11,8 @@ use tournament::ls15_components::models::tournament::{
 trait ITournament<TState> {
     fn total_tournaments(self: @TState) -> u64;
     fn tournament(self: @TState, tournament_id: u64) -> TournamentModel;
+    fn tournament_addresses(self: @TState, tournament_id: u64) -> Array<ContractAddress>;
+    fn tournament_address_games(self: @TState, tournament_id: u64, address: ContractAddress) -> Array<u64>;
     fn tournament_entries(self: @TState, tournament_id: u64) -> u64;
     fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
@@ -96,8 +98,6 @@ pub mod tournament_component {
 
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-
-    use adventurer::{adventurer::Adventurer};
 
     #[storage]
     pub struct Storage {}
@@ -206,6 +206,20 @@ pub mod tournament_component {
             );
             let mut store: Store = StoreTrait::new(world);
             store.get_tournament(tournament_id)
+        }
+        fn tournament_addresses(self: @ComponentState<TContractState>, tournament_id: u64) -> Array<ContractAddress> {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store.get_tournament_entry_addresses(tournament_id).addresses
+        }
+        fn tournament_address_games(self: @ComponentState<TContractState>, tournament_id: u64, address: ContractAddress) -> Array<u64> {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), @"tournament"
+            );
+            let mut store: Store = StoreTrait::new(world);
+            store.get_tournament_start_ids(tournament_id, address).game_ids
         }
         fn tournament_entries(self: @ComponentState<TContractState>, tournament_id: u64) -> u64 {
             let mut world = WorldTrait::storage(
@@ -629,9 +643,6 @@ pub mod tournament_component {
                 self._assert_game_started_or_submitted(store, tournament_id, game_id);
 
                 let adventurer = ls_dispatcher.get_adventurer(game_id.try_into().unwrap());
-                let death_date = self.get_death_date_from_id(store, game_id);
-
-                self._assert_valid_score(adventurer);
 
                 self
                     ._update_tournament_scores(
@@ -639,7 +650,6 @@ pub mod tournament_component {
                         tournament_id,
                         game_id,
                         adventurer.xp,
-                        death_date,
                         ref new_score_ids,
                         game_index
                     );
@@ -851,16 +861,6 @@ pub mod tournament_component {
                 contract_address: tournament_config.loot_survivor
             };
             ls_dispatcher.get_adventurer(game_id).xp
-        }
-
-        fn get_death_date_from_id(
-            self: @ComponentState<TContractState>, store: Store, game_id: felt252
-        ) -> u64 {
-            let tournament_config = store.get_tournament_config(get_contract_address());
-            let ls_dispatcher = ILootSurvivorDispatcher {
-                contract_address: tournament_config.loot_survivor
-            };
-            ls_dispatcher.get_adventurer_meta(game_id).death_date
         }
 
         fn _get_owner(
@@ -1345,10 +1345,6 @@ pub mod tournament_component {
                 },
                 Option::None => {},
             }
-        }
-
-        fn _assert_valid_score(self: @ComponentState<TContractState>, adventurer: Adventurer) {
-            assert(adventurer.health == 0, Errors::INVALID_SCORE);
         }
 
         fn _assert_tournament_settled(
@@ -1950,7 +1946,6 @@ pub mod tournament_component {
             tournament_id: u64,
             game_id: felt252,
             score: u16,
-            death_date: u64,
             ref new_score_ids: Array<u64>,
             game_index: u32
         ) {
@@ -1972,17 +1967,6 @@ pub mod tournament_component {
                     if (score > top_score) {
                         new_score_id = game_id.try_into().unwrap();
                         new_score = score;
-                    } else if (score == top_score) {
-                        // if scores are the same then use death date as the deciding factor
-                        let top_death_date = self
-                            .get_death_date_from_id(store, top_score_id.try_into().unwrap());
-                        if (death_date < top_death_date) {
-                            new_score_id = game_id.try_into().unwrap();
-                            new_score = score;
-                        } else {
-                            new_score_id = top_score_id;
-                            new_score = top_score;
-                        }
                     } else {
                         new_score_id = top_score_id;
                         new_score = top_score;
