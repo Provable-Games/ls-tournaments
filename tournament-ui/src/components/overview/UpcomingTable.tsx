@@ -25,16 +25,16 @@ const UpcomingTable = () => {
 
   const totalPages = useMemo(() => {
     if (!upcomingTournaments) return 0;
-    return Math.ceil(upcomingTournaments.length / 10);
+    return Math.ceil(upcomingTournaments.length / 5);
   }, [upcomingTournaments]);
 
   const pagedTournaments = useMemo(() => {
     if (!upcomingTournaments) return [];
-    return upcomingTournaments.slice((currentPage - 1) * 10, currentPage * 10);
+    return upcomingTournaments.slice((currentPage - 1) * 5, currentPage * 5);
   }, [upcomingTournaments, currentPage]);
 
   return (
-    <div className="w-3/5 flex flex-col items-center border-4 border-terminal-green/75 h-full">
+    <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Upcoming</p>

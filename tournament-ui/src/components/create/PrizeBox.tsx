@@ -2,6 +2,7 @@ import { TrophyIcon, CloseIcon } from "../Icons";
 import useUIStore from "@/hooks/useUIStore";
 import { Prize } from "@/lib/types";
 import { useDojoStore } from "@/hooks/useDojoStore";
+import { formatBalance } from "@/lib/utils";
 
 interface PrizeBoxProps {
   token: string;
@@ -39,7 +40,7 @@ export default function PrizeBox({
         </span>
         <span className="flex flex-col items-center">
           <span className="flex flex-row gap-1">
-            <span>{totalAmount}</span>
+            <span>{formatBalance(totalAmount!)}</span>
             <span>{tokenModel?.symbol}</span>
           </span>
           <span className="text-terminal-green/50 text-md uppercase">

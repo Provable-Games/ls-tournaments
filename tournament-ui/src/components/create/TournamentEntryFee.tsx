@@ -61,7 +61,7 @@ const TournamentEntryFee = () => {
     if (amount && creatorFee && payouts && selectedToken) {
       const entryFeeValue = new CairoOption(CairoOptionVariant.Some, {
         token: selectedToken?.token!,
-        token_amount: amount,
+        token_amount: amount * 10 ** 18,
         token_distribution: payouts,
         creator_fee: creatorFee,
       });

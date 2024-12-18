@@ -53,7 +53,7 @@ const UpcomingRow = ({
       : "Open";
   return (
     <tr
-      className="h-10 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
+      className="h-8 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
       onClick={() => {
         navigate(`/tournament/${Number(tournamentId)}`);
       }}

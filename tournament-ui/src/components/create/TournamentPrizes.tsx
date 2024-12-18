@@ -69,7 +69,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
       payouts.map((dist, index) => {
         const tokenDataType = new CairoCustomEnum({
           erc20: {
-            token_amount: (currentPrize.amount * dist) / 100,
+            token_amount: (currentPrize.amount * 10 ** 18 * dist) / 100,
           },
           erc721: undefined,
         }) as TokenDataTypeEnum;
@@ -99,7 +99,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
         tokenDataType,
       },
     ];
-  }, []);
+  }, [currentPrize]);
 
   const sectionDisabled =
     !formData.tournamentName ||
