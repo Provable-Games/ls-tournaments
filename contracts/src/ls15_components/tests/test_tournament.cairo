@@ -8,7 +8,7 @@ use dojo_cairo_test::{
 
 use ls_tournaments_v0::ls15_components::constants::{
     MIN_REGISTRATION_PERIOD, MAX_REGISTRATION_PERIOD, MIN_SUBMISSION_PERIOD, MAX_SUBMISSION_PERIOD,
-    MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH
+    MIN_TOURNAMENT_LENGTH, MAX_TOURNAMENT_LENGTH, DEFAULT_NS
 };
 
 use ls_tournaments_v0::ls15_components::tests::interfaces::WorldTrait;
@@ -119,7 +119,7 @@ fn setup_uninitialized() -> (
     testing::set_block_timestamp(1);
 
     let ndef = NamespaceDef {
-        namespace: "tournament", resources: [
+        namespace: "ls_tournaments_v0", resources: [
             // loot survivor models
             TestResource::Model(m_AdventurerModel::TEST_CLASS_HASH.try_into().unwrap()),
             TestResource::Model(m_AdventurerMetaModel::TEST_CLASS_HASH.try_into().unwrap()),
@@ -149,16 +149,16 @@ fn setup_uninitialized() -> (
     };
 
     let mut contract_defs: Array<ContractDef> = array![
-        ContractDefTrait::new(@"tournament", @"tournament_mock")
-            .with_writer_of([dojo::utils::bytearray_hash(@"tournament")].span()),
-        ContractDefTrait::new(@"tournament", @"loot_survivor_mock")
-            .with_writer_of([dojo::utils::bytearray_hash(@"tournament")].span()),
-        ContractDefTrait::new(@"tournament", @"pragma_mock")
-            .with_writer_of([dojo::utils::bytearray_hash(@"tournament")].span()),
-        ContractDefTrait::new(@"tournament", @"erc20_mock")
-            .with_writer_of([dojo::utils::bytearray_hash(@"tournament")].span()),
-        ContractDefTrait::new(@"tournament", @"erc721_mock")
-            .with_writer_of([dojo::utils::bytearray_hash(@"tournament")].span()),
+        ContractDefTrait::new(DEFAULT_NS(), @"tournament_mock")
+            .with_writer_of([dojo::utils::bytearray_hash(DEFAULT_NS())].span()),
+        ContractDefTrait::new(DEFAULT_NS(), @"loot_survivor_mock")
+            .with_writer_of([dojo::utils::bytearray_hash(DEFAULT_NS())].span()),
+        ContractDefTrait::new(DEFAULT_NS(), @"pragma_mock")
+            .with_writer_of([dojo::utils::bytearray_hash(DEFAULT_NS())].span()),
+        ContractDefTrait::new(DEFAULT_NS(), @"erc20_mock")
+            .with_writer_of([dojo::utils::bytearray_hash(DEFAULT_NS())].span()),
+        ContractDefTrait::new(DEFAULT_NS(), @"erc721_mock")
+            .with_writer_of([dojo::utils::bytearray_hash(DEFAULT_NS())].span()),
     ];
 
     let mut world: WorldStorage = spawn_test_world([ndef].span());

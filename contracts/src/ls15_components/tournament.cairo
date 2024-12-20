@@ -256,8 +256,6 @@ pub mod tournament_component {
         /// @param winners_count A u8 representing the number of winners.
         /// @param gated_type A Option<GatedType> representing the gated type of the tournament.
         /// @param entry_premium A Option<Premium> representing the entry premium of the tournament.
-        // TODO: check the safety of setting a large length array of entry criteria for gated tokens
-        // gated token entries must play using all entry allowances
         fn create_tournament(
             ref self: ComponentState<TContractState>,
             name: felt252,
@@ -324,9 +322,8 @@ pub mod tournament_component {
         /// @dev Requires a tournament to have already been created.
         /// @param self A reference to the ContractState object.
         /// @param tournament_id A u64 representing the unique ID of the tournament.
-        /// @param gated_submission_type A bool representing whether to start everyones games.
-        // TODO: check the safety of setting a large length array of entry criteria for gated tokens
-        // gated token entries must play using all entry allowances
+        /// @param gated_submission_type A Option<GatedSubmissionType> representing the gated
+        /// submission type of the tournament.
         fn enter_tournament(
             ref self: ComponentState<TContractState>,
             tournament_id: u64,
@@ -381,7 +378,6 @@ pub mod tournament_component {
             }
             // increment both entries by address and total entries
             self.increment_entries(ref store, tournament_id, entries);
-            // TODO: can store multiple game ids in single felt with merkle tree?
         }
 
         /// @title Start tournament
@@ -397,6 +393,8 @@ pub mod tournament_component {
         /// golden tokens.
         /// @param blobert_free_game_token_ids A span of u256 representing the token ids for blobert
         /// tokens.
+        /// @param weapon A u8 representing the weapon to start the game with.
+        /// @param name A felt252 representing the name of the adventurer.
         fn start_tournament(
             ref self: ComponentState<TContractState>,
             tournament_id: u64,
@@ -1127,12 +1125,6 @@ pub mod tournament_component {
             assert(self._is_token_registered(store, token), Errors::PRIZE_TOKEN_NOT_REGISTERED);
         }
 
-        // fn _assert_tournament_not_started(
-        //     self: @ComponentState<TContractState>, start_time: u64, tournament_id: u64
-        // ) {
-        //     assert(start_time > get_block_timestamp(), Errors::TOURNAMENT_ALREADY_STARTED);
-        // }
-
         fn _assert_within_registration_period(
             self: @ComponentState<TContractState>,
             registration_start_time: u64,
@@ -1494,21 +1486,6 @@ pub mod tournament_component {
         // INTERNALS
         //
 
-        /// @title Create tournament
-        /// @notice Creates a tournament.
-        /// @param self A referance to the ContractState object.
-        /// @param store A referance to the Store object.
-        /// @param name A felt252 representing the name of the tournament.
-        /// @param description A byte array representing the description of the tournament.
-        /// @param creator A contract address representing the creator of the tournament.
-        /// @param registration_start_time A u64 representing the registration start time.
-        /// @param registration_end_time A u64 representing the registration end time.
-        /// @param start_time A u64 representing the start time.
-        /// @param end_time A u64 representing the end time.
-        /// @param submission_period A u64 representing the submission period.
-        /// @param winners_count A u8 representing the number of winners.
-        /// @param gated_type A GatedType representing the gated type.
-        /// @param entry_premium A Premium representing the entry premium.
         fn _create_tournament(
             ref self: ComponentState<TContractState>,
             ref store: Store,
