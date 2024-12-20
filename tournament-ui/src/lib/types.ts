@@ -22,7 +22,7 @@ export type Menu = {
   disabled?: boolean;
 };
 
-export type FormData = {
+export type CreateTournamentData = {
   tournamentName: string;
   tournamentDescription: string;
   registrationStartTime: Date | undefined;
@@ -34,6 +34,11 @@ export type FormData = {
   gatedType: CairoOption<InputGatedTypeEnum>;
   entryFee: CairoOption<InputPremium>;
   prizes: Prize[];
+};
+
+export type StartTournamentData = {
+  weapon: BigNumberish;
+  name: BigNumberish;
 };
 
 export type Tournament = {

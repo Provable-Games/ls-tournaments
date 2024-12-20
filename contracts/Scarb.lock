@@ -4,7 +4,7 @@ version = 1
 [[package]]
 name = "adventurer"
 version = "0.1.0"
-source = "git+https://github.com/Provable-Games/loot-survivor#0370e3bac9defde26a9ecb5f5f4c9f54b3456e98"
+source = "git+https://github.com/Provable-Games/loot-survivor#62f19b352e706cc449fb6f667069ebeab34833a1"
 dependencies = [
  "beasts",
  "combat",
@@ -16,7 +16,7 @@ dependencies = [
 [[package]]
 name = "beasts"
 version = "0.1.0"
-source = "git+https://github.com/Provable-Games/loot-survivor#0370e3bac9defde26a9ecb5f5f4c9f54b3456e98"
+source = "git+https://github.com/Provable-Games/loot-survivor#62f19b352e706cc449fb6f667069ebeab34833a1"
 dependencies = [
  "combat",
 ]
@@ -24,12 +24,12 @@ dependencies = [
 [[package]]
 name = "combat"
 version = "0.1.0"
-source = "git+https://github.com/Provable-Games/loot-survivor#0370e3bac9defde26a9ecb5f5f4c9f54b3456e98"
+source = "git+https://github.com/Provable-Games/loot-survivor#62f19b352e706cc449fb6f667069ebeab34833a1"
 
 [[package]]
 name = "dojo"
-version = "1.0.7"
-source = "git+https://github.com/dojoengine/dojo.git?tag=v1.0.7#180c6d21132f58436c356d5d7585cee1fbce4ece"
+version = "1.0.8"
+source = "git+https://github.com/dojoengine/dojo.git?tag=v1.0.8#3f9c309112900cb23f9158ece4c6ca99c4694532"
 dependencies = [
  "dojo_plugin",
 ]
@@ -37,7 +37,7 @@ dependencies = [
 [[package]]
 name = "dojo_cairo_test"
 version = "1.0.0-rc.0"
-source = "git+https://github.com/dojoengine/dojo.git?tag=v1.0.7#180c6d21132f58436c356d5d7585cee1fbce4ece"
+source = "git+https://github.com/dojoengine/dojo.git?tag=v1.0.8#3f9c309112900cb23f9158ece4c6ca99c4694532"
 dependencies = [
  "dojo",
 ]
@@ -45,20 +45,30 @@ dependencies = [
 [[package]]
 name = "dojo_plugin"
 version = "2.8.4"
-source = "git+https://github.com/dojoengine/dojo.git?tag=v1.0.7#180c6d21132f58436c356d5d7585cee1fbce4ece"
+source = "git+https://github.com/dojoengine/dojo.git?tag=v1.0.8#3f9c309112900cb23f9158ece4c6ca99c4694532"
 
 [[package]]
 name = "loot"
 version = "0.1.0"
-source = "git+https://github.com/Provable-Games/loot-survivor#0370e3bac9defde26a9ecb5f5f4c9f54b3456e98"
+source = "git+https://github.com/Provable-Games/loot-survivor#62f19b352e706cc449fb6f667069ebeab34833a1"
 dependencies = [
  "combat",
 ]
 
 [[package]]
+name = "ls_tournaments_v0"
+version = "0.0.0"
+dependencies = [
+ "adventurer",
+ "dojo",
+ "dojo_cairo_test",
+ "openzeppelin_token",
+]
+
+[[package]]
 name = "market"
 version = "0.1.0"
-source = "git+https://github.com/Provable-Games/loot-survivor#0370e3bac9defde26a9ecb5f5f4c9f54b3456e98"
+source = "git+https://github.com/Provable-Games/loot-survivor#62f19b352e706cc449fb6f667069ebeab34833a1"
 dependencies = [
  "combat",
  "loot",
@@ -67,7 +77,7 @@ dependencies = [
 [[package]]
 name = "obstacles"
 version = "0.1.0"
-source = "git+https://github.com/Provable-Games/loot-survivor#0370e3bac9defde26a9ecb5f5f4c9f54b3456e98"
+source = "git+https://github.com/Provable-Games/loot-survivor#62f19b352e706cc449fb6f667069ebeab34833a1"
 dependencies = [
  "combat",
 ]
@@ -104,13 +114,3 @@ name = "openzeppelin_utils"
 version = "0.18.0"
 source = "registry+https://scarbs.xyz/"
 checksum = "sha256:725b212839f3eddc32791408609099c5e808c167ca0cf331d8c1d778b07a4e21"
-
-[[package]]
-name = "tournament"
-version = "0.0.0"
-dependencies = [
- "adventurer",
- "dojo",
- "dojo_cairo_test",
- "openzeppelin_token",
-]

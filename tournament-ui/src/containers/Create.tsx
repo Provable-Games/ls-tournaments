@@ -1,6 +1,6 @@
 import { useAccount } from "@starknet-react/core";
 import { Button } from "@/components/buttons/Button";
-import { InputTournamentModel, Models } from "@/generated/models.gen";
+import { InputTournament, Models } from "@/generated/models.gen";
 import useUIStore from "@/hooks/useUIStore";
 import { useSystemCalls } from "@/useSystemCalls";
 import { stringToFelt, bigintToHex, feltToString } from "@/lib/utils";
@@ -11,7 +11,6 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import useModel from "@/useModel.ts";
 import TournamentDetails from "@/components/create/TournamentDetails";
 import TournamentType from "@/components/create/TournamentType";
-// import TopScores from "@/components/create/TopScores";
 import TournamentGating from "@/components/create/TournamentGating";
 import TournamentEntryFee from "@/components/create/TournamentEntryFee";
 import TournamentPrizes from "@/components/create/TournamentPrizes";
@@ -19,7 +18,7 @@ import { useConfig } from "@/hooks/useConfig";
 
 const Create = () => {
   const { account } = useAccount();
-  const { formData } = useUIStore();
+  const { createTournamentData } = useUIStore();
   const { testMode } = useConfig();
 
   const { tournament } = useTournamentContracts();
@@ -28,10 +27,7 @@ const Create = () => {
 
   // states
   const contractEntityId = getEntityIdFromKeys([BigInt(tournament)]);
-  const tournamentTotals = useModel(
-    contractEntityId,
-    Models.TournamentTotalsModel
-  );
+  const tournamentTotals = useModel(contractEntityId, Models.TournamentTotals);
   const tournamentCount = tournamentTotals?.total_tournaments ?? 0n;
 
   const {
@@ -43,66 +39,68 @@ const Create = () => {
 
   const handleCreateTournament = async () => {
     const currentTime = Number(BigInt(new Date().getTime()) / 1000n + 60n);
-    const tournament: InputTournamentModel = {
+    const tournament: InputTournament = {
       tournament_id: addAddressPadding(
         bigintToHex(BigInt(tournamentCount) + 1n)
       ),
       creator: addAddressPadding(account?.address!),
       name: addAddressPadding(
-        bigintToHex(stringToFelt(formData.tournamentName))
+        bigintToHex(stringToFelt(createTournamentData.tournamentName))
       ),
-      description: formData.tournamentDescription,
+      description: createTournamentData.tournamentDescription,
       start_time: addAddressPadding(
         bigintToHex(
-          formData.startTime
+          createTournamentData.startTime
             ? Math.floor(
-                formData.startTime.getTime() / 1000 -
-                  formData.startTime.getTimezoneOffset() * 60
+                createTournamentData.startTime.getTime() / 1000 -
+                  createTournamentData.startTime.getTimezoneOffset() * 60
               )
             : 0
         )
       ),
       registration_start_time: addAddressPadding(
         bigintToHex(
-          formData.registrationStartTime
+          createTournamentData.registrationStartTime
             ? Math.floor(
-                formData.registrationStartTime.getTime() / 1000 -
-                  formData.registrationStartTime.getTimezoneOffset() * 60
+                createTournamentData.registrationStartTime.getTime() / 1000 -
+                  createTournamentData.registrationStartTime.getTimezoneOffset() *
+                    60
               )
             : Math.floor(currentTime - new Date().getTimezoneOffset() * 60)
         )
       ),
       registration_end_time: addAddressPadding(
         bigintToHex(
-          formData.registrationEndTime
+          createTournamentData.registrationEndTime
             ? Math.floor(
-                formData.registrationEndTime.getTime() / 1000 -
-                  formData.registrationEndTime.getTimezoneOffset() * 60
+                createTournamentData.registrationEndTime.getTime() / 1000 -
+                  createTournamentData.registrationEndTime.getTimezoneOffset() *
+                    60
               )
             : 0
         )
       ),
       end_time: addAddressPadding(
         bigintToHex(
-          formData.endTime
+          createTournamentData.endTime
             ? Math.floor(
-                formData.endTime.getTime() / 1000 -
-                  formData.endTime.getTimezoneOffset() * 60
+                createTournamentData.endTime.getTime() / 1000 -
+                  createTournamentData.endTime.getTimezoneOffset() * 60
               )
             : 0
         )
       ),
       submission_period: addAddressPadding(
-        bigintToHex(formData.submissionPeriod)
+        bigintToHex(createTournamentData.submissionPeriod)
       ),
-      winners_count: formData.scoreboardSize,
-      gated_type: formData.gatedType,
-      entry_premium: formData.entryFee,
+      winners_count: createTournamentData.scoreboardSize,
+      gated_type: createTournamentData.gatedType,
+      entry_premium: createTournamentData.entryFee,
     };
     await createTournament(tournament);
     // Add prizes sequentially
     let prizeKey = 0;
-    for (const prize of formData.prizes) {
+    for (const prize of createTournamentData.prizes) {
       // approve tokens to be added
       if (prize.tokenDataType.activeVariant() === "erc20") {
         await approveERC20General(prize);
@@ -111,7 +109,7 @@ const Create = () => {
       }
       await addPrize(
         BigInt(tournamentCount) + 1n,
-        feltToString(formData.tournamentName),
+        feltToString(createTournamentData.tournamentName),
         prize,
         addAddressPadding(bigintToHex(prizeKey)),
         false
@@ -126,7 +124,6 @@ const Create = () => {
         <div className="w-1/2 flex flex-col gap-5">
           <TournamentDetails />
           <TournamentType testMode={testMode} />
-          {/* <TopScores /> */}
         </div>
         <div className="w-1/2 flex flex-col gap-5">
           <TournamentGating />
@@ -139,11 +136,11 @@ const Create = () => {
           size={"md"}
           onClick={() => handleCreateTournament()}
           disabled={
-            !formData.tournamentName ||
-            !formData.startTime ||
-            !formData.endTime ||
-            !formData.submissionPeriod ||
-            !formData.scoreboardSize ||
+            !createTournamentData.tournamentName ||
+            !createTournamentData.startTime ||
+            !createTournamentData.endTime ||
+            !createTournamentData.submissionPeriod ||
+            !createTournamentData.scoreboardSize ||
             !account
           }
         >

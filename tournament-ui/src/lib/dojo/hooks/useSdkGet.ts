@@ -34,9 +34,7 @@ export const useSdkGetEntities = ({
   offset = 0,
   enabled = true,
 }: UseSdkGetEntitiesProps): UseSdkGetEntitiesResult => {
-  const {
-    setup: { sdk },
-  } = useDojo();
+  const { sdk, nameSpace } = useDojo();
 
   const [isLoading, setIsLoading] = useState(false);
   const [entities, setEntities] = useState<EntityResult[] | null>(null);
@@ -59,7 +57,7 @@ export const useSdkGetEntities = ({
                 (e: any) =>
                   ({
                     entityId: e.entityId,
-                    ...e.models.tournament,
+                    ...e.models[nameSpace],
                   } as EntityResult)
               )
             );

@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
 use dojo::world::IWorldDispatcher;
-use tournament::ls15_components::models::tournament::{
-    TournamentModel, Premium, TokenDataType, GatedType, GatedSubmissionType
+use ls_tournaments_v0::ls15_components::models::tournament::{
+    Tournament, Premium, TokenDataType, GatedType, GatedSubmissionType
 };
 
 #[starknet::interface]
@@ -10,11 +10,8 @@ pub trait ILSTournament<TState> {
     fn world_dispatcher(self: @TState) -> IWorldDispatcher;
 
     fn total_tournaments(self: @TState) -> u64;
-    fn tournament(self: @TState, tournament_id: u64) -> TournamentModel;
-    fn tournament_addresses(self: @TState, tournament_id: u64) -> Array<ContractAddress>;
-    fn tournament_address_games(self: @TState, tournament_id: u64, address: ContractAddress) -> Array<u64>;
+    fn tournament(self: @TState, tournament_id: u64) -> Tournament;
     fn tournament_entries(self: @TState, tournament_id: u64) -> u64;
-    fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
     fn is_token_registered(self: @TState, token: ContractAddress) -> bool;
     // TODO: add for V2 (only ERC721 tokens)
@@ -42,6 +39,8 @@ pub trait ILSTournament<TState> {
         start_count: Option<u64>,
         golden_token_free_game_ids: Span<u256>,
         blobert_free_game_ids: Span<u256>,
+        weapon: u8,
+        name: felt252,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(
@@ -57,7 +56,7 @@ pub trait ILSTournament<TState> {
 #[dojo::contract]
 pub mod LSTournament {
     use starknet::{contract_address_const};
-    use tournament::ls15_components::tournament::tournament_component;
+    use ls_tournaments_v0::ls15_components::tournament::tournament_component;
 
     component!(path: tournament_component, storage: tournament, event: TournamentEvent);
 

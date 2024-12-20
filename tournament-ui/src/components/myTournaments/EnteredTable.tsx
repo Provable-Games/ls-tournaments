@@ -4,16 +4,26 @@ import { addAddressPadding } from "starknet";
 import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
 import EnteredRow from "@/components/myTournaments/EnteredRow";
 import Pagination from "@/components/table/Pagination";
+import { useDojoStore } from "@/hooks/useDojoStore";
+import { useDojo } from "@/DojoContext";
 
 const EnteredTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { account } = useAccount();
+  const { nameSpace } = useDojo();
   const address = useMemo(
     () => addAddressPadding(account?.address ?? "0x0"),
     [account]
   );
   const { entities: tournaments, isLoading } =
     useGetAccountCreatedTournamentsQuery(address);
+
+  const state = useDojoStore();
+
+  const tournamentPrizesEntities = state.getEntitiesByModel(
+    nameSpace,
+    "TournamentPrize"
+  );
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
@@ -60,10 +70,13 @@ const EnteredTable = () => {
             <tbody>
               {tournaments && tournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel = tournament.TournamentModel;
-                  const tournamentEntries = tournament.TournamentEntriesModel;
-                  const tournamentPrizeKeys =
-                    tournament.TournamentPrizeKeysModel;
+                  const tournamentModel = tournament.Tournament;
+                  const tournamentEntries = tournament.TournamentEntries;
+                  const tournamentPrizes = tournamentPrizesEntities.filter(
+                    (prize) =>
+                      prize.models[nameSpace].TournamentPrize?.tournament_id ===
+                      tournamentModel?.tournament_id
+                  );
                   return (
                     <EnteredRow
                       key={tournament.entityId}
@@ -73,7 +86,10 @@ const EnteredTable = () => {
                       startTime={tournamentModel?.start_time}
                       entryPremium={tournamentModel?.entry_premium}
                       entries={tournamentEntries?.entry_count}
-                      prizeKeys={tournamentPrizeKeys?.prize_keys}
+                      prizeKeys={tournamentPrizes?.map(
+                        (prize) =>
+                          prize.models[nameSpace].TournamentPrize?.prize_key
+                      )}
                     />
                   );
                 })

@@ -2,17 +2,15 @@ import { ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
-import { InputTokenModel } from "@/generated/models.gen";
+import { InputToken } from "@/generated/models.gen";
 import { calculatePayouts } from "@/lib/utils";
 import SelectToken from "@/components/buttons/SelectToken";
 import { CairoOption, CairoOptionVariant } from "starknet";
 
 const TournamentEntryFee = () => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [entryFeeDisabled, setEntryFeeDisabled] = useState(true);
-  const [selectedToken, setSelectedToken] = useState<InputTokenModel | null>(
-    null
-  );
+  const [selectedToken, setSelectedToken] = useState<InputToken | null>(null);
   const [amount, setAmount] = useState<number>(0);
   const [creatorFee, setCreatorFee] = useState<number>(0);
   const [distributionWeight, setDistributionWeight] = useState<number>(0);
@@ -43,14 +41,14 @@ const TournamentEntryFee = () => {
   //   .sort((a, b) => a.position - b.position)
   //   .map((dist) => dist.percentage);
 
-  const scoreboardSize = formData.scoreboardSize;
+  const scoreboardSize = createTournamentData.scoreboardSize;
 
   const sectionDisabled =
-    !formData.tournamentName ||
-    !formData.startTime ||
-    !formData.endTime ||
-    !formData.submissionPeriod ||
-    !formData.scoreboardSize;
+    !createTournamentData.tournamentName ||
+    !createTournamentData.startTime ||
+    !createTournamentData.endTime ||
+    !createTournamentData.submissionPeriod ||
+    !createTournamentData.scoreboardSize;
 
   const payouts = useMemo(
     () => calculatePayouts(scoreboardSize, distributionWeight),
@@ -66,7 +64,10 @@ const TournamentEntryFee = () => {
         creator_fee: creatorFee,
       });
 
-      setFormData({ ...formData, entryFee: entryFeeValue });
+      setCreateTournamentData({
+        ...createTournamentData,
+        entryFee: entryFeeValue,
+      });
     }
   }, [amount, creatorFee, payouts, selectedToken]);
 

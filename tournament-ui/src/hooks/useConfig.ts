@@ -15,9 +15,7 @@ import { addAddressPadding } from "starknet";
 import { useDojo } from "@/DojoContext";
 
 export function ConfigStoreSync() {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig, nameSpace } = useDojo();
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
@@ -25,7 +23,7 @@ export function ConfigStoreSync() {
     ? useDojoSystem("LSTournament").contractAddress
     : useDojoSystem("tournament_mock").contractAddress;
   const query_get: TournamentGetQuery = {
-    tournament: {
+    [nameSpace]: {
       TournamentConfig: {
         $: {
           where: {
@@ -36,7 +34,7 @@ export function ConfigStoreSync() {
     },
   };
   const query_sub: TournamentSubQuery = {
-    tournament: {
+    [nameSpace]: {
       TournamentConfig: {
         $: {
           where: {
@@ -57,9 +55,7 @@ export function ConfigStoreSync() {
 }
 
 export const useConfig = () => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 

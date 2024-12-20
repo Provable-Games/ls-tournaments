@@ -3,6 +3,7 @@ import useUIStore from "@/hooks/useUIStore";
 import { Prize } from "@/lib/types";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { formatBalance } from "@/lib/utils";
+import { useDojo } from "@/DojoContext";
 
 interface PrizeBoxProps {
   token: string;
@@ -17,12 +18,13 @@ export default function PrizeBox({
   prizes,
   totalAmount,
 }: PrizeBoxProps) {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
+  const { nameSpace } = useDojo();
   const state = useDojoStore((state) => state);
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
   const tokenModel = tokens.find(
-    (t) => t.models.tournament.TokenModel?.token === token
-  )?.models.tournament.TokenModel;
+    (t) => t.models[nameSpace].Token?.token === token
+  )?.models[nameSpace].Token;
 
   return (
     <>
@@ -30,9 +32,11 @@ export default function PrizeBox({
         <span
           className="absolute top-1 right-1 w-2 h-2 cursor-pointer"
           onClick={() =>
-            setFormData({
-              ...formData,
-              prizes: formData.prizes.filter((p) => p.token !== token),
+            setCreateTournamentData({
+              ...createTournamentData,
+              prizes: createTournamentData.prizes.filter(
+                (p) => p.token !== token
+              ),
             })
           }
         >

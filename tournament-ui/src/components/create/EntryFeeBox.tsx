@@ -3,26 +3,27 @@ import useUIStore from "@/hooks/useUIStore";
 import { InputPremium } from "@/generated/models.gen";
 import { CairoOption, CairoOptionVariant } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
+import { useDojo } from "@/DojoContext";
 
 interface EntryFeeBoxProps {
   premium: CairoOption<InputPremium>;
 }
 
 export default function EntryFeeBox({ premium }: EntryFeeBoxProps) {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
+  const { nameSpace } = useDojo();
   const state = useDojoStore((state) => state);
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
   const token = tokens.find(
-    (token) =>
-      token.models.tournament.TokenModel?.token === premium.unwrap()!.token
-  )?.models.tournament.TokenModel;
+    (token) => token.models[nameSpace].Token?.token === premium.unwrap()!.token
+  )?.models[nameSpace].Token;
   return (
     <div className="relative flex flex-row gap-5 p-2 text-terminal-green border border-terminal-green px-5">
       <span
         className="absolute top-1 right-1 w-4 h-4 cursor-pointer"
         onClick={() =>
-          setFormData({
-            ...formData,
+          setCreateTournamentData({
+            ...createTournamentData,
             entryFee: new CairoOption(CairoOptionVariant.None),
           })
         }

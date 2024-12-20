@@ -41,3 +41,7 @@ pub fn BEASTS_ADDRESS() -> ContractAddress {
 
 pub const ETH_SAFE_AMOUNT: u128 = 1000000000000000; // 0.001 ETH
 pub const LORDS_SAFE_AMOUNT: u128 = 5000000000000000000; // 5 LORDS
+
+pub fn DEFAULT_NS() -> @ByteArray {
+    @"ls_tournaments_v0"
+}

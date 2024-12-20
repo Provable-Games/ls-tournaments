@@ -2,7 +2,7 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useNavigate } from "react-router-dom";
 import { feltToString } from "@/lib/utils";
 import useModel from "@/useModel.ts";
-import { Models, PrizesModel } from "@/generated/models.gen";
+import { Models, TournamentPrize } from "@/generated/models.gen";
 import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries.ts";
 
 interface CreatedRowProps {
@@ -32,14 +32,13 @@ const CreatedRow = ({
   const { entities: tournamentDetails } =
     useGetTournamentDetailsQuery(tournamentId);
   const entryIndex =
-    tournamentDetails?.findIndex((detail) => detail.TournamentEntriesModel) ??
-    -1;
+    tournamentDetails?.findIndex((detail) => detail.TournamentEntries) ?? -1;
   const tournamentEntries =
     tournamentDetails && entryIndex !== -1
-      ? tournamentDetails[entryIndex].TournamentEntriesModel
+      ? tournamentDetails[entryIndex].TournamentEntries
       : { entry_count: 0 };
 
-  const tournamentModel = useModel(entityId, Models.TournamentModel);
+  const tournamentModel = useModel(entityId, Models.Tournament);
 
   // Calculate dates
   const endDate = new Date(Number(tournamentModel?.end_time) * 1000);
@@ -102,7 +101,10 @@ const CreatedRow = ({
             prizeKeys?.map((prizeKey: any) => {
               const entityId = getEntityIdFromKeys([BigInt(prizeKey)]);
 
-              const prize: PrizesModel = useModel(entityId, Models.PrizesModel);
+              const prize: TournamentPrize = useModel(
+                entityId,
+                Models.TournamentPrize
+              );
               // TODO: when token data type data is supported add the details
               return (
                 <div key={prizeKey}>

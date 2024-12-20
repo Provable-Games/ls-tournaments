@@ -200,6 +200,48 @@ export const InfoIcon: React.FC = () => (
   </svg>
 );
 
+export const BladeIcon: React.FC = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 9 16"
+    fill="currentColor"
+  >
+    <g>
+      <g>
+        <path d="M1 11v-1h1V8h1V6h1V4h1V2h1V1h2V0h1v4H8v2H7v2H6v2H5v2H3v2H2v2H0v-2h1v-2h1v-1zm0-1H0V9h1zm5 2v1H5v-1z" />
+      </g>
+    </g>
+  </svg>
+);
+
+export const BludgeonIcon: React.FC = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="currentColor"
+    viewBox="0 0 11 16"
+  >
+    <g>
+      <g>
+        <path d="M0 16v-2h1v-2h1v-2h1V8h1V6h1V2h1V0h4v2h1v4H9v2H7v2H5v2H3v2H2v2z" />
+      </g>
+    </g>
+  </svg>
+);
+
+export const MagicIcon: React.FC = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 10 15"
+    fill="currentColor"
+  >
+    <g>
+      <g>
+        <path d="M0 15v-2h1v-2h1V9h1V7h1V6h3v2H6V7H5v2H4v2H3v2H2v2zM9 5v1H8V5zm0 1h1v1H9zm1-2H8V3h2zM7 2V1h1v1zm2-1H8V0h1zM6 0v2H5V0zM5 3h2v2H5zM3 3V2h1v1zm0-2v1H2V1zm1 3v1H2V4z" />
+      </g>
+    </g>
+  </svg>
+);
+
 export const ClockIcon: React.FC = () => (
   <svg
     viewBox="0 0 67 67"

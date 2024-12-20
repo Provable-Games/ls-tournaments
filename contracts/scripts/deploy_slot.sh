@@ -3,15 +3,15 @@
 #
 echo "------------------------------------------------------------------------------"
 echo "Cleaning..."
-sozo -P slot clean
+sozo clean --profile slot
 echo "Building..."
-sozo -P slot build
+sozo build --profile slot
 
 #-----------------
 # migrate
 #
 echo ">>> Migrate"
-sozo -P slot migrate
+sozo migrate --profile slot
 echo "👍"
 
 #-----------------
@@ -29,12 +29,13 @@ get_contract_address () {
   echo $RESULT
 }
 
-export ETH_ADDRESS=$(get_contract_address "tournament-eth_mock")
-export LORDS_ADDRESS=$(get_contract_address "tournament-lords_mock")
-export LOOT_SURVIVOR_ADDRESS=$(get_contract_address "tournament-loot_survivor_mock")
-export ORACLE_ADDRESS=$(get_contract_address "tournament-pragma_mock")
-export TEST_ERC20=$(get_contract_address "tournament-erc20_mock")
-export TEST_ERC721=$(get_contract_address "tournament-erc721_mock")
+export LS_TOURNAMENTS_V0_ADDRESS=$(get_contract_address "ls_tournaments_v0-tournament_mock")
+export ETH_ADDRESS=$(get_contract_address "ls_tournaments_v0-eth_mock")
+export LORDS_ADDRESS=$(get_contract_address "ls_tournaments_v0-lords_mock")
+export LOOT_SURVIVOR_ADDRESS=$(get_contract_address "ls_tournaments_v0-loot_survivor_mock")
+export ORACLE_ADDRESS=$(get_contract_address "ls_tournaments_v0-pragma_mock")
+export TEST_ERC20=$(get_contract_address "ls_tournaments_v0-erc20_mock")
+export TEST_ERC721=$(get_contract_address "ls_tournaments_v0-erc721_mock")
 
 #-----------------
 # initialize tournament

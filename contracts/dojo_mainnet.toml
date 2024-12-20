@@ -2,38 +2,36 @@
 name = "Tournament"
 description = "Loot Survivor Tournaments"
 website = "https://github.com/Provable-Games/ls-tournaments"
-seed = "tournament1"
+seed = "ls_tournaments_v0"
 
 [world.socials]
 x = "https://x.com/provablegames"
 github = "https://github.com/Provable-Games"
 
 [namespace]
-default = "tournament"
+default = "ls_tournaments_v0"
 
 [env]
 chain_id = "SN_MAINNET"
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
-world_address = "0x062b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d"  # Uncomment and update this line with your world address.
-world_block = 987725
+world_address = "0x06a9e4c6f0799160ea8ddc43ff982a5f83d7f633e9732ce42701de1288ff705f"
+world_block = 948010
 
 [writers]
-"tournament-TournamentModel" = ["tournament-LSTournament"]
-"tournament-TournamentGameModel" = ["tournament-LSTournament"]
-"tournament-TournamentEntryAddressesModel" = ["tournament-LSTournament"]
-"tournament-TournamentEntriesAddressModel" = ["tournament-LSTournament"]
-"tournament-TournamentStartIdsModel" = ["tournament-LSTournament"]
-"tournament-TournamentEntriesModel" = ["tournament-LSTournament"]
-"tournament-TournamentStartsAddressModel" = ["tournament-LSTournament"]
-"tournament-TournamentScoresModel" = ["tournament-LSTournament"]
-"tournament-TournamentTotalsModel" = ["tournament-LSTournament"]
-"tournament-TournamentPrizeKeysModel" = ["tournament-LSTournament"]
-"tournament-PrizesModel" = ["tournament-LSTournament"]
-"tournament-TokenModel" = ["tournament-LSTournament"]
-"tournament-TournamentConfig" = ["tournament-LSTournament"]
+"ls_tournaments_v0-Tournament" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentGame" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentEntryAddresses" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentEntriesAddress" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentEntries" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentStartsAddress" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentScores" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentTotals" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentPrize" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-Token" = ["ls_tournaments_v0-LSTournament"]
+"ls_tournaments_v0-TournamentConfig" = ["ls_tournaments_v0-LSTournament"]
 
 [init_call_args]
-"tournament-LSTournament" = [
+"ls_tournaments_v0-LSTournament" = [
     "1", # safe_mode
     "1" # test_mode
 ]
@@ -41,11 +39,11 @@ world_block = 987725
 [migration]
 order_inits = []
 skip_contracts = [
-    "tournament-tournament_mock", 
-    "tournament-loot_survivor_mock", 
-    "tournament-pragma_mock", 
-    "tournament-eth_mock", 
-    "tournament-lords_mock", 
-    "tournament-erc20_mock", 
-    "tournament-erc721_mock"
+    "ls_tournaments_v0-tournament_mock", 
+    "ls_tournaments_v0-loot_survivor_mock", 
+    "ls_tournaments_v0-pragma_mock", 
+    "ls_tournaments_v0-eth_mock", 
+    "ls_tournaments_v0-lords_mock", 
+    "ls_tournaments_v0-erc20_mock", 
+    "ls_tournaments_v0-erc721_mock"
 ]

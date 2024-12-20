@@ -11,9 +11,7 @@ interface ScoreTableProps {
 }
 
 const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig, nameSpace } = useDojo();
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
@@ -70,7 +68,7 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
                       )
                     : adventurersData.find(
                         (entity: any) =>
-                          entity.models.tournament.AdventurerModel
+                          entity.models[nameSpace].AdventurerModel
                             .adventurer_id === gameId
                       );
                   return (

@@ -18,7 +18,7 @@ const GatedTokenDialog = () => {
   );
   const [entryCriteria, setEntryCriteria] = useState<EntryCriteria[]>([]);
   const tokensList = ["Blobert", "Survivor"];
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
 
   const handleChangeUniformEntry = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -200,8 +200,8 @@ const GatedTokenDialog = () => {
               gatedTypeEnum
             );
 
-            setFormData({
-              ...formData,
+            setCreateTournamentData({
+              ...createTournamentData,
               gatedType: someGatedType,
             });
             setInputDialog(null);

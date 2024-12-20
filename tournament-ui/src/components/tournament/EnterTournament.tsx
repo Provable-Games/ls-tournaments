@@ -1,10 +1,7 @@
 import { Button } from "@/components/buttons/Button";
 import { formatNumber } from "@/lib/utils";
 import { useLordsCost } from "@/hooks/useLordsCost";
-import {
-  TournamentModel,
-  TournamentEntriesAddressModel,
-} from "@/generated/models.gen";
+import { Tournament, TournamentEntriesAddress } from "@/generated/models.gen";
 import { useSystemCalls } from "@/useSystemCalls";
 import { bigintToHex, feltToString } from "@/lib/utils";
 import {
@@ -15,8 +12,8 @@ import {
 } from "starknet";
 
 interface EnterTournamentProps {
-  tournamentModel: TournamentModel;
-  tournamentEntriesAddressModel: TournamentEntriesAddressModel;
+  tournamentModel: Tournament;
+  tournamentEntriesAddressModel: TournamentEntriesAddress;
   entryCount: BigNumberish;
   entryAddressCount: BigNumberish;
 }

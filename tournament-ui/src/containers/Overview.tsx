@@ -5,29 +5,31 @@ import { useDojoStore } from "@/hooks/useDojoStore";
 import { ParsedEntity } from "@dojoengine/sdk";
 import { SchemaType } from "@/generated/models.gen";
 import { feltToString } from "@/lib/utils";
+import { useDojo } from "@/DojoContext";
 
 const Overview = () => {
+  const { nameSpace } = useDojo();
   const state = useDojoStore((state) => state);
   const tournamentTotals = state.getEntitiesByModel(
-    "tournament",
-    "TournamentTotalsModel"
+    nameSpace,
+    "TournamentTotals"
   );
-  const tournaments = state.getEntitiesByModel("tournament", "TournamentModel");
+  const tournaments = state.getEntitiesByModel(nameSpace, "Tournament");
   const tournamentCount =
-    tournamentTotals[0]?.models?.tournament?.TournamentTotalsModel
+    tournamentTotals[0]?.models?.[nameSpace]?.TournamentTotals
       ?.total_tournaments;
   const nextTournament = tournaments.reduce(
     (earliest: ParsedEntity<SchemaType> | null, current) => {
       if (!earliest) return current;
-      return earliest?.models?.tournament?.TournamentModel?.start_time! <
-        current?.models?.tournament?.TournamentModel?.start_time!
+      return earliest?.models?.[nameSpace]?.Tournament?.start_time! <
+        current?.models?.[nameSpace]?.Tournament?.start_time!
         ? earliest
         : current;
     },
     null
   );
   const nextTournamentName =
-    nextTournament?.models?.tournament?.TournamentModel?.name;
+    nextTournament?.models?.[nameSpace]?.Tournament?.name;
 
   return (
     <div className="flex flex-col">

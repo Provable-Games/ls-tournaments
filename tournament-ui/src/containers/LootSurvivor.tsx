@@ -6,24 +6,22 @@ import { useGetAdventurersQuery } from "@/hooks/useSdkQueries";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { useSystemCalls } from "@/useSystemCalls";
 import { bigintToHex, removeFieldOrder } from "@/lib/utils";
+import { useDojo } from "@/DojoContext";
 
 const LootSurvivor = () => {
+  const { nameSpace } = useDojo();
   const { setAdventurer } = useSystemCalls();
   const { account } = useAccount();
   useGetAdventurersQuery(account?.address ?? "0x0");
   const state = useDojoStore((state) => state);
   const [scores, setScores] = useState<Record<string, number>>({});
 
-  const adventurers = state.getEntitiesByModel("tournament", "AdventurerModel");
-  const startIdsModel = state.getEntitiesByModel(
-    "tournament",
-    "TournamentStartIdsModel"
-  );
-  const startIds = startIdsModel
-    .map(
-      (model) => model.models.tournament.TournamentStartIdsModel?.game_ids || []
-    )
-    .flat();
+  const adventurers = state.getEntitiesByModel(nameSpace, "AdventurerModel");
+  const gameIdsModel = state.getEntitiesByModel(nameSpace, "TournamentGame");
+  const gameIds =
+    gameIdsModel.map(
+      (model) => model?.models?.[nameSpace].TournamentGame?.game_id || "0"
+    ) ?? [];
 
   const handleScoreChange = (id: string, value: string) => {
     setScores((prev) => ({
@@ -73,15 +71,16 @@ const LootSurvivor = () => {
       <h1 className="2xl:text-5xl text-center">Loot Survivor</h1>
       <div className="flex flex-col items-center gap-5">
         <p className="text-2xl">Adventurers</p>
-        {startIds.map((id) => {
+        {gameIds.map((id) => {
           const adventurer = adventurers.find(
             (adventurer) =>
-              adventurer.models.tournament.AdventurerModel?.adventurer_id === id
+              adventurer.models?.[nameSpace].AdventurerModel?.adventurer_id ===
+              id
           );
           const adventurerHealth =
-            adventurer?.models.tournament.AdventurerModel?.adventurer?.health;
+            adventurer?.models?.[nameSpace].AdventurerModel?.adventurer?.health;
           const adventurerScore =
-            adventurer?.models.tournament.AdventurerModel?.adventurer?.xp;
+            adventurer?.models?.[nameSpace].AdventurerModel?.adventurer?.xp;
           return (
             <div
               key={id}

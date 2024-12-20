@@ -27,9 +27,7 @@ import { useConfig } from "@/hooks/useConfig";
 
 function App() {
   const { account } = useAccount();
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   useConfig();
   const { tournament, eth, lords, goldenToken, blobert } =
     useTournamentContracts();

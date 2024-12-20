@@ -10,8 +10,9 @@ import {
   copyToClipboard,
   padAddress,
   formatBalance,
-} from "../lib/utils";
+} from "@/lib/utils";
 import { useDojoSystem } from "@/hooks/useDojoSystem";
+import { useDojo } from "@/DojoContext";
 import TokenBox from "@/components/registerToken/TokenBox";
 import { useSubscribeTokensQuery } from "@/hooks/useSdkQueries";
 import { TokenDataTypeEnum } from "@/generated/models.gen";
@@ -19,6 +20,7 @@ import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 const RegisterToken = () => {
   const { account } = useAccount();
+  const { nameSpace } = useDojo();
   const { eth, lords } = useTournamentContracts();
   const erc20_mock = useDojoSystem("erc20_mock").contractAddress ?? "0x0";
   const erc721_mock = useDojoSystem("erc721_mock").contractAddress ?? "0x0";
@@ -29,7 +31,7 @@ const RegisterToken = () => {
   const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
 
   const state = useDojoStore((state) => state);
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
   useSubscribeTokensQuery();
 
@@ -211,7 +213,7 @@ const RegisterToken = () => {
       {!!tokens && tokens.length > 0 ? (
         <div className="flex flex-row gap-2 justify-center">
           {tokens.map((token) => {
-            const tokenModel = token.models.tournament.TokenModel;
+            const tokenModel = token.models[nameSpace].Token;
             return (
               <Button
                 key={token.entityId}

@@ -2,15 +2,13 @@ import { ChangeEvent, useState } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import SelectToken from "@/components/buttons/SelectToken";
-import { InputTokenModel } from "@/generated/models.gen";
+import { InputToken } from "@/generated/models.gen";
 
 const TournamentGating = () => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [tournamentGatingDisabled, setTournamentGatingDisabled] =
     useState(true);
-  const [selectedToken, setSelectedToken] = useState<InputTokenModel | null>(
-    null
-  );
+  const [selectedToken, setSelectedToken] = useState<InputToken | null>(null);
   const [gatedType, setGatedType] = useState<number>(0);
   const [_, setUniformEntryCount] = useState(0);
   // const [_, setEntryCriteria] = useState<
@@ -46,11 +44,11 @@ const TournamentGating = () => {
   //   };
 
   const sectionDisabled =
-    !formData.tournamentName ||
-    !formData.startTime ||
-    !formData.endTime ||
-    !formData.submissionPeriod ||
-    !formData.scoreboardSize;
+    !createTournamentData.tournamentName ||
+    !createTournamentData.startTime ||
+    !createTournamentData.endTime ||
+    !createTournamentData.submissionPeriod ||
+    !createTournamentData.scoreboardSize;
 
   return (
     <div className="flex flex-col w-full">
@@ -163,22 +161,49 @@ const TournamentGating = () => {
             </p>
             <div className="flex flex-row w-full items-center gap-2">
               <Button
-                variant={formData.scoreboardSize === 1 ? "default" : "token"}
-                onClick={() => setFormData({ ...formData, scoreboardSize: 1 })}
+                variant={
+                  createTournamentData.scoreboardSize === 1
+                    ? "default"
+                    : "token"
+                }
+                onClick={() =>
+                  setCreateTournamentData({
+                    ...createTournamentData,
+                    scoreboardSize: 1,
+                  })
+                }
                 disabled={tournamentGatingDisabled}
               >
                 1
               </Button>
               <Button
-                variant={formData.scoreboardSize === 2 ? "default" : "token"}
-                onClick={() => setFormData({ ...formData, scoreboardSize: 2 })}
+                variant={
+                  createTournamentData.scoreboardSize === 2
+                    ? "default"
+                    : "token"
+                }
+                onClick={() =>
+                  setCreateTournamentData({
+                    ...createTournamentData,
+                    scoreboardSize: 2,
+                  })
+                }
                 disabled={tournamentGatingDisabled}
               >
                 2
               </Button>
               <Button
-                variant={formData.scoreboardSize === 3 ? "default" : "token"}
-                onClick={() => setFormData({ ...formData, scoreboardSize: 3 })}
+                variant={
+                  createTournamentData.scoreboardSize === 3
+                    ? "default"
+                    : "token"
+                }
+                onClick={() =>
+                  setCreateTournamentData({
+                    ...createTournamentData,
+                    scoreboardSize: 3,
+                  })
+                }
                 disabled={tournamentGatingDisabled}
               >
                 3

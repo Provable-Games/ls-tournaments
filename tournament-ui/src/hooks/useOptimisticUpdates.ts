@@ -2,9 +2,11 @@ import { BigNumberish } from "starknet";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { v4 as uuidv4 } from "uuid";
+import { useDojo } from "@/DojoContext";
 
 export const useOptimisticUpdates = () => {
   const state = useDojoStore((state) => state);
+  const { nameSpace } = useDojo();
 
   // const applyRegisterTokensUpdate = (
   //   tournament: BigNumberish,
@@ -42,8 +44,8 @@ export const useOptimisticUpdates = () => {
         const entriesEntity = {
           entityId: entriesEntityId,
           models: {
-            tournament: {
-              TournamentEntriesModel: {
+            [nameSpace]: {
+              TournamentEntries: {
                 tournament_id: tournamentId,
                 entry_count: newEntryCount,
               },
@@ -53,8 +55,8 @@ export const useOptimisticUpdates = () => {
         const entriesAddressEntity = {
           entityId: entriesAddressEntityId,
           models: {
-            tournament: {
-              TournamentEntriesAddressModel: {
+            [nameSpace]: {
+              TournamentEntriesAddress: {
                 tournament_id: tournamentId,
                 address: accountAddress,
                 entry_count: newEntryAddressCount,
@@ -62,12 +64,12 @@ export const useOptimisticUpdates = () => {
             },
           },
         };
-        draft.entities[entriesEntityId] = entriesAddressEntity;
+        draft.entities[entriesAddressEntityId] = entriesAddressEntity;
         draft.entities[entriesEntityId] = entriesEntity;
       } else if (!draft.entities[entriesAddressEntityId]) {
-        draft.entities[entriesEntityId].models.tournament = {
-          ...draft.entities[entriesEntityId].models.tournament,
-          TournamentEntriesModel: {
+        draft.entities[entriesEntityId].models[nameSpace] = {
+          ...draft.entities[entriesEntityId].models[nameSpace],
+          TournamentEntries: {
             tournament_id: tournamentId,
             entry_count: newEntryCount,
             premiums_formatted: false,
@@ -77,8 +79,8 @@ export const useOptimisticUpdates = () => {
         const entriesAddressEntity = {
           entityId: entriesAddressEntityId,
           models: {
-            tournament: {
-              TournamentEntriesAddressModel: {
+            [nameSpace]: {
+              TournamentEntriesAddress: {
                 tournament_id: tournamentId,
                 address: accountAddress,
                 entry_count: newEntryAddressCount,
@@ -88,21 +90,20 @@ export const useOptimisticUpdates = () => {
         };
         draft.entities[entriesAddressEntityId] = entriesAddressEntity;
       } else if (
-        !draft.entities[entriesEntityId]?.models?.tournament
-          ?.TournamentEntriesModel
+        !draft.entities[entriesEntityId]?.models?.[nameSpace]?.TournamentEntries
       ) {
-        draft.entities[entriesEntityId].models.tournament = {
-          ...draft.entities[entriesEntityId].models.tournament,
-          TournamentEntriesModel: {
+        draft.entities[entriesEntityId].models[nameSpace] = {
+          ...draft.entities[entriesEntityId].models[nameSpace],
+          TournamentEntries: {
             tournament_id: tournamentId,
             entry_count: newEntryCount,
             premiums_formatted: false,
             distribute_called: false,
           },
         };
-        draft.entities[entriesAddressEntityId].models.tournament = {
-          ...draft.entities[entriesAddressEntityId].models.tournament,
-          TournamentEntriesAddressModel: {
+        draft.entities[entriesAddressEntityId].models[nameSpace] = {
+          ...draft.entities[entriesAddressEntityId].models[nameSpace],
+          TournamentEntriesAddress: {
             tournament_id: tournamentId,
             address: accountAddress,
             entry_count: newEntryAddressCount,
@@ -110,22 +111,20 @@ export const useOptimisticUpdates = () => {
         };
       } else {
         if (
-          draft.entities[entriesEntityId]?.models?.tournament
-            ?.TournamentEntriesModel
+          draft.entities[entriesEntityId]?.models?.[nameSpace]
+            ?.TournamentEntries
         ) {
-          draft.entities[
-            entriesEntityId
-          ].models.tournament.TournamentEntriesModel.entry_count =
-            newEntryCount;
+          draft.entities[entriesEntityId].models[
+            nameSpace
+          ].TournamentEntries.entry_count = newEntryCount;
         }
         if (
-          draft.entities[entriesAddressEntityId]?.models?.tournament
-            ?.TournamentEntriesAddressModel
+          draft.entities[entriesAddressEntityId]?.models?.[nameSpace]
+            ?.TournamentEntriesAddress
         ) {
-          draft.entities[
-            entriesAddressEntityId
-          ].models.tournament.TournamentEntriesAddressModel.entry_count =
-            newEntryAddressCount;
+          draft.entities[entriesAddressEntityId].models[
+            nameSpace
+          ].TournamentEntriesAddress.entry_count = newEntryAddressCount;
         }
       }
     });
@@ -133,7 +132,7 @@ export const useOptimisticUpdates = () => {
     const waitForEntriesEntityChange = async () => {
       return await state.waitForEntityChange(entriesEntityId, (entity) => {
         return (
-          entity?.models?.tournament?.TournamentEntriesModel?.entry_count ==
+          entity?.models?.[nameSpace]?.TournamentEntries?.entry_count ==
           newEntryCount
         );
       });
@@ -160,25 +159,24 @@ export const useOptimisticUpdates = () => {
 
     state.applyOptimisticUpdate(transactionId, (draft) => {
       if (
-        !draft.entities[startsAddressEntityId].models.tournament
-          .TournamentStartsAddressModel
+        !draft.entities[startsAddressEntityId].models[nameSpace]
+          .TournamentStartsAddress
       ) {
-        draft.entities[startsAddressEntityId].models.tournament = {
-          ...draft.entities[startsAddressEntityId].models.tournament,
-          TournamentStartsAddressModel: {
+        draft.entities[startsAddressEntityId].models[nameSpace] = {
+          ...draft.entities[startsAddressEntityId].models[nameSpace],
+          TournamentStartsAddress: {
             tournament_id: tournamentId,
             address: accountAddress,
             start_count: newAddressStartCount,
           },
         };
       } else if (
-        draft.entities[startsAddressEntityId].models.tournament
-          .TournamentStartsAddressModel
+        draft.entities[startsAddressEntityId].models[nameSpace]
+          .TournamentStartsAddress
       ) {
-        draft.entities[
-          startsAddressEntityId
-        ].models.tournament.TournamentStartsAddressModel.start_count =
-          newAddressStartCount;
+        draft.entities[startsAddressEntityId].models[
+          nameSpace
+        ].TournamentStartsAddress.start_count = newAddressStartCount;
       }
     });
 
@@ -187,8 +185,8 @@ export const useOptimisticUpdates = () => {
         startsAddressEntityId,
         (entity) => {
           return (
-            entity?.models?.tournament?.TournamentStartsAddressModel
-              ?.start_count == newAddressStartCount
+            entity?.models?.[nameSpace]?.TournamentStartsAddress?.start_count ==
+            newAddressStartCount
           );
         }
       );
@@ -226,32 +224,27 @@ export const useOptimisticUpdates = () => {
     const transactionId = uuidv4();
 
     state.applyOptimisticUpdate(transactionId, (draft) => {
-      if (
-        !draft.entities[entityId]?.models?.tournament?.TournamentPrizeKeysModel
-      ) {
-        draft.entities[entityId].models.tournament = {
-          ...draft.entities[entityId].models.tournament,
-          TournamentPrizeKeysModel: {
+      if (!draft.entities[entityId]?.models?.[nameSpace]?.TournamentPrize) {
+        draft.entities[entityId].models[nameSpace] = {
+          ...draft.entities[entityId].models[nameSpace],
+          TournamentPrize: {
             tournament_id: tournamentId,
-            prize_keys: [prizeKey],
+            prize_key: prizeKey,
           },
         };
       } else if (
-        draft.entities[entityId]?.models?.tournament?.TournamentPrizeKeysModel
-          ?.prize_keys
+        draft.entities[entityId]?.models?.[nameSpace]?.TournamentPrize
+          ?.prize_key
       ) {
-        draft.entities[
-          entityId
-        ].models.tournament.TournamentPrizeKeysModel.prize_keys.push(prizeKey);
+        draft.entities[entityId].models[nameSpace].TournamentPrize.prize_key =
+          prizeKey;
       }
     });
 
     const waitForPrizeEntityChange = async () => {
       return await state.waitForEntityChange(entityId, (entity) => {
         return (
-          entity?.models?.tournament?.TournamentPrizeKeysModel?.prize_keys?.includes(
-            prizeKey
-          ) ?? false
+          entity?.models?.[nameSpace]?.TournamentPrize?.prize_key == prizeKey
         );
       });
     };

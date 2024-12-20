@@ -3,7 +3,7 @@ import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
 import { Prize } from "@/lib/types";
-import { InputTokenModel, TokenDataTypeEnum } from "@/generated/models.gen";
+import { InputToken, TokenDataTypeEnum } from "@/generated/models.gen";
 import SelectToken from "@/components/buttons/SelectToken";
 import { BigNumberish, CairoCustomEnum } from "starknet";
 import { calculatePayouts } from "@/lib/utils";
@@ -14,14 +14,14 @@ interface TournamentPrizesProps {
 }
 
 const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [prizesDisabled, setPrizesDisabled] = useState(true);
   const [prizeIndex, setPrizeIndex] = useState<number>(0);
   const [prizesList, setPrizesList] = useState<
     Record<
       number,
       {
-        selectedToken: InputTokenModel | null;
+        selectedToken: InputToken | null;
         amount: number;
         distributionWeight: number;
         position: number;
@@ -56,7 +56,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
       },
     }));
   };
-  const scoreboardSize = formData.scoreboardSize;
+  const scoreboardSize = createTournamentData.scoreboardSize;
   const currentPrize = prizesList[prizeIndex];
 
   const payouts = useMemo(
@@ -102,11 +102,11 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
   }, [currentPrize]);
 
   const sectionDisabled =
-    !formData.tournamentName ||
-    !formData.startTime ||
-    !formData.endTime ||
-    !formData.submissionPeriod ||
-    !formData.scoreboardSize;
+    !createTournamentData.tournamentName ||
+    !createTournamentData.startTime ||
+    !createTournamentData.endTime ||
+    !createTournamentData.submissionPeriod ||
+    !createTournamentData.scoreboardSize;
 
   useEffect(() => {
     if (prizesDisabled) {
@@ -327,9 +327,12 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                           },
                         }));
                         setPrizeIndex(newIndex);
-                        setFormData({
-                          ...formData,
-                          prizes: [...formData.prizes, ...formattedERC20Prizes],
+                        setCreateTournamentData({
+                          ...createTournamentData,
+                          prizes: [
+                            ...createTournamentData.prizes,
+                            ...formattedERC20Prizes,
+                          ],
                         });
                       }}
                     >
@@ -416,10 +419,10 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                           },
                         }));
                         setPrizeIndex(newIndex);
-                        setFormData({
-                          ...formData,
+                        setCreateTournamentData({
+                          ...createTournamentData,
                           prizes: [
-                            ...formData.prizes,
+                            ...createTournamentData.prizes,
                             ...formattedERC721Prizes,
                           ],
                         });
@@ -435,7 +438,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
         </div>
       </div>
       <div className="absolute w-3/4 justify-end right-0 bottom-[-80px] h-16 flex flex-row gap-2">
-        <PrizeBoxes prizes={formData.prizes} />
+        <PrizeBoxes prizes={createTournamentData.prizes} />
       </div>
     </div>
   );

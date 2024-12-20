@@ -9,15 +9,13 @@ interface ScoreRowProps {
 }
 
 const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig, nameSpace } = useDojo();
 
   if (!adventurer) return null;
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const formattedAdventurer = isMainnet
     ? adventurer
-    : adventurer.models.tournament.AdventurerModel.adventurer;
+    : adventurer.models[nameSpace].AdventurerModel.adventurer;
   return (
     <tr className="h-10">
       <td className="px-2">

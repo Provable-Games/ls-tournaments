@@ -6,12 +6,6 @@ pub enum GatedEntryType {
     uniform: u64,
 }
 
-#[derive(Drop, Copy, Serde, Introspect)]
-pub struct Token {
-    pub token: ContractAddress,
-    pub token_data_type: TokenDataType,
-}
-
 #[derive(Copy, Drop, Serde, PartialEq, Introspect)]
 pub struct EntryCriteria {
     pub token_id: u128,
@@ -79,7 +73,7 @@ pub enum FreeGameTokenType {
 
 #[dojo::model]
 #[derive(Drop, Serde)]
-pub struct TournamentModel {
+pub struct Tournament {
     #[key]
     pub tournament_id: u64,
     pub name: felt252,
@@ -97,7 +91,7 @@ pub struct TournamentModel {
 
 #[dojo::model]
 #[derive(Drop, Serde)]
-pub struct TournamentEntryAddressesModel {
+pub struct TournamentEntryAddresses {
     #[key]
     pub tournament_id: u64,
     pub addresses: Array<ContractAddress>,
@@ -105,7 +99,7 @@ pub struct TournamentEntryAddressesModel {
 
 #[dojo::model]
 #[derive(Drop, Serde)]
-pub struct TournamentEntriesAddressModel {
+pub struct TournamentEntriesAddress {
     #[key]
     pub tournament_id: u64,
     #[key]
@@ -115,7 +109,7 @@ pub struct TournamentEntriesAddressModel {
 
 #[dojo::model]
 #[derive(Drop, Serde)]
-pub struct TournamentStartsAddressModel {
+pub struct TournamentStartsAddress {
     #[key]
     pub tournament_id: u64,
     #[key]
@@ -125,7 +119,7 @@ pub struct TournamentStartsAddressModel {
 
 #[dojo::model]
 #[derive(Copy, Drop, Serde)]
-pub struct TournamentGameModel {
+pub struct TournamentGame {
     #[key]
     pub tournament_id: u64,
     #[key]
@@ -135,18 +129,8 @@ pub struct TournamentGameModel {
 }
 
 #[dojo::model]
-#[derive(Drop, Serde)]
-pub struct TournamentStartIdsModel {
-    #[key]
-    pub tournament_id: u64,
-    #[key]
-    pub address: ContractAddress,
-    pub game_ids: Array<u64>,
-}
-
-#[dojo::model]
 #[derive(Copy, Drop, Serde)]
-pub struct TournamentEntriesModel {
+pub struct TournamentEntries {
     #[key]
     pub tournament_id: u64,
     pub entry_count: u64,
@@ -156,7 +140,7 @@ pub struct TournamentEntriesModel {
 
 #[dojo::model]
 #[derive(Drop, Serde)]
-pub struct TournamentScoresModel {
+pub struct TournamentScores {
     #[key]
     pub tournament_id: u64,
     pub top_score_ids: Array<u64>,
@@ -164,7 +148,7 @@ pub struct TournamentScoresModel {
 
 #[dojo::model]
 #[derive(Copy, Drop, Serde)]
-pub struct TournamentTotalsModel {
+pub struct TournamentTotals {
     #[key]
     pub contract: ContractAddress,
     pub total_tournaments: u64,
@@ -172,16 +156,10 @@ pub struct TournamentTotalsModel {
 }
 
 #[dojo::model]
-#[derive(Drop, Serde)]
-pub struct TournamentPrizeKeysModel {
+#[derive(Copy, Drop, Serde)]
+pub struct TournamentPrize {
     #[key]
     pub tournament_id: u64,
-    pub prize_keys: Array<u64>,
-}
-
-#[dojo::model]
-#[derive(Copy, Drop, Serde)]
-pub struct PrizesModel {
     #[key]
     pub prize_key: u64,
     pub token: ContractAddress,
@@ -192,7 +170,7 @@ pub struct PrizesModel {
 
 #[dojo::model]
 #[derive(Drop, Serde)]
-pub struct TokenModel {
+pub struct Token {
     #[key]
     pub token: ContractAddress,
     pub name: ByteArray,

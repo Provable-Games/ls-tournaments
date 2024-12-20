@@ -5,7 +5,7 @@ import { useDojo } from "./DojoContext";
 import { v4 as uuidv4 } from "uuid";
 import { Token, Prize, GatedSubmissionTypeEnum } from "@/lib/types";
 import {
-  InputTournamentModel,
+  InputTournament,
   Premium,
   InputGatedTypeEnum,
 } from "@/generated/models.gen";
@@ -29,12 +29,10 @@ export function selectTournament(client: any, isMainnet: boolean): any {
 export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
 
-  const {
-    setup: { client, selectedChainConfig },
-  } = useDojo();
+  const { client, selectedChainConfig } = useDojo();
   const { account } = useAccount();
   const { toast } = useToast();
-  const { resetFormData } = useUIStore();
+  const { resetCreateTournamentData } = useUIStore();
   const {
     applyTournamentEntryUpdate,
     applyTournamentStartUpdate,
@@ -64,7 +62,7 @@ export const useSystemCalls = () => {
       await tournamentContract.registerTokens(account!, tokens);
 
       await state.waitForEntityChange(entityId, (entity) => {
-        return entity?.models?.tournament_mock?.TokenModel === tokens;
+        return entity?.models?.tournament_mock?.Token === tokens;
       });
     } catch (error) {
       state.revertOptimisticUpdate(transactionId);
@@ -75,7 +73,7 @@ export const useSystemCalls = () => {
     }
   };
 
-  const createTournament = async (tournament: InputTournamentModel) => {
+  const createTournament = async (tournament: InputTournament) => {
     const transactionId = uuidv4();
 
     try {
@@ -101,7 +99,7 @@ export const useSystemCalls = () => {
           description: `Created tournament ${feltToString(tournament.name)}`,
         });
 
-        resetFormData();
+        resetCreateTournamentData();
       }
     } catch (error) {
       state.revertOptimisticUpdate(transactionId);
@@ -159,7 +157,9 @@ export const useSystemCalls = () => {
     startCount: CairoOption<number>,
     usableGoldenTokens: any[],
     usableBlobertTokens: any[],
-    newAddressStartCount: BigNumberish
+    newAddressStartCount: BigNumberish,
+    weapon: BigNumberish,
+    name: BigNumberish
   ) => {
     const randomInt = getRandomInt(
       0,
@@ -184,7 +184,9 @@ export const useSystemCalls = () => {
         startCount,
         selectedRevenueAddress,
         usableGoldenTokens,
-        usableBlobertTokens
+        usableBlobertTokens,
+        weapon,
+        name
       );
 
       await wait();

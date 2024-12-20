@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { FormData } from "../lib/types";
+import { CreateTournamentData, StartTournamentData } from "../lib/types";
 import { CairoOption, CairoOptionVariant } from "starknet";
 
 export type ScreenPage =
@@ -24,14 +24,16 @@ type State = {
   setScreen: (value: ScreenPage) => void;
   inputDialog: DialogConfig | null;
   setInputDialog: (value: DialogConfig | null) => void;
-  formData: FormData;
-  setFormData: (value: FormData) => void;
-  resetFormData: () => void; // Add this new type
+  createTournamentData: CreateTournamentData;
+  setCreateTournamentData: (value: CreateTournamentData) => void;
+  resetCreateTournamentData: () => void;
+  startTournamentData: StartTournamentData;
+  setStartTournamentData: (value: StartTournamentData) => void;
   tokenBalance: Record<string, bigint>;
   setTokenBalance: (value: Record<string, bigint>) => void;
 };
 
-const initialFormData: FormData = {
+const initialCreateTournamentData: CreateTournamentData = {
   tournamentName: "",
   tournamentDescription: "",
   registrationStartTime: undefined,
@@ -45,6 +47,11 @@ const initialFormData: FormData = {
   prizes: [],
 };
 
+const initialStartTournamentData: StartTournamentData = {
+  name: "",
+  weapon: "",
+};
+
 const useUIStore = create<State>((set) => ({
   username: "",
   setUsername: (value: string) => set({ username: value }),
@@ -54,9 +61,14 @@ const useUIStore = create<State>((set) => ({
   setScreen: (value: ScreenPage) => set({ screen: value }),
   inputDialog: null,
   setInputDialog: (value: DialogConfig | null) => set({ inputDialog: value }),
-  formData: initialFormData,
-  setFormData: (value: FormData) => set({ formData: value }),
-  resetFormData: () => set({ formData: initialFormData }),
+  createTournamentData: initialCreateTournamentData,
+  setCreateTournamentData: (value: CreateTournamentData) =>
+    set({ createTournamentData: value }),
+  resetCreateTournamentData: () =>
+    set({ createTournamentData: initialCreateTournamentData }),
+  startTournamentData: initialStartTournamentData,
+  setStartTournamentData: (value: StartTournamentData) =>
+    set({ startTournamentData: value }),
   tokenBalance: {
     eth: BigInt(0),
     lords: BigInt(0),

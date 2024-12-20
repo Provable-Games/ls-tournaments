@@ -4,12 +4,13 @@ import useUIStore from "@/hooks/useUIStore";
 import { Prize } from "@/lib/types";
 
 const CreatePrizeDialog = () => {
-  const { formData, setFormData, setInputDialog } = useUIStore();
+  const { createTournamentData, setCreateTournamentData, setInputDialog } =
+    useUIStore();
 
   const handleSubmit = (prizes: Prize[]) => {
-    setFormData({
-      ...formData,
-      prizes: [...formData.prizes, ...prizes],
+    setCreateTournamentData({
+      ...createTournamentData,
+      prizes: [...createTournamentData.prizes, ...prizes],
     });
     setInputDialog(null);
   };

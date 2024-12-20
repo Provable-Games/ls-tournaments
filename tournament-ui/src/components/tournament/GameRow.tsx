@@ -9,9 +9,7 @@ interface GameRowProps {
 }
 
 const GameRow = ({ rank, adventurer }: GameRowProps) => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   if (!adventurer) return null;
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const formattedAdventurer = isMainnet ? adventurer : adventurer.adventurer;

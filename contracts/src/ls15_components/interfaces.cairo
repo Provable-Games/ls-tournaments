@@ -1,9 +1,9 @@
 use starknet::ContractAddress;
 use adventurer::{adventurer::Adventurer, adventurer_meta::AdventurerMetadata, bag::Bag};
 use dojo::world::{WorldStorage, WorldStorageTrait, IWorldDispatcher};
-use tournament::ls15_components::models::tournament::FreeGameTokenType;
+use ls_tournaments_v0::ls15_components::models::tournament::FreeGameTokenType;
 
-use tournament::ls15_components::libs::utils::ZERO;
+use ls_tournaments_v0::ls15_components::libs::utils::ZERO;
 
 #[derive(Drop, Copy, Serde)]
 pub enum DataType {

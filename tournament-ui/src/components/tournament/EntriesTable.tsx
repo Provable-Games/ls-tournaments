@@ -3,12 +3,14 @@ import { useGetUsernames } from "@/hooks/useController";
 import Pagination from "@/components/table/Pagination";
 import EntryRow from "@/components/tournament/EntryRow";
 import { indexAddress } from "@/lib/utils";
+import { useDojo } from "@/DojoContext";
 
 interface EntriesTableProps {
   tournamentEntires: any;
 }
 
 const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
+  const { nameSpace } = useDojo();
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
     if (!tournamentEntires) return 0;
@@ -23,8 +25,7 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
   const addresses = useMemo(
     () =>
       pagedEntries.map(
-        (entry: any) =>
-          entry.models.tournament.TournamentEntriesAddressModel.address
+        (entry: any) => entry.models[nameSpace].TournamentEntriesAddress.address
       ),
     [pagedEntries]
   );
@@ -60,7 +61,7 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
               {tournamentEntires && tournamentEntires.length > 0 ? (
                 pagedEntries.map((entry: any, index: any) => {
                   const entryModel =
-                    entry.models.tournament.TournamentEntriesAddressModel;
+                    entry.models[nameSpace].TournamentEntriesAddress;
                   return (
                     <EntryRow
                       key={index}

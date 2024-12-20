@@ -43,9 +43,7 @@ export enum ChainId {
 // TODO: fix for running between katana and mainnet
 const supportedChainIds: ChainId[] = [
   ChainId.KATANA_LOCAL,
-  // ChainId.SN_SEPOLIA,
   ChainId.WP_LS_TOURNAMENTS_KATANA,
-  // ChainId.TOURNAMENT_STAGING,
   ChainId.SN_MAINNET,
 ];
 
@@ -115,7 +113,7 @@ const manifests: Record<ChainId, DojoManifest> = {
   [ChainId.SN_MAINNET]: tournament_manifest_mainnet as DojoManifest,
 };
 
-const NAMESPACE = "tournament";
+const NAMESPACE = "ls_tournaments_v0";
 
 let katanaContractInterfaces: ContractInterfaces = {
   tournament_mock: ["ITournamentMock"],

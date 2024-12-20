@@ -18,7 +18,7 @@ mod loot_survivor_mock {
     use adventurer::{adventurer::ImplAdventurer, adventurer_meta::{ImplAdventurerMetadata}};
     use starknet::ContractAddress;
 
-    use tournament::ls15_components::loot_survivor::loot_survivor_component;
+    use ls_tournaments_v0::ls15_components::loot_survivor::loot_survivor_component;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
 

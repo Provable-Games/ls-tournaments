@@ -3,28 +3,28 @@ import useUIStore from "@/hooks/useUIStore";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
-import { InputTokenModel } from "@/generated/models.gen";
+import { InputToken } from "@/generated/models.gen";
 import { Button } from "@/components/buttons/Button";
+import { useDojo } from "@/DojoContext";
 
 interface TokenDialogProps {
-  selectedToken: InputTokenModel;
-  setSelectedToken: React.Dispatch<
-    React.SetStateAction<InputTokenModel | null>
-  >;
+  selectedToken: InputToken;
+  setSelectedToken: React.Dispatch<React.SetStateAction<InputToken | null>>;
   type?: "erc20" | "erc721";
 }
 
 const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
   const { setInputDialog } = useUIStore();
+  const { nameSpace } = useDojo();
   const state = useDojoStore();
   const [selectedType, setSelectedType] = useState<"erc20" | "erc721">("erc20");
 
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
   const filteredTokens = tokens.filter((token) => {
     if (type) {
       return (
-        (token.models.tournament.TokenModel
+        (token.models.tournament.Token
           ?.token_data_type as unknown as string) === type
       );
     }
@@ -57,14 +57,14 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
           .filter((token) => {
             if (!type) {
               return (
-                (token.models.tournament.TokenModel
+                (token.models[nameSpace].Token
                   ?.token_data_type as unknown as string) === selectedType
               );
             }
             return true;
           })
           .map((token) => {
-            const tokenModel = token.models.tournament.TokenModel!;
+            const tokenModel = token.models[nameSpace].Token!;
             return (
               <div
                 className={`w-full flex flex-col hover:bg-terminal-green/10 hover:cursor-pointer px-5 py-2 ${
@@ -74,7 +74,7 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
                 }`}
                 key={token.entityId}
                 onClick={() => {
-                  setSelectedToken(tokenModel as InputTokenModel);
+                  setSelectedToken(tokenModel as InputToken);
                   setInputDialog(null);
                 }}
               >

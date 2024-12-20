@@ -6,6 +6,7 @@ import { CairoCustomEnum } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
 import { TokenDataTypeEnum } from "@/generated/models.gen";
+import { useDojo } from "@/DojoContext";
 
 interface PrizeProps {
   onSubmit: (prizes: Prize[]) => void;
@@ -13,6 +14,7 @@ interface PrizeProps {
 
 const Prizes = ({ onSubmit }: PrizeProps) => {
   const state = useDojoStore((state) => state);
+  const { nameSpace } = useDojo();
 
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [distributions, setDistributions] = useState<Distribution[]>([
@@ -36,7 +38,7 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
     setTotalAmount(parseInt(e.target.value));
   };
 
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
   const prizes: Prize[] = distributions
     .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
@@ -75,7 +77,7 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
       </div>
       <div className="h-20 px-10 w-full flex flex-row items-center gap-5">
         {tokens.map((token) => {
-          const tokenModel = token.models.tournament.TokenModel;
+          const tokenModel = token.models[nameSpace].Token;
           return (
             <Button
               key={token.entityId}

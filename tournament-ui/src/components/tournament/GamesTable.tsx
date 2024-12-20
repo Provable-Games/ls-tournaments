@@ -8,9 +8,7 @@ interface GamesTableProps {
 }
 
 const GamesTable = ({ adventurersData }: GamesTableProps) => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig, nameSpace } = useDojo();
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
@@ -59,7 +57,7 @@ const GamesTable = ({ adventurersData }: GamesTableProps) => {
                 pagedAdventurers.map((data: any, index: any) => {
                   const adventurer = isMainnet
                     ? data
-                    : data.models.tournament.AdventurerModel;
+                    : data.models[nameSpace].AdventurerModel;
                   return (
                     <GameRow
                       key={index}

@@ -5,8 +5,10 @@ import Pagination from "@/components/table/Pagination";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { bigintToHex } from "@/lib/utils";
 import { addAddressPadding } from "starknet";
+import { useDojo } from "@/DojoContext";
 
 const UpcomingTable = () => {
+  const { nameSpace } = useDojo();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const hexTimestamp = useMemo(
     () => bigintToHex(BigInt(new Date().getTime()) / 1000n),
@@ -16,9 +18,14 @@ const UpcomingTable = () => {
   //   useGetUpcomingTournamentsQuery(hexTimestamp);
   const state = useDojoStore();
   const upcomingTournaments = state.getEntities((entity) => {
-    const startTime = entity.models.tournament.TournamentModel?.start_time!;
+    const startTime = entity.models[nameSpace].Tournament?.start_time!;
     return startTime > addAddressPadding(hexTimestamp);
   });
+
+  const tournamentPrizesEntities = state.getEntitiesByModel(
+    nameSpace,
+    "TournamentPrize"
+  );
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
@@ -67,9 +74,12 @@ const UpcomingTable = () => {
               {upcomingTournaments && upcomingTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
                   const tournamentModel =
-                    tournament.models.tournament.TournamentModel;
-                  const tournamentPrizeKeys =
-                    tournament.models.tournament.TournamentPrizeKeysModel;
+                    tournament.models[nameSpace].Tournament;
+                  const tournamentPrizes = tournamentPrizesEntities.filter(
+                    (prize) =>
+                      prize.models[nameSpace].TournamentPrize?.tournament_id ===
+                      tournamentModel?.tournament_id
+                  );
                   return (
                     <UpcomingRow
                       key={tournament.entityId}
@@ -84,7 +94,10 @@ const UpcomingTable = () => {
                       startTime={tournamentModel?.start_time}
                       endTime={tournamentModel?.end_time}
                       entryPremium={tournamentModel?.entry_premium}
-                      prizeKeys={tournamentPrizeKeys?.prize_keys}
+                      prizeKeys={tournamentPrizes?.map(
+                        (prize) =>
+                          prize.models[nameSpace].TournamentPrize?.prize_key
+                      )}
                     />
                   );
                 })

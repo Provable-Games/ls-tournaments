@@ -1,15 +1,15 @@
 use starknet::testing;
-use tournament::ls15_components::constants::{MIN_SUBMISSION_PERIOD};
+use ls_tournaments_v0::ls15_components::constants::{MIN_SUBMISSION_PERIOD};
 
-use tournament::ls15_components::tests::erc20_mock::{IERC20MockDispatcherTrait};
-use tournament::ls15_components::tests::loot_survivor_mock::{ILootSurvivorMockDispatcherTrait};
-use tournament::ls15_components::tests::tournament_mock::{ITournamentMockDispatcherTrait};
-use tournament::ls15_components::tests::test_tournament::setup;
-use tournament::tests::{
+use ls_tournaments_v0::ls15_components::tests::erc20_mock::{IERC20MockDispatcherTrait};
+use ls_tournaments_v0::ls15_components::tests::loot_survivor_mock::{ILootSurvivorMockDispatcherTrait};
+use ls_tournaments_v0::ls15_components::tests::tournament_mock::{ITournamentMockDispatcherTrait};
+use ls_tournaments_v0::ls15_components::tests::test_tournament::setup;
+use ls_tournaments_v0::tests::{
     utils,
     constants::{OWNER, TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, TEST_START_TIME, TEST_END_TIME},
 };
-use tournament::ls15_components::tests::helpers::{create_dead_adventurer_with_xp};
+use ls_tournaments_v0::ls15_components::tests::helpers::{create_dead_adventurer_with_xp};
 
 #[test]
 fn test_submit_multiple_scores_stress_test() {
