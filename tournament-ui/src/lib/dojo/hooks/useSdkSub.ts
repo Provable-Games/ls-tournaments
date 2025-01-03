@@ -26,9 +26,7 @@ export const useSdkSubscribeEntities = ({
   query,
   enabled = true,
 }: UseSdkSubEntitiesProps): UseSdkSubEntitiesResult => {
-  const {
-    setup: { sdk },
-  } = useDojo();
+  const { sdk, nameSpace } = useDojo();
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [entities, setEntities] = useState<EntityResult[] | null>(null);
   const state = useDojoStore((state) => state);
@@ -54,7 +52,7 @@ export const useSdkSubscribeEntities = ({
                 (e: any) =>
                   ({
                     entityId: e.entityId,
-                    ...e.models.tournament,
+                    ...e.models[nameSpace],
                   } as EntityResult)
               )
             );

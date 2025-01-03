@@ -23,9 +23,7 @@ const HorizontalKeyboardControl: React.FC<HorizontalKeyboardControlProps> = ({
   buttonsData,
   disabled,
 }) => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   const navigate = useNavigate();
   const location = useLocation();
   const { play } = useUiSounds(soundSelector.click);

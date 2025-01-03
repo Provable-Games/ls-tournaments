@@ -1,5 +1,5 @@
 use starknet::ContractAddress;
-use tournament::ls15_components::models::tournament::FreeGameTokenType;
+use ls_tournaments_v0::ls15_components::models::tournament::FreeGameTokenType;
 
 // dojo compatible structs
 

@@ -1,19 +1,19 @@
-import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useNavigate } from "react-router-dom";
 import { feltToString, formatTime } from "@/lib/utils";
-import useModel from "@/useModel.ts";
-import { Models, PrizesModel } from "@/generated/models.gen";
 import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries.ts";
+import { bigintToHex } from "@/lib/utils";
+import { addAddressPadding, BigNumberish, CairoOption } from "starknet";
+import { TournamentPrize, Premium } from "@/generated/models.gen";
+import TablePrizes from "@/components/table/Prizes";
 
 interface UpcomingRowProps {
-  tournamentId?: any;
-  name?: any;
-  registrationStartTime?: any;
-  registrationEndTime?: any;
-  startTime?: any;
-  endTime?: any;
-  entryPremium?: any;
-  prizeKeys?: any;
+  tournamentId?: BigNumberish;
+  name?: BigNumberish;
+  registrationStartTime?: BigNumberish;
+  registrationEndTime?: BigNumberish;
+  startTime?: BigNumberish;
+  endTime?: BigNumberish;
+  entryPremium?: CairoOption<Premium>;
 }
 
 const UpcomingRow = ({
@@ -23,8 +23,7 @@ const UpcomingRow = ({
   registrationEndTime,
   startTime,
   endTime,
-  // entryPremium,
-  prizeKeys,
+  entryPremium,
 }: UpcomingRowProps) => {
   const navigate = useNavigate();
   const currentTime = new Date().getTime();
@@ -35,14 +34,14 @@ const UpcomingRow = ({
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(startTimestamp));
-  const { entities: tournamentDetails } =
-    useGetTournamentDetailsQuery(tournamentId);
+  const { entities: tournamentDetails } = useGetTournamentDetailsQuery(
+    addAddressPadding(bigintToHex(tournamentId ?? 0))
+  );
   const entryIndex =
-    tournamentDetails?.findIndex((detail) => detail.TournamentEntriesModel) ??
-    -1;
+    tournamentDetails?.findIndex((detail) => detail.TournamentEntries) ?? -1;
   const tournamentEntries =
     tournamentDetails && entryIndex !== -1
-      ? tournamentDetails[entryIndex].TournamentEntriesModel
+      ? tournamentDetails[entryIndex].TournamentEntries
       : { entry_count: 0 };
 
   const status =
@@ -51,9 +50,15 @@ const UpcomingRow = ({
       : registrationEndTimestamp < currentTime
       ? "Closed"
       : "Open";
+
+  const prizes: TournamentPrize[] = (tournamentDetails
+    ?.filter((detail) => detail.TournamentPrize)
+    .map((detail) => detail.TournamentPrize) ??
+    []) as unknown as TournamentPrize[];
+
   return (
     <tr
-      className="h-10 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
+      className="h-8 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
       onClick={() => {
         navigate(`/tournament/${Number(tournamentId)}`);
       }}
@@ -70,36 +75,17 @@ const UpcomingRow = ({
       <td>{status}</td>
       <td>{formatTime(Number(endTime) - Number(startTime))}</td>
       <td>
-        -
-        {/* {entryPremium === "None"
+        {entryPremium?.isNone
           ? "-"
-          : BigInt(entryPremium.Some?.token_amount).toString()} */}
+          : BigInt(entryPremium?.Some?.token_amount ?? 0).toString()}
       </td>
       <td>
-        -
-        {/* {entryPremium === "None"
+        {entryPremium?.isNone
           ? "-"
-          : BigInt(entryPremium.Some?.creator_fee).toString()} */}
+          : BigInt(entryPremium?.Some?.creator_fee ?? 0).toString()}
       </td>
       <td>
-        <div className="flex flex-col gap-2">
-          {prizeKeys ? (
-            prizeKeys?.map((prizeKey: any) => {
-              const entityId = getEntityIdFromKeys([BigInt(prizeKey)]);
-
-              const prize: PrizesModel = useModel(entityId, Models.PrizesModel);
-              // TODO: when token data type data is supported add the details
-              return (
-                <div key={prizeKey}>
-                  {/* {prize?.token_data_type.variant.erc20?.token_amount} */}
-                  {prize ? prize?.token_data_type.toString() : "-"}
-                </div>
-              );
-            })
-          ) : (
-            <p>-</p>
-          )}
-        </div>
+        <TablePrizes prizes={prizes} />
       </td>
     </tr>
   );

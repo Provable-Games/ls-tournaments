@@ -23,9 +23,7 @@ export default function Header() {
   const { connect } = useConnectToSelectedChain();
   const { openMenu } = useControllerMenu();
   const { username } = useControllerUsername();
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   const { tokenBalance } = useUIStore();
 
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
@@ -180,10 +178,10 @@ export default function Header() {
           <Button variant="outline">
             <span className="text-xl">
               {selectedChainConfig.chainId === "WP_LS_TOURNAMENTS_KATANA"
-                ? "Katana"
+                ? "Slot"
                 : selectedChainConfig.chainId === "SN_MAINNET"
                 ? "Mainnet"
-                : "Testnet"}
+                : "Katana"}
             </span>
           </Button>
         </div>

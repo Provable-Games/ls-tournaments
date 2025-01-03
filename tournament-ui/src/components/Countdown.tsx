@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 
 const formatTime = (totalSeconds: number) => {
   const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds - hours * 3600) / 60);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor(
+    (totalSeconds - (days * 86400 + hours * 3600)) / 60
+  );
   const seconds = totalSeconds % 60;
   return (
     <div className="flex flex-row no-text-shadow">
@@ -75,7 +77,7 @@ export const Countdown = ({ targetTime, countDownExpired }: CountdownProps) => {
       <span className="flex flex-col gap-1 items-center justify-center">
         {targetTime ? (
           <>
-            <p
+            <span
               className={`text-4xl ${
                 seconds < 10
                   ? "animate-pulse text-terminal-green"
@@ -83,10 +85,12 @@ export const Countdown = ({ targetTime, countDownExpired }: CountdownProps) => {
               }`}
             >
               {formatTime(seconds)}
-            </p>
+            </span>
           </>
         ) : (
-          <p className="text-6xl animate-pulse text-terminal-yellow">Loading</p>
+          <span className="text-6xl animate-pulse text-terminal-yellow">
+            Loading
+          </span>
         )}
       </span>
     </div>

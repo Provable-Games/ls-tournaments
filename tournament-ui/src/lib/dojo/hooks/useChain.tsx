@@ -55,9 +55,7 @@ export const useChainConfigProvider = (
 };
 
 export const useSelectedChain = () => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   const { isConnecting, isConnected, account, connector } = useAccount();
   const { chain } = useNetwork();
 
@@ -93,9 +91,7 @@ export const useSelectedChain = () => {
 export const useConnectToSelectedChain = (onConnect?: () => void) => {
   const { connect, connectors } = useConnect();
   const { isConnected, isConnecting } = useAccount();
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
 
   const [requestedConnect, setRequestedConnect] = useState(false);
   useEffect(() => {

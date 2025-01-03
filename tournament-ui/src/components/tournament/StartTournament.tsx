@@ -3,10 +3,7 @@ import { Button } from "@/components/buttons/Button";
 import { feltToString, bigintToHex } from "@/lib/utils";
 import { useVRFCost } from "@/hooks/useVRFCost";
 import { useLordsCost } from "@/hooks/useLordsCost";
-import {
-  TournamentEntriesAddressModel,
-  TournamentModel,
-} from "@/generated/models.gen";
+import { TournamentEntriesAddress, Tournament } from "@/generated/models.gen";
 import {
   CairoCustomEnum,
   CairoOption,
@@ -19,15 +16,19 @@ import { TokenDataTypeEnum } from "@/generated/models.gen";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import useUIStore from "@/hooks/useUIStore";
 import { useNavigate } from "react-router-dom";
+import { LORDS, ETH } from "@/components/Icons";
+import { WeaponSelect } from "@/components/tournament/WeaponSelect";
+import { AdventurerName } from "@/components/tournament/AdventurerName";
 
 interface StartTournamentProps {
-  tournamentEntriesAddressModel: TournamentEntriesAddressModel;
-  tournamentModel: TournamentModel;
+  tournamentEntriesAddressModel: TournamentEntriesAddress;
+  tournamentModel: Tournament;
   currentAddressStartCount: BigNumberish;
   entryAddressCount: BigNumberish;
   entryCount: BigNumberish;
   usableGoldenTokens: string[];
   usableBlobertTokens: string[];
+  isSeason: boolean;
 }
 
 const StartTournament = ({
@@ -38,11 +39,12 @@ const StartTournament = ({
   entryCount,
   usableGoldenTokens,
   usableBlobertTokens,
+  isSeason,
 }: StartTournamentProps) => {
   const [customStartCount, setCustomStartCount] = useState(0);
   const { dollarPrice } = useVRFCost();
   const { lordsCost } = useLordsCost();
-  const { tokenBalance } = useUIStore();
+  const { tokenBalance, startTournamentData } = useUIStore();
   const navigate = useNavigate();
 
   const { eth, lords, goldenToken, blobert } = useTournamentContracts();
@@ -53,7 +55,7 @@ const StartTournament = ({
   // lords cost
   const totalGamesCost = lordsCost ? lordsCost * BigInt(entryCount) : 0n;
   const totalGamesAddressCost = lordsCost
-    ? lordsCost * BigInt(entryAddressCount)
+    ? lordsCost * (isSeason ? 1n : BigInt(entryAddressCount))
     : 0n;
   const totalGamesCustomCost = useMemo(
     () => (lordsCost ? lordsCost * BigInt(customStartCount) : 0n),
@@ -116,24 +118,6 @@ const StartTournament = ({
       ? BigInt(dollarPrice) * BigInt(customStartCount) <= tokenBalance.eth
       : false;
   }, [tokenBalance, dollarPrice, customStartCount]);
-
-  const notEnoughBalanceMessage = useMemo(() => {
-    if (!ethBalanceForStartAll && !lordsBalanceForStartAll) {
-      return (
-        <p className="text-terminal-yellow no-text-shadow">
-          Not enough Lords and ETH
-        </p>
-      );
-    } else if (!ethBalanceForStartAll) {
-      return (
-        <p className="text-terminal-yellow no-text-shadow">Not enough ETH</p>
-      );
-    } else if (!lordsBalanceForStartAll) {
-      return (
-        <p className="text-terminal-yellow no-text-shadow">Not enough Lords</p>
-      );
-    }
-  }, [ethBalanceForStartAll, lordsBalanceForStartAll]);
 
   const handleChangeStartCount = (e: any) => {
     setCustomStartCount(e.target.value);
@@ -235,7 +219,9 @@ const StartTournament = ({
           bigintToHex(
             BigInt(currentAddressStartCount) + BigInt(customStartCount)
           )
-        )
+        ),
+        startTournamentData.weapon,
+        startTournamentData.name
       );
     }
   };
@@ -323,7 +309,9 @@ const StartTournament = ({
         new CairoOption(CairoOptionVariant.None),
         slicedUsableGoldenTokens,
         slicedUsableBlobertTokens,
-        entryAddressCount
+        entryAddressCount,
+        startTournamentData.weapon,
+        startTournamentData.name
       );
     }
   };
@@ -408,39 +396,62 @@ const StartTournament = ({
         new CairoOption(CairoOptionVariant.None),
         slicedUsableGoldenTokens,
         slicedUsableBlobertTokens,
-        entryCount
+        entryCount,
+        startTournamentData.weapon,
+        startTournamentData.name
       );
     }
   };
 
   const totalFreeGames = usableGoldenTokens.length + usableBlobertTokens.length;
 
+  console.log(totalGamesAddressCost);
+
   return (
-    <>
+    <div className="flex flex-col h-full">
       <div className="flex flex-col">
         <p className="text-4xl text-center uppercase">Start Tournament</p>
         <div className="w-full bg-terminal-green/50 h-0.5" />
       </div>
-      {tournamentEntriesAddressModel ? (
-        <div className="flex flex-row gap-5">
-          <div className="w-1/2 flex flex-col justify-center gap-5 px-10">
-            <div className="flex flex-row items-center w-full gap-2">
-              <p className="text-xl uppercase text-terminal-green/75 no-text-shadow text-left">
-                My Games Played
-              </p>
-              <div className="flex flex-row items-center gap-2 px-5 uppercase text-2xl">
-                <p className="uppercase text-2xl">
-                  {BigInt(currentAddressStartCount).toString()}
-                </p>
-                /<p> {BigInt(entryAddressCount).toString()}</p>
-              </div>
+      {tournamentEntriesAddressModel || isSeason ? (
+        <div className="flex flex-col h-full">
+          <div className="w-full flex flex-row justify-center gap-5 p-1">
+            <div className="flex flex-col items-center w-1/3">
+              {!isSeason ? (
+                <>
+                  <p className="text-xl uppercase text-terminal-green/75 no-text-shadow text-left">
+                    My Games Played
+                  </p>
+                  <div className="flex flex-row items-center gap-2 px-5 uppercase text-2xl">
+                    <p className="uppercase text-2xl">
+                      {BigInt(currentAddressStartCount).toString()}
+                    </p>
+                    /<p> {BigInt(entryAddressCount).toString()}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="whitespace-nowrap uppercase text-xl text-terminal-green/75 no-text-shadow">
+                      Entry Fee
+                    </p>
+                    <p className="text-lg">100 LORDS</p>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="whitespace-nowrap text-terminal-green/75 no-text-shadow uppercase text-xl">
+                      Requirements
+                    </p>
+                    <p className="text-lg">1 LSVR</p>
+                  </div>
+                </>
+              )}
             </div>
 
-            <div className="flex flex-row items-center gap-5">
+            <div className="flex flex-col items-center w-1/3">
               <p className="text-xl uppercase text-terminal-green/75 no-text-shadow">
                 Total Games Cost
               </p>
-              <div className="relative flex flex-col">
+              <div className="relative flex flex-row gap-5">
                 {freeGameSavings > 0 && (
                   <p className="absolute text-xl top-[-20px] text-terminal-yellow uppercase">
                     {addressGamesCostWithSavings > 0
@@ -450,26 +461,36 @@ const StartTournament = ({
                       : "Free"}
                   </p>
                 )}
-                <p
-                  className={`uppercase text-xl ${
-                    freeGameSavings > 0
-                      ? "line-through text-terminal-green/75 no-text-shadow"
-                      : ""
-                  }`}
-                >
-                  {`${Number(
-                    totalGamesAddressCost / BigInt(10) ** BigInt(18)
-                  )} LORDS`}
-                </p>
-                <p className="uppercase text-xl">
-                  {`$${(
-                    Number(0.5) *
-                    Number(tournamentEntriesAddressModel?.entry_count)
-                  ).toFixed(2)} ETH`}
-                </p>
+                <div className="flex flex-row gap-2 items-center">
+                  <p
+                    className={`uppercase text-xl ${
+                      freeGameSavings > 0
+                        ? "line-through text-terminal-green/75 no-text-shadow"
+                        : ""
+                    }`}
+                  >
+                    {Number(totalGamesAddressCost / BigInt(10) ** BigInt(18))}
+                  </p>
+                  <span className="flex h-5 w-5 fill-current">
+                    <LORDS />
+                  </span>
+                </div>
+                <div className="flex flex-row gap-2 items-center">
+                  <p className="uppercase text-xl">
+                    {`$${(
+                      Number(0.5) *
+                      (isSeason
+                        ? 1
+                        : Number(tournamentEntriesAddressModel?.entry_count))
+                    ).toFixed(2)}`}
+                  </p>
+                  <span className="flex h-5 w-5 fill-current">
+                    <ETH />
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="flex flex-row items-center gap-5">
+            <div className="flex flex-col items-center w-1/3">
               <div className="flex flex-col items-center">
                 <div className="flex flex-row gap-1">
                   <span className="relative h-5 w-5">
@@ -480,44 +501,47 @@ const StartTournament = ({
                     <img src="/blobert.png" alt="blobert" />
                   </span>
                 </div>
-                <p className="text-xl uppercase text-terminal-green/75 no-text-shadow">
-                  Free Games
-                </p>
               </div>
               <p className="text-2xl uppercase">{totalFreeGames}</p>
             </div>
           </div>
-          <div className="w-1/2 flex flex-col items-end justify-center gap-2 p-2">
-            <div className="flex flex-row items-center gap-2 uppercase">
-              {notEnoughBalanceMessage}
-              <Button
-                disabled={
-                  !tournamentEntriesAddressModel ||
-                  entryAddressCount === currentAddressStartCount ||
-                  !ethBalanceForStartAll ||
-                  !lordsBalanceForStartAll
-                }
-                onClick={handleStartTournamentAll}
-              >
-                Start All Games
-              </Button>
+          <div className="w-full bg-terminal-green/50 h-0.5" />
+          <div className="flex flex-col h-full">
+            <div className="flex flex-row">
+              <WeaponSelect />
+              <AdventurerName />
             </div>
-            <div className="flex flex-row items-center gap-2 uppercase">
-              {notEnoughBalanceMessage}
-              <Button
-                disabled={
-                  !tournamentEntriesAddressModel ||
-                  entryAddressCount === currentAddressStartCount ||
-                  !ethBalanceForStartEveryone ||
-                  !lordsBalanceForStartEveryone
-                }
-                onClick={handleStartTournamentForEveryone}
-              >
-                Start For Everyone
-              </Button>
-            </div>
-            <div className="flex flex-row items-center gap-2 whitespace-nowrap uppercase">
-              {notEnoughBalanceMessage}
+            <div className="w-full flex flex-row items-center justify-center gap-2 p-2 h-full">
+              {!isSeason && (
+                <Button
+                  disabled={
+                    !tournamentEntriesAddressModel ||
+                    entryAddressCount === currentAddressStartCount ||
+                    !ethBalanceForStartAll ||
+                    !lordsBalanceForStartAll ||
+                    !startTournamentData.weapon ||
+                    !startTournamentData.name
+                  }
+                  onClick={handleStartTournamentAll}
+                >
+                  Start All Games
+                </Button>
+              )}
+              {!isSeason && (
+                <Button
+                  disabled={
+                    !tournamentEntriesAddressModel ||
+                    entryAddressCount === currentAddressStartCount ||
+                    !ethBalanceForStartEveryone ||
+                    !lordsBalanceForStartEveryone ||
+                    !startTournamentData.weapon ||
+                    !startTournamentData.name
+                  }
+                  onClick={handleStartTournamentForEveryone}
+                >
+                  Start For Everyone
+                </Button>
+              )}
               <p
                 className={`text-xl uppercase text-terminal-green/75 no-text-shadow ${
                   !tournamentEntriesAddressModel ||
@@ -546,7 +570,9 @@ const StartTournament = ({
                   !tournamentEntriesAddressModel ||
                   entryAddressCount === currentAddressStartCount ||
                   !ethBalanceForStartCustom ||
-                  !lordsBalanceForStartCustom
+                  !lordsBalanceForStartCustom ||
+                  !startTournamentData.weapon ||
+                  !startTournamentData.name
                 }
                 onClick={() => handleStartTournamentCustom(customStartCount)}
               >
@@ -564,7 +590,7 @@ const StartTournament = ({
           <Button onClick={() => navigate("/")}>Go to Overview</Button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

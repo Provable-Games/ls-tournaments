@@ -15,15 +15,14 @@ interface ContractAddresses {
   blobert: string;
 }
 
-const TOURNAMENT_SYSTEM_NAME = "LSTournament";
-
 export function useTournamentContracts(): ContractAddresses {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
+
+  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+
+  const TOURNAMENT_SYSTEM_NAME = isMainnet ? "LSTournament" : "tournament_mock";
 
   // Call hooks unconditionally
-  const tournamentMock = useDojoSystem("tournament_mock").contractAddress;
   const ethMock = useDojoSystem("eth_mock").contractAddress;
   const lordsMock = useDojoSystem("lords_mock").contractAddress;
   const lootSurvivorMock = useDojoSystem("loot_survivor_mock").contractAddress;
@@ -37,13 +36,12 @@ export function useTournamentContracts(): ContractAddresses {
     [tournament]
   );
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
   const configModel = useModel(entityId, Models.TournamentConfig);
 
   // Return mock addresses for non-mainnet
   if (!isMainnet) {
     return {
-      tournament: tournamentMock,
+      tournament,
       eth: ethMock,
       lords: lordsMock,
       lootSurvivor: lootSurvivorMock,

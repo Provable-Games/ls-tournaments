@@ -1,9 +1,9 @@
 {
   "world": {
     "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x62b6ebdb34b02e834fa3a62a8ba862c27c6fda39f902ba814903e61956dde4d",
-    "seed": "tournament1",
-    "name": "Tournament",
+    "address": "0x6a9e4c6f0799160ea8ddc43ff982a5f83d7f633e9732ce42701de1288ff705f",
+    "seed": "ls_tournaments_v0",
+    "name": "LS Tournaments V0",
     "entrypoints": [
       "uuid",
       "set_metadata",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x3ec6f61148e0bf0dcf68c31441e28c0d1988fda7081db5fdc137889af5bdad2",
-      "class_hash": "0x61fab53dc0342ee6775afe3d30378179e011285292bc029c28bf962cabd8be0",
+      "address": "0x497bc529e17e59e0924c0a1f9671c7a66208508b731a79373eacfb17ecc7c08",
+      "class_hash": "0x554a1082ed36a7ecec11ad1b7a4ea7e51ca40f7869835e4452a5406fa6c1082",
       "abi": [
         {
           "type": "impl",
@@ -1393,11 +1393,11 @@
         {
           "type": "impl",
           "name": "TournamentImpl",
-          "interface_name": "tournament::ls15_components::tournament::ITournament"
+          "interface_name": "ls_tournaments_v0::ls15_components::tournament::ITournament"
         },
         {
           "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::EntryCriteria",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::EntryCriteria",
           "members": [
             {
               "name": "token_id",
@@ -1411,21 +1411,21 @@
         },
         {
           "type": "struct",
-          "name": "core::array::Span::<tournament::ls15_components::models::tournament::EntryCriteria>",
+          "name": "core::array::Span::<ls_tournaments_v0::ls15_components::models::tournament::EntryCriteria>",
           "members": [
             {
               "name": "snapshot",
-              "type": "@core::array::Array::<tournament::ls15_components::models::tournament::EntryCriteria>"
+              "type": "@core::array::Array::<ls_tournaments_v0::ls15_components::models::tournament::EntryCriteria>"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "tournament::ls15_components::models::tournament::GatedEntryType",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::GatedEntryType",
           "variants": [
             {
               "name": "criteria",
-              "type": "core::array::Span::<tournament::ls15_components::models::tournament::EntryCriteria>"
+              "type": "core::array::Span::<ls_tournaments_v0::ls15_components::models::tournament::EntryCriteria>"
             },
             {
               "name": "uniform",
@@ -1435,7 +1435,7 @@
         },
         {
           "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::GatedToken",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::GatedToken",
           "members": [
             {
               "name": "token",
@@ -1443,7 +1443,7 @@
             },
             {
               "name": "entry_type",
-              "type": "tournament::ls15_components::models::tournament::GatedEntryType"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::GatedEntryType"
             }
           ]
         },
@@ -1469,11 +1469,11 @@
         },
         {
           "type": "enum",
-          "name": "tournament::ls15_components::models::tournament::GatedType",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::GatedType",
           "variants": [
             {
               "name": "token",
-              "type": "tournament::ls15_components::models::tournament::GatedToken"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::GatedToken"
             },
             {
               "name": "tournament",
@@ -1487,11 +1487,11 @@
         },
         {
           "type": "enum",
-          "name": "core::option::Option::<tournament::ls15_components::models::tournament::GatedType>",
+          "name": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::GatedType>",
           "variants": [
             {
               "name": "Some",
-              "type": "tournament::ls15_components::models::tournament::GatedType"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::GatedType"
             },
             {
               "name": "None",
@@ -1511,7 +1511,7 @@
         },
         {
           "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::Premium",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::Premium",
           "members": [
             {
               "name": "token",
@@ -1533,11 +1533,11 @@
         },
         {
           "type": "enum",
-          "name": "core::option::Option::<tournament::ls15_components::models::tournament::Premium>",
+          "name": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::Premium>",
           "variants": [
             {
               "name": "Some",
-              "type": "tournament::ls15_components::models::tournament::Premium"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::Premium"
             },
             {
               "name": "None",
@@ -1547,7 +1547,7 @@
         },
         {
           "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::TournamentModel",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::Tournament",
           "members": [
             {
               "name": "tournament_id",
@@ -1591,11 +1591,11 @@
             },
             {
               "name": "gated_type",
-              "type": "core::option::Option::<tournament::ls15_components::models::tournament::GatedType>"
+              "type": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::GatedType>"
             },
             {
               "name": "entry_premium",
-              "type": "core::option::Option::<tournament::ls15_components::models::tournament::Premium>"
+              "type": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::Premium>"
             }
           ]
         },
@@ -1625,7 +1625,7 @@
         },
         {
           "type": "enum",
-          "name": "tournament::ls15_components::models::tournament::GatedSubmissionType",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::GatedSubmissionType",
           "variants": [
             {
               "name": "token_id",
@@ -1639,11 +1639,11 @@
         },
         {
           "type": "enum",
-          "name": "core::option::Option::<tournament::ls15_components::models::tournament::GatedSubmissionType>",
+          "name": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::GatedSubmissionType>",
           "variants": [
             {
               "name": "Some",
-              "type": "tournament::ls15_components::models::tournament::GatedSubmissionType"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::GatedSubmissionType"
             },
             {
               "name": "None",
@@ -1677,7 +1677,7 @@
         },
         {
           "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::ERC20Data",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::ERC20Data",
           "members": [
             {
               "name": "token_amount",
@@ -1687,7 +1687,7 @@
         },
         {
           "type": "struct",
-          "name": "tournament::ls15_components::models::tournament::ERC721Data",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::ERC721Data",
           "members": [
             {
               "name": "token_id",
@@ -1697,21 +1697,21 @@
         },
         {
           "type": "enum",
-          "name": "tournament::ls15_components::models::tournament::TokenDataType",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::TokenDataType",
           "variants": [
             {
               "name": "erc20",
-              "type": "tournament::ls15_components::models::tournament::ERC20Data"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::ERC20Data"
             },
             {
               "name": "erc721",
-              "type": "tournament::ls15_components::models::tournament::ERC721Data"
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::ERC721Data"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "tournament::ls15_components::tournament::ITournament",
+          "name": "ls_tournaments_v0::ls15_components::tournament::ITournament",
           "items": [
             {
               "type": "function",
@@ -1735,23 +1735,7 @@
               ],
               "outputs": [
                 {
-                  "type": "tournament::ls15_components::models::tournament::TournamentModel"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "tournament_games",
-              "inputs": [
-                {
-                  "name": "tournament_id",
-                  "type": "core::integer::u64"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::array::Array::<core::integer::u64>"
+                  "type": "ls_tournaments_v0::ls15_components::models::tournament::Tournament"
                 }
               ],
               "state_mutability": "view"
@@ -1768,22 +1752,6 @@
               "outputs": [
                 {
                   "type": "core::integer::u64"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "tournament_prize_keys",
-              "inputs": [
-                {
-                  "name": "tournament_id",
-                  "type": "core::integer::u64"
-                }
-              ],
-              "outputs": [
-                {
-                  "type": "core::array::Array::<core::integer::u64>"
                 }
               ],
               "state_mutability": "view"
@@ -1858,11 +1826,11 @@
                 },
                 {
                   "name": "gated_type",
-                  "type": "core::option::Option::<tournament::ls15_components::models::tournament::GatedType>"
+                  "type": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::GatedType>"
                 },
                 {
                   "name": "entry_premium",
-                  "type": "core::option::Option::<tournament::ls15_components::models::tournament::Premium>"
+                  "type": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::Premium>"
                 }
               ],
               "outputs": [
@@ -1882,7 +1850,7 @@
                 },
                 {
                   "name": "gated_submission_type",
-                  "type": "core::option::Option::<tournament::ls15_components::models::tournament::GatedSubmissionType>"
+                  "type": "core::option::Option::<ls_tournaments_v0::ls15_components::models::tournament::GatedSubmissionType>"
                 }
               ],
               "outputs": [],
@@ -1915,6 +1883,14 @@
                 {
                   "name": "blobert_free_game_token_ids",
                   "type": "core::array::Span::<core::integer::u256>"
+                },
+                {
+                  "name": "weapon",
+                  "type": "core::integer::u8"
+                },
+                {
+                  "name": "name",
+                  "type": "core::felt252"
                 }
               ],
               "outputs": [],
@@ -1950,7 +1926,7 @@
                 },
                 {
                   "name": "token_data_type",
-                  "type": "tournament::ls15_components::models::tournament::TokenDataType"
+                  "type": "ls_tournaments_v0::ls15_components::models::tournament::TokenDataType"
                 },
                 {
                   "name": "position",
@@ -2015,13 +1991,13 @@
         },
         {
           "type": "event",
-          "name": "tournament::ls15_components::tournament::tournament_component::Event",
+          "name": "ls_tournaments_v0::ls15_components::tournament::tournament_component::Event",
           "kind": "enum",
           "variants": []
         },
         {
           "type": "event",
-          "name": "tournament::presets::ls_tournament::LSTournament::Event",
+          "name": "ls_tournaments_v0::presets::ls_tournament::LSTournament::Event",
           "kind": "enum",
           "variants": [
             {
@@ -2036,7 +2012,7 @@
             },
             {
               "name": "TournamentEvent",
-              "type": "tournament::ls15_components::tournament::tournament_component::Event",
+              "type": "ls_tournaments_v0::ls15_components::tournament::tournament_component::Event",
               "kind": "nested"
             }
           ]
@@ -2044,10 +2020,10 @@
       ],
       "init_calldata": [
         "1",
-        "1"
+        "0"
       ],
-      "tag": "tournament-LSTournament",
-      "selector": "0x4d91e5e6083e568f5c87da757268b5836ab2964b5f032aea89770b0efc7c1d1",
+      "tag": "ls_tournaments_v0-LSTournament",
+      "selector": "0x44e252a02ec34801b185d890c3a732cfa9e1e29408cfd75d440e8631f309f9b",
       "systems": [
         "dojo_init",
         "upgrade",
@@ -2063,81 +2039,69 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x4766e2104ae737cac443b65f07e78a2de54a19e0df4c0a11be9cedb54818c3",
-      "tag": "tournament-PrizesModel",
-      "selector": "0x1a9358131792728720a66362cf2ddca41d488d4a8c13eaaa2d8730f224449df"
+      "class_hash": "0x7956f8ed7f37e8518ae2136dcb16a62b2789e6845b96eb75b17d12eca655e9c",
+      "tag": "ls_tournaments_v0-Token",
+      "selector": "0x72402936166a4f48922114e029bd0be75b40f94b5ca9a0405d53d953f050443"
     },
     {
       "members": [],
-      "class_hash": "0x79a9e0d86ffe7819e5d3737c204ba8ba285a475dc483177febb8874c588610d",
-      "tag": "tournament-TokenModel",
-      "selector": "0x7f2b49a07370ee5a1e6b35e73bedf96c756ccb2cf65a00a95b83065cfffa782"
+      "class_hash": "0x4d4a0a8c47099122e1e8f4a3d45ac1ca93141f7b70abeab4f4bbb17b82cc2da",
+      "tag": "ls_tournaments_v0-Tournament",
+      "selector": "0x46bbb67b6458ffde3b8b58d00518050e02192443448a63804c1ba2b5539b953"
     },
     {
       "members": [],
-      "class_hash": "0x6c8cd421a29492799f81c1c8754c842ae485eac586aa8162c24d2dfe0cb8252",
-      "tag": "tournament-TournamentConfig",
-      "selector": "0x547cd590eea00da15c7206cf56bafbdacb70341a5648eef169c86d20c7ad77f"
+      "class_hash": "0x5e8fd034ed8b180d523afc47bf0268ccec3c9cccbe02032e2961312a33c2dd9",
+      "tag": "ls_tournaments_v0-TournamentConfig",
+      "selector": "0x69f275ce0a800e8697adbc692c79c98cd48ffb4729a40550c9c314808a782fd"
     },
     {
       "members": [],
-      "class_hash": "0x15045c99caf1ba662af17e0ba29b9725f47fd3f95207b57d2a2ef2387ae09cb",
-      "tag": "tournament-TournamentEntriesAddressModel",
-      "selector": "0x71659e89e02c8054a9ee89b6ef3b04f97025504bfa64f6a44a2c1dbaad60711"
+      "class_hash": "0x38383eb638f50d434181ff5166a8c6b71158a79a4aab5d3bc291a2581c2e7ff",
+      "tag": "ls_tournaments_v0-TournamentEntries",
+      "selector": "0x2ddf0c34cf35099fd776e790b3abb6a8af591dc8f8aff2a9cefce27c2510733"
     },
     {
       "members": [],
-      "class_hash": "0x66f62f2e8782f15fa4f14ebd3213704f711913bf8852f8a12c0930aa7ba384a",
-      "tag": "tournament-TournamentEntriesModel",
-      "selector": "0x787b519928439e6de14689473e9eeb5223091838eed32dace6640ef63e2ac56"
+      "class_hash": "0x50821fc5aa1a025ae7beb574394e83381042f004822dd3807cb69fcb978b854",
+      "tag": "ls_tournaments_v0-TournamentEntriesAddress",
+      "selector": "0x631f3b47deef2f631c928aa360304c2c512e5aad64b5995d623826d8d0fe646"
     },
     {
       "members": [],
-      "class_hash": "0x2e9e1ce1f4afe90bb74e5f90d7f11296d98db41e81a9d2b07bf8f4cbcc94b04",
-      "tag": "tournament-TournamentEntryAddressesModel",
-      "selector": "0x175b45ad6db343cfcff5174d95bc2549b4e8cf525c7907497e29714fd9ea884"
+      "class_hash": "0x4253d7930dcc5138509d4ddea029dfff7eb9f42bac4310cd193f65f154d4955",
+      "tag": "ls_tournaments_v0-TournamentEntryAddresses",
+      "selector": "0x156ce687d6cb36c011554900a376902aa7666cf9b532c7375c88b3ce028effb"
     },
     {
       "members": [],
-      "class_hash": "0x44ddf68d5710e74cc16fc5674dc738c8be3bae56e86ba40b645edccad53026d",
-      "tag": "tournament-TournamentGameModel",
-      "selector": "0x3e94ec58d1d01189e7114beb849991c249f418dce68a2568504b67c4252ffbc"
+      "class_hash": "0x5d3429c57c3a30b94efa92b7275021e6ba023241409d6297a8ba0f274bc5aa3",
+      "tag": "ls_tournaments_v0-TournamentGame",
+      "selector": "0x7100f1dedef972c7f6fd6d0c57fd9506eb85cec9ce48636bca51de2e677e2a4"
     },
     {
       "members": [],
-      "class_hash": "0x2a5caae81f997ca91f32eb1f6f60e5cf1b61050dc97d987d6979d1be86a688e",
-      "tag": "tournament-TournamentModel",
-      "selector": "0x452449132e96ffddd83f75e1471014c0f4752fb593b27aafb0f425e9836c504"
+      "class_hash": "0x4a3963e1b353ecf63157316fe2e7933333cc032df9094bc83718c8ea432ae71",
+      "tag": "ls_tournaments_v0-TournamentPrize",
+      "selector": "0x5ecde74632e5d60ad82d1510494884a7180d92806d2f3ac711cf6b43ff4cac9"
     },
     {
       "members": [],
-      "class_hash": "0x4b1f1c062766f1b787287d21b9de38d818dbeee7d37c4262d0856364cc7a569",
-      "tag": "tournament-TournamentPrizeKeysModel",
-      "selector": "0x10b3843f17a028b62ea3d6db5833c6bea22d61140b0b994e5a69e16bf2bcdc5"
+      "class_hash": "0x7bb696df03b20e5522a7f2a77f0eef18e6605973c7993907fdd2ac165d8cd8b",
+      "tag": "ls_tournaments_v0-TournamentScores",
+      "selector": "0x5e05f7556f95c051f15aa076b5c211fcba49459a665fbdbb18b903477d0eb71"
     },
     {
       "members": [],
-      "class_hash": "0x6ea2fb94513d419182e01e6575746f75eff98eb0f39690038e8a495c04f4e08",
-      "tag": "tournament-TournamentScoresModel",
-      "selector": "0x39b0a2c2f4017e26ed1130316f14fcfec08d95641ed83c6feaef21f1bd88f08"
+      "class_hash": "0x27401a442852b1936590103b372845c097ad930205957fd4cafbf8ebb45691b",
+      "tag": "ls_tournaments_v0-TournamentStartsAddress",
+      "selector": "0xb25d99bf5adb2902574af6b8d543650f1bed4f75bbe9fe652f59877f9558c7"
     },
     {
       "members": [],
-      "class_hash": "0x5386af0a072f5b2c4421d03d202b255450f0df747da6c6a8c8b111e96462d05",
-      "tag": "tournament-TournamentStartIdsModel",
-      "selector": "0x719510df98fc502f639f308423cf7bbade37f1aec860bdaf5a808fa98ac9bb5"
-    },
-    {
-      "members": [],
-      "class_hash": "0x4950bc11bd7f1b882b0568a6dcb729632375ed1e7342847ef0bfe518efba1d0",
-      "tag": "tournament-TournamentStartsAddressModel",
-      "selector": "0x44f795f6b0fa3ee06bc882e7ed44a1b6fd870482f6a9e73e4dc92b3e84b1421"
-    },
-    {
-      "members": [],
-      "class_hash": "0x19df61623fab0c370d90f46bec4b961e7f5108dcaa2f39d3f337485db382804",
-      "tag": "tournament-TournamentTotalsModel",
-      "selector": "0x5635b69aebcc262c6c518af7c6454723ddf084e47a8db84c4030cd590ae24ba"
+      "class_hash": "0x127910179e1bd258b80c98f6dc5b433ccbfe5f8dd136124f9d8898248e1ead0",
+      "tag": "ls_tournaments_v0-TournamentTotals",
+      "selector": "0x2680e1f229a757e8be3d0e2547f43337cb6fcaea57dc6127699f47e06a00868"
     }
   ],
   "events": []

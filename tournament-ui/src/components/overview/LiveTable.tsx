@@ -2,17 +2,18 @@ import { useMemo, useState } from "react";
 import LiveRow from "@/components/overview/LiveRow";
 import Pagination from "@/components/table/Pagination";
 import { useDojoStore } from "@/hooks/useDojoStore";
-// import { useGetLiveTournamentsQuery } from "@/hooks/useSdkQueries";
 import { bigintToHex } from "@/lib/utils";
 import { addAddressPadding } from "starknet";
+import { useDojo } from "@/DojoContext";
 
 const LiveTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const { nameSpace } = useDojo();
   const hexTimestamp = bigintToHex(BigInt(new Date().getTime()) / 1000n);
   const state = useDojoStore((state) => state);
   const liveTournaments = state.getEntities((entity) => {
-    const startTime = entity.models.tournament.TournamentModel?.start_time!;
-    const endTime = entity.models.tournament.TournamentModel?.end_time!;
+    const startTime = entity.models?.[nameSpace]?.Tournament?.start_time!;
+    const endTime = entity.models?.[nameSpace]?.Tournament?.end_time!;
     return (
       startTime < addAddressPadding(hexTimestamp) &&
       endTime > addAddressPadding(hexTimestamp)
@@ -53,7 +54,6 @@ const LiveTable = () => {
               <tr>
                 <th className="px-2 text-left">Name</th>
                 <th className="text-left">Games Played</th>
-                <th className="text-left">Top Scores</th>
                 <th className="text-left">Prizes</th>
                 <th className="text-left">Time Left</th>
               </tr>
@@ -62,14 +62,13 @@ const LiveTable = () => {
               {liveTournaments && liveTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
                   const tournamentModel =
-                    tournament.models.tournament.TournamentModel;
+                    tournament.models[nameSpace].Tournament;
                   return (
                     <LiveRow
                       key={tournament.entityId}
                       tournamentId={tournamentModel?.tournament_id}
                       name={tournamentModel?.name}
                       endTime={tournamentModel?.end_time}
-                      winnersCount={tournamentModel?.winners_count}
                     />
                   );
                 })

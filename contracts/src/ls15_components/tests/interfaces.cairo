@@ -2,17 +2,22 @@ use adventurer::{
     adventurer::{Adventurer, ImplAdventurer},
     adventurer_meta::{AdventurerMetadata, ImplAdventurerMetadata}, bag::Bag
 };
-use tournament::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
-use tournament::ls15_components::models::tournament::{
-    TournamentModel, Token, Premium, TokenDataType, GatedType, GatedSubmissionType,
-    FreeGameTokenType
+use ls_tournaments_v0::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
+use ls_tournaments_v0::ls15_components::models::tournament::{
+    Tournament, Premium, TokenDataType, GatedType, GatedSubmissionType, FreeGameTokenType
 };
-use tournament::ls15_components::interfaces::{DataType, PragmaPricesResponse};
+use ls_tournaments_v0::ls15_components::interfaces::{DataType, PragmaPricesResponse};
 
 use starknet::ContractAddress;
 use dojo::world::{WorldStorage, WorldStorageTrait, IWorldDispatcher};
 
-use tournament::ls15_components::libs::utils::ZERO;
+use ls_tournaments_v0::ls15_components::libs::utils::ZERO;
+
+#[derive(Drop, Copy, Serde, Introspect)]
+pub struct Token {
+    pub token: ContractAddress,
+    pub token_data_type: TokenDataType,
+}
 
 #[starknet::interface]
 pub trait IERC20Mock<TState> {
@@ -98,9 +103,8 @@ pub trait ITournamentMock<TState> {
     fn world_dispatcher(self: @TState) -> IWorldDispatcher;
 
     fn total_tournaments(self: @TState) -> u64;
-    fn tournament(self: @TState, tournament_id: u64) -> TournamentModel;
+    fn tournament(self: @TState, tournament_id: u64) -> Tournament;
     fn tournament_entries(self: @TState, tournament_id: u64) -> u64;
-    fn tournament_prize_keys(self: @TState, tournament_id: u64) -> Array<u64>;
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
     fn is_token_registered(self: @TState, token: ContractAddress) -> bool;
     fn create_tournament(
@@ -128,6 +132,8 @@ pub trait ITournamentMock<TState> {
         client_reward_address: ContractAddress,
         golden_token_free_game_ids: Span<u256>,
         blobert_free_game_ids: Span<u256>,
+        weapon: u8,
+        name: felt252,
     );
     fn submit_scores(ref self: TState, tournament_id: u64, game_ids: Array<felt252>);
     fn add_prize(

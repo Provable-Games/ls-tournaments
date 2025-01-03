@@ -11,18 +11,18 @@ interface TournamentTypeProps {
 }
 
 const TournamentType = ({ testMode }: TournamentTypeProps) => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [tournamentType, setTournamentType] = useState(0);
 
   const handleChangeSubmissionPeriod = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setCreateTournamentData({
+      ...createTournamentData,
       [name]: value,
     });
   };
 
-  const sectionDisabled = !formData.tournamentName;
+  const sectionDisabled = !createTournamentData.tournamentName;
 
   return (
     <div className="flex flex-col w-full">
@@ -76,19 +76,19 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
               <DateTimePicker
                 className="w-full bg-terminal-black border border-terminal-green/75 text-terminal-green/75 rounded-none hover:bg-terminal-green animate-none uppercase"
                 granularity="minute"
-                value={formData.startTime}
+                value={createTournamentData.startTime}
                 showOutsideDays={false}
                 onChange={(value) => {
                   if (tournamentType === 0) {
-                    setFormData({
-                      ...formData,
+                    setCreateTournamentData({
+                      ...createTournamentData,
                       // delay by the min start time delay
                       registrationStartTime: undefined,
                       startTime: value,
                     });
                   } else {
-                    setFormData({
-                      ...formData,
+                    setCreateTournamentData({
+                      ...createTournamentData,
                       registrationStartTime: value,
                       startTime: value,
                     });
@@ -104,35 +104,35 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
               <DateTimePicker
                 className="w-full bg-terminal-black border border-terminal-green/75 text-terminal-green/75 rounded-none hover:bg-terminal-green animate-none uppercase"
                 granularity="minute"
-                value={formData.endTime}
+                value={createTournamentData.endTime}
                 showOutsideDays={false}
                 onChange={(value) => {
                   if (tournamentType === 0) {
-                    setFormData({
-                      ...formData,
-                      registrationEndTime: formData.startTime,
+                    setCreateTournamentData({
+                      ...createTournamentData,
+                      registrationEndTime: createTournamentData.startTime,
                       endTime: value,
                     });
                   } else {
-                    setFormData({
-                      ...formData,
+                    setCreateTournamentData({
+                      ...createTournamentData,
                       registrationEndTime: value,
                       endTime: value,
                     });
                   }
                 }}
-                disabled={sectionDisabled || !formData.startTime}
+                disabled={sectionDisabled || !createTournamentData.startTime}
               />
             </div>
-            {formData.startTime && formData.endTime && (
+            {createTournamentData.startTime && createTournamentData.endTime && (
               <div className="flex flex-row items-center gap-2 uppercase">
                 <span className="w-5 h-5 text-terminal-green">
                   <ClockIcon />
                 </span>
                 <p className="text-lg">
                   {formatTime(
-                    (formData.endTime.getTime() -
-                      formData.startTime.getTime()) /
+                    (createTournamentData.endTime.getTime() -
+                      createTournamentData.startTime.getTime()) /
                       1000
                   )}
                 </p>
@@ -149,16 +149,18 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                 <div className="flex flex-row items-center gap-2">
                   <Button
                     variant={
-                      formData.submissionPeriod === 86400 ? "default" : "token"
+                      createTournamentData.submissionPeriod === 86400
+                        ? "default"
+                        : "token"
                     }
                     onClick={() =>
-                      setFormData({
-                        ...formData,
+                      setCreateTournamentData({
+                        ...createTournamentData,
                         submissionPeriod: 86400,
                       })
                     }
                     className={`border-terminal-green/75 w-14 !p-2 ${
-                      formData.submissionPeriod === 86400
+                      createTournamentData.submissionPeriod === 86400
                         ? "text-terminal-black"
                         : "text-terminal-green/75"
                     }`}
@@ -168,16 +170,18 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                   </Button>
                   <Button
                     variant={
-                      formData.submissionPeriod === 259200 ? "default" : "token"
+                      createTournamentData.submissionPeriod === 259200
+                        ? "default"
+                        : "token"
                     }
                     onClick={() =>
-                      setFormData({
-                        ...formData,
+                      setCreateTournamentData({
+                        ...createTournamentData,
                         submissionPeriod: 259200,
                       })
                     }
                     className={`border-terminal-green/75 w-14 !p-2 ${
-                      formData.submissionPeriod === 259200
+                      createTournamentData.submissionPeriod === 259200
                         ? "text-terminal-black"
                         : "text-terminal-green/75"
                     }`}
@@ -187,16 +191,18 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                   </Button>
                   <Button
                     variant={
-                      formData.submissionPeriod === 604800 ? "default" : "token"
+                      createTournamentData.submissionPeriod === 604800
+                        ? "default"
+                        : "token"
                     }
                     onClick={() =>
-                      setFormData({
-                        ...formData,
+                      setCreateTournamentData({
+                        ...createTournamentData,
                         submissionPeriod: 604800,
                       })
                     }
                     className={`border-terminal-green/75 w-14 !p-2 ${
-                      formData.submissionPeriod === 604800
+                      createTournamentData.submissionPeriod === 604800
                         ? "text-terminal-black"
                         : "text-terminal-green/75"
                     }`}
@@ -223,12 +229,19 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
               </p>
               <div className="flex flex-row w-full items-center gap-2">
                 <Button
-                  variant={formData.scoreboardSize === 1 ? "default" : "token"}
+                  variant={
+                    createTournamentData.scoreboardSize === 1
+                      ? "default"
+                      : "token"
+                  }
                   onClick={() =>
-                    setFormData({ ...formData, scoreboardSize: 1 })
+                    setCreateTournamentData({
+                      ...createTournamentData,
+                      scoreboardSize: 1,
+                    })
                   }
                   className={`border-terminal-green/75 ${
-                    formData.scoreboardSize === 1
+                    createTournamentData.scoreboardSize === 1
                       ? "text-terminal-black"
                       : "text-terminal-green/75"
                   }`}
@@ -237,12 +250,19 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                   1
                 </Button>
                 <Button
-                  variant={formData.scoreboardSize === 3 ? "default" : "token"}
+                  variant={
+                    createTournamentData.scoreboardSize === 3
+                      ? "default"
+                      : "token"
+                  }
                   onClick={() =>
-                    setFormData({ ...formData, scoreboardSize: 3 })
+                    setCreateTournamentData({
+                      ...createTournamentData,
+                      scoreboardSize: 3,
+                    })
                   }
                   className={`border-terminal-green/75 ${
-                    formData.scoreboardSize === 3
+                    createTournamentData.scoreboardSize === 3
                       ? "text-terminal-black"
                       : "text-terminal-green/75"
                   }`}
@@ -251,12 +271,19 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                   3
                 </Button>
                 <Button
-                  variant={formData.scoreboardSize === 10 ? "default" : "token"}
+                  variant={
+                    createTournamentData.scoreboardSize === 10
+                      ? "default"
+                      : "token"
+                  }
                   onClick={() =>
-                    setFormData({ ...formData, scoreboardSize: 10 })
+                    setCreateTournamentData({
+                      ...createTournamentData,
+                      scoreboardSize: 10,
+                    })
                   }
                   className={`border-terminal-green/75 ${
-                    formData.scoreboardSize === 10
+                    createTournamentData.scoreboardSize === 10
                       ? "text-terminal-black"
                       : "text-terminal-green/75"
                   }`}
@@ -264,12 +291,14 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                 >
                   10
                 </Button>
-                {formData.scoreboardSize > 0 && (
+                {createTournamentData.scoreboardSize > 0 && (
                   <span className="flex flex-row items-center gap-2">
                     <span className="w-5 h-5 text-terminal-green">
                       <TrophyIcon />
                     </span>
-                    <p className="text-2xl">{formData.scoreboardSize}</p>
+                    <p className="text-2xl">
+                      {createTournamentData.scoreboardSize}
+                    </p>
                   </span>
                 )}
               </div>

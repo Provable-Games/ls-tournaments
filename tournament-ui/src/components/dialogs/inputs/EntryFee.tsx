@@ -7,9 +7,12 @@ import { CairoOption, CairoOptionVariant } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
+import { useDojo } from "@/DojoContext";
 
 const EntryFee = () => {
-  const { formData, setFormData, setInputDialog } = useUIStore();
+  const { createTournamentData, setCreateTournamentData, setInputDialog } =
+    useUIStore();
+  const { nameSpace } = useDojo();
   const state = useDojoStore((state) => state);
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
   const [amount, setAmount] = useState<number>(0);
@@ -38,7 +41,7 @@ const EntryFee = () => {
     .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
     .reduce((sum, dist) => sum + dist.percentage, 0);
 
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
   const percentageArray = distributions
     .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
@@ -62,7 +65,7 @@ const EntryFee = () => {
         </div>
         <div className="h-20 px-10 w-full flex flex-row items-center gap-5">
           {tokens.map((token) => {
-            const tokenModel = token.models.tournament.TokenModel;
+            const tokenModel = token.models[nameSpace].Token;
             return (
               <Button
                 key={token.entityId}
@@ -354,8 +357,8 @@ const EntryFee = () => {
               creator_fee: creatorFee,
             });
 
-            setFormData({
-              ...formData,
+            setCreateTournamentData({
+              ...createTournamentData,
               entryFee: entryFeeValue,
             });
             setInputDialog(null);

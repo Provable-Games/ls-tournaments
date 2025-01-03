@@ -1,5 +1,5 @@
 import { useDojoStore } from "./hooks/useDojoStore";
-import { SchemaType } from "./generated/models.gen";
+import { SchemaType, ModelTypes } from "./generated/models.gen";
 
 /**
  * Custom hook to retrieve a specific model for a given entityId within a specified namespace.
@@ -10,8 +10,8 @@ import { SchemaType } from "./generated/models.gen";
  */
 function useModel<
   N extends keyof SchemaType,
-  M extends keyof SchemaType[N] & string
->(entityId: string, model: `${N}-${M}`): SchemaType[N][M] {
+  M extends keyof SchemaType[N] & keyof ModelTypes[N] & string
+>(entityId: string, model: `${N}-${M}`): ModelTypes[N][M] {
   const [namespace, modelName] = model.split("-") as [N, M];
 
   // Select only the specific model data for the given entityId
@@ -19,7 +19,7 @@ function useModel<
     (state) =>
       state.entities[entityId]?.models?.[namespace]?.[
         modelName
-      ] as SchemaType[N][M]
+      ] as unknown as SchemaType[N][M] as unknown as ModelTypes[N][M]
   );
 
   return modelData;

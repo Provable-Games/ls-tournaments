@@ -2,26 +2,29 @@ import { ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
-import { Prize } from "@/lib/types";
-import { InputTokenModel, TokenDataTypeEnum } from "@/generated/models.gen";
+import {
+  Token,
+  TokenDataTypeEnum,
+  TournamentPrize,
+} from "@/generated/models.gen";
 import SelectToken from "@/components/buttons/SelectToken";
 import { BigNumberish, CairoCustomEnum } from "starknet";
 import { calculatePayouts } from "@/lib/utils";
-import PrizeBoxes from "@/components/create/PrizeBoxes";
+import PrizeBoxes from "@/components/box/PrizeBoxes";
 
 interface TournamentPrizesProps {
   tournamentCount: BigNumberish;
 }
 
 const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [prizesDisabled, setPrizesDisabled] = useState(true);
   const [prizeIndex, setPrizeIndex] = useState<number>(0);
   const [prizesList, setPrizesList] = useState<
     Record<
       number,
       {
-        selectedToken: InputTokenModel | null;
+        selectedToken: Token | null;
         amount: number;
         distributionWeight: number;
         position: number;
@@ -56,7 +59,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
       },
     }));
   };
-  const scoreboardSize = formData.scoreboardSize;
+  const scoreboardSize = createTournamentData.scoreboardSize;
   const currentPrize = prizesList[prizeIndex];
 
   const payouts = useMemo(
@@ -64,27 +67,29 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
     [scoreboardSize, currentPrize.distributionWeight]
   );
 
-  const formattedERC20Prizes: Prize[] = useMemo(
+  const formattedERC20Prizes: TournamentPrize[] = useMemo(
     () =>
       payouts.map((dist, index) => {
         const tokenDataType = new CairoCustomEnum({
           erc20: {
-            token_amount: (currentPrize.amount * dist) / 100,
+            token_amount: (currentPrize.amount * 10 ** 18 * dist) / 100,
           },
           erc721: undefined,
         }) as TokenDataTypeEnum;
 
         return {
-          tournamentId: Number(BigInt(tournamentCount) + 1n),
+          tournament_id: Number(BigInt(tournamentCount) + 1n),
           token: currentPrize.selectedToken?.token!,
-          position: index + 1,
-          tokenDataType,
+          payout_position: index + 1,
+          token_data_type: tokenDataType,
+          prize_key: "",
+          claimed: false,
         };
       }),
     [payouts, currentPrize]
   );
 
-  const formattedERC721Prizes: Prize[] = useMemo(() => {
+  const formattedERC721Prizes: TournamentPrize[] = useMemo(() => {
     const tokenDataType = new CairoCustomEnum({
       erc20: undefined,
       erc721: {
@@ -93,20 +98,22 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
     }) as TokenDataTypeEnum;
     return [
       {
-        tournamentId: Number(BigInt(tournamentCount) + 1n),
+        tournament_id: Number(BigInt(tournamentCount) + 1n),
         token: currentPrize.selectedToken?.token!,
-        position: currentPrize.position,
-        tokenDataType,
+        payout_position: currentPrize.position,
+        token_data_type: tokenDataType,
+        prize_key: "",
+        claimed: false,
       },
     ];
-  }, []);
+  }, [currentPrize]);
 
   const sectionDisabled =
-    !formData.tournamentName ||
-    !formData.startTime ||
-    !formData.endTime ||
-    !formData.submissionPeriod ||
-    !formData.scoreboardSize;
+    !createTournamentData.tournamentName ||
+    !createTournamentData.startTime ||
+    !createTournamentData.endTime ||
+    !createTournamentData.submissionPeriod ||
+    !createTournamentData.scoreboardSize;
 
   useEffect(() => {
     if (prizesDisabled) {
@@ -176,8 +183,8 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
           <div className="h-full w-0.5 bg-terminal-green/50" />
           {currentPrize.selectedToken && (
             <>
-              {(currentPrize.selectedToken
-                .token_data_type as unknown as string) === "erc20" ? (
+              {currentPrize.selectedToken.token_data_type.activeVariant() ===
+              "erc20" ? (
                 <>
                   <div className="flex flex-col py-2">
                     <p className="text-xl uppercase text-terminal-green/75">
@@ -327,9 +334,12 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                           },
                         }));
                         setPrizeIndex(newIndex);
-                        setFormData({
-                          ...formData,
-                          prizes: [...formData.prizes, ...formattedERC20Prizes],
+                        setCreateTournamentData({
+                          ...createTournamentData,
+                          prizes: [
+                            ...createTournamentData.prizes,
+                            ...formattedERC20Prizes,
+                          ],
                         });
                       }}
                     >
@@ -380,6 +390,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                                 },
                               }));
                             }}
+                            key={index}
                           >
                             <span
                               className={`flex items-center w-4 h-4 text-xl ${
@@ -416,10 +427,10 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                           },
                         }));
                         setPrizeIndex(newIndex);
-                        setFormData({
-                          ...formData,
+                        setCreateTournamentData({
+                          ...createTournamentData,
                           prizes: [
-                            ...formData.prizes,
+                            ...createTournamentData.prizes,
                             ...formattedERC721Prizes,
                           ],
                         });
@@ -435,7 +446,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
         </div>
       </div>
       <div className="absolute w-3/4 justify-end right-0 bottom-[-80px] h-16 flex flex-row gap-2">
-        <PrizeBoxes prizes={formData.prizes} />
+        <PrizeBoxes prizes={createTournamentData.prizes} />
       </div>
     </div>
   );

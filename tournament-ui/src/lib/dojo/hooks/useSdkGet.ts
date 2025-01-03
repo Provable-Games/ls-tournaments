@@ -4,6 +4,7 @@ import { QueryType } from "@dojoengine/sdk";
 import { useDojo } from "@/DojoContext";
 import { SchemaType } from "@/generated/models.gen";
 import { useDojoStore } from "@/hooks/useDojoStore";
+import { OrderBy } from "@dojoengine/torii-wasm";
 
 export type TournamentGetQuery = QueryType<SchemaType>;
 
@@ -25,6 +26,7 @@ export type UseSdkGetEntitiesProps = {
   query: TournamentGetQuery;
   limit?: number;
   offset?: number;
+  orderBy?: OrderBy[];
   enabled?: boolean;
 };
 
@@ -32,11 +34,10 @@ export const useSdkGetEntities = ({
   query,
   limit = 100,
   offset = 0,
+  orderBy = [],
   enabled = true,
 }: UseSdkGetEntitiesProps): UseSdkGetEntitiesResult => {
-  const {
-    setup: { sdk },
-  } = useDojo();
+  const { sdk, nameSpace } = useDojo();
 
   const [isLoading, setIsLoading] = useState(false);
   const [entities, setEntities] = useState<EntityResult[] | null>(null);
@@ -59,12 +60,13 @@ export const useSdkGetEntities = ({
                 (e: any) =>
                   ({
                     entityId: e.entityId,
-                    ...e.models.tournament,
+                    ...e.models[nameSpace],
                   } as EntityResult)
               )
             );
           }
         },
+        orderBy,
         limit,
         offset,
       });

@@ -28,13 +28,13 @@ import StartTournament from "@/components/tournament/StartTournament";
 import SubmitScores from "@/components/tournament/SubmitScores";
 import ClaimPrizes from "@/components/tournament/ClaimPrizes";
 import useFreeGames from "@/hooks/useFreeGames";
+import PrizeBoxes from "@/components/box/PrizeBoxes";
+import { TournamentPrize } from "@/generated/models.gen";
 
 const Tournament = () => {
   const { id } = useParams<{ id: string }>();
   const { account } = useAccount();
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { nameSpace, selectedChainConfig } = useDojo();
   const { setInputDialog } = useUIStore();
   const { usableGoldenTokens, usableBlobertTokens } = useFreeGames();
 
@@ -44,7 +44,9 @@ const Tournament = () => {
   const { tournament } = useTournamentContracts();
 
   // Data fetching
-  useGetTournamentDetailsQuery(addAddressPadding(bigintToHex(id!)));
+  const { entities: tournamentDetails } = useGetTournamentDetailsQuery(
+    addAddressPadding(bigintToHex(id!))
+  );
   useSubscribeTournamentDetailsQuery(addAddressPadding(bigintToHex(id!)));
   useSubscribeTournamentDetailsAddressQuery(
     addAddressPadding(bigintToHex(id!)),
@@ -65,49 +67,43 @@ const Tournament = () => {
     () => getEntityIdFromKeys([BigInt(id!), BigInt(account?.address ?? "0x0")]),
     [id, account?.address]
   );
-  const totalsModel = useModel(contractEntityId, Models.TournamentTotalsModel);
-  const tournamentModel = useModel(tournamentEntityId, Models.TournamentModel);
+  const totalsModel = useModel(contractEntityId, Models.TournamentTotals);
+  const tournamentModel = useModel(tournamentEntityId, Models.Tournament);
   const tournamentEntries = useModel(
     tournamentEntityId,
-    Models.TournamentEntriesModel
-  );
-  const tournamentPrizeKeys = useModel(
-    tournamentEntityId,
-    Models.TournamentPrizeKeysModel
+    Models.TournamentEntries
   );
   const tournamentScores = useModel(
     tournamentEntityId,
-    Models.TournamentScoresModel
+    Models.TournamentScores
   );
   const tournamentEntriesAddressModel = useModel(
     tournamentAddressEntityId,
-    Models.TournamentEntriesAddressModel
-  );
-  const tournamentStartIdsModel = useModel(
-    tournamentAddressEntityId,
-    Models.TournamentStartIdsModel
+    Models.TournamentEntriesAddress
   );
   const tournamentStartsAddressModel = useModel(
     tournamentAddressEntityId,
-    Models.TournamentStartsAddressModel
+    Models.TournamentStartsAddress
   );
   const tournamentAllEntriesEntities = state.getEntitiesByModel(
-    "tournament",
-    "TournamentEntriesAddressModel"
+    nameSpace,
+    "TournamentEntriesAddress"
   );
+  const tournamentGames = state.getEntitiesByModel(nameSpace, "TournamentGame");
   const adventurersTestEntities = state.getEntitiesByModel(
-    "tournament",
+    nameSpace,
     "AdventurerModel"
   );
-  const prizesData = state.getEntitiesByModel("tournament", "PrizesModel");
   const allTournamentEntries = tournamentAllEntriesEntities.filter(
     (entry: any) =>
-      entry.models.tournament.TournamentEntriesAddressModel.tournament_id ===
+      entry.models[nameSpace].TournamentEntriesAddress.tournament_id ===
       tournamentModel?.tournament_id
   );
 
   // Handle get adventurer scores fir account
-  const addressGameIds = tournamentStartIdsModel?.game_ids;
+  const addressGameIds = tournamentGames?.map(
+    (game: any) => game.models[nameSpace].TournamentGame.game_id
+  );
   const formattedGameIds = addressGameIds?.map((id: any) => Number(id));
 
   const adventurersListVariables = useMemo(() => {
@@ -158,6 +154,13 @@ const Tournament = () => {
 
   const isSeason =
     tournamentModel?.start_time === tournamentModel?.registration_start_time;
+
+  const prizes: TournamentPrize[] = (tournamentDetails
+    ?.filter((detail) => detail.TournamentPrize)
+    .map((detail) => detail.TournamentPrize) ??
+    []) as unknown as TournamentPrize[];
+
+  console.log(prizes);
 
   if (!tournamentModel?.tournament_id)
     return (
@@ -304,18 +307,16 @@ const Tournament = () => {
               <p className="text-xl text-terminal-green/75 no-text-shadow uppercase">
                 Prizes
               </p>
-              {tournamentPrizeKeys ? (
-                <p className="text-lg">
-                  {tournamentPrizeKeys?.prize_keys.map((key: any) =>
-                    feltToString(key)
-                  )}
-                </p>
+              {prizes && prizes.length > 0 ? (
+                <div className="flex flex-row gap-2">
+                  <PrizeBoxes prizes={prizes} />
+                </div>
               ) : (
                 <p className="text-lg uppercase">No Prizes Added</p>
               )}
             </div>
           </div>
-          {!started && (
+          {!ended && (
             <div className="absolute top-2 right-2">
               <Button
                 className="bg-terminal-green/25 text-terminal-green hover:text-terminal-black"
@@ -364,21 +365,21 @@ const Tournament = () => {
               entryCount={entryCount}
               usableGoldenTokens={usableGoldenTokens}
               usableBlobertTokens={usableBlobertTokens}
+              isSeason={isSeason}
             />
           ) : isSubmissionLive ? (
             <SubmitScores
               tournamentModel={tournamentModel}
-              tournamentEntriesAddressModel={tournamentEntriesAddressModel}
-              tournamentStartIdsModel={tournamentStartIdsModel}
+              tournamentEntriesAddress={tournamentEntriesAddressModel}
               currentAddressStartCount={currentAddressStartCount}
               tournamentScores={tournamentScores}
+              addressGameIds={addressGameIds}
               adventurersData={adventurersData}
             />
           ) : (
             <ClaimPrizes
-              tournamentPrizeKeys={tournamentPrizeKeys}
+              tournamentPrizes={prizes}
               tournamentModel={tournamentModel}
-              prizesData={prizesData}
             />
           )}
         </div>

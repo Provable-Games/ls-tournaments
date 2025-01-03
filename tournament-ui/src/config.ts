@@ -43,9 +43,7 @@ export enum ChainId {
 // TODO: fix for running between katana and mainnet
 const supportedChainIds: ChainId[] = [
   ChainId.KATANA_LOCAL,
-  // ChainId.SN_SEPOLIA,
   ChainId.WP_LS_TOURNAMENTS_KATANA,
-  // ChainId.TOURNAMENT_STAGING,
   ChainId.SN_MAINNET,
 ];
 
@@ -115,7 +113,7 @@ const manifests: Record<ChainId, DojoManifest> = {
   [ChainId.SN_MAINNET]: tournament_manifest_mainnet as DojoManifest,
 };
 
-const NAMESPACE = "tournament";
+const NAMESPACE = "ls_tournaments_v0";
 
 let katanaContractInterfaces: ContractInterfaces = {
   tournament_mock: ["ITournamentMock"],
@@ -239,7 +237,7 @@ const snMainnetConfig: DojoChainConfig = {
   chainId: ChainId.SN_MAINNET,
   name: "Mainnet",
   rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-  toriiUrl: "https://api.cartridge.gg/x/ls-tournaments/torii",
+  toriiUrl: "https://api.cartridge.gg/x/realms-world-04/torii",
   relayUrl: undefined,
   blastRpc:
     "https://starknet-mainnet.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",

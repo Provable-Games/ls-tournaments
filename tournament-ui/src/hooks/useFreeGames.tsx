@@ -8,9 +8,7 @@ import { getOwnerTokens } from "@/hooks/graphql/queries";
 import { useLSQuery } from "@/hooks/useLSQuery";
 
 const useFreeGames = () => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   const { account } = useAccount();
   const { tokenBalance } = useUIStore();
   const { provider } = useProvider();

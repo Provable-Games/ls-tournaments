@@ -2,27 +2,25 @@ import { useMemo } from "react";
 import { Button } from "@/components/buttons/Button";
 import { useSystemCalls } from "@/useSystemCalls";
 import { feltToString } from "@/lib/utils";
-import {
-  TournamentPrizeKeysModel,
-  TournamentModel,
-  PrizesModel,
-} from "@/generated/models.gen";
+import { Tournament, TournamentPrize } from "@/generated/models.gen";
+import { useDojo } from "@/DojoContext";
 
 interface ClaimPrizesProps {
-  tournamentPrizeKeys: TournamentPrizeKeysModel;
-  tournamentModel: TournamentModel;
-  prizesData: any;
+  tournamentPrizes: TournamentPrize[];
+  tournamentModel: Tournament;
 }
 
 const ClaimPrizes = ({
-  tournamentPrizeKeys,
+  tournamentPrizes,
   tournamentModel,
-  prizesData,
 }: ClaimPrizesProps) => {
+  const { nameSpace } = useDojo();
   const { distributePrizes } = useSystemCalls();
 
   const handleDistributeAllPrizes = async () => {
-    const prizeKeys = tournamentPrizeKeys?.prize_keys;
+    const prizeKeys = tournamentPrizes?.map(
+      (prize: any) => prize.models[nameSpace].TournamentPrize.prize_key
+    );
     await distributePrizes(
       tournamentModel?.tournament_id!,
       feltToString(tournamentModel?.name!),
@@ -30,25 +28,23 @@ const ClaimPrizes = ({
     );
   };
 
-  const unclaimedPrizes = useMemo<PrizesModel[]>(() => {
+  const unclaimedPrizes = useMemo<TournamentPrize[]>(() => {
     return (
-      prizesData
-        ?.filter((entity: any) => {
-          const prizeModel = entity.models.tournament.PrizesModel;
-          return (
-            !prizeModel.claimed &&
-            tournamentPrizeKeys?.prize_keys?.includes(prizeModel.prize_key)
-          );
+      tournamentPrizes
+        ?.filter((prize: any) => {
+          const prizeModel = prize.models[nameSpace].TournamentPrize;
+          return !prizeModel.claimed;
         })
         .map(
-          (entity: any) => entity.models.tournament.PrizesModel as PrizesModel
+          (entity: any) =>
+            entity.models[nameSpace].PrizesModel as TournamentPrize
         ) ?? []
     );
-  }, [prizesData, tournamentPrizeKeys?.prize_keys]);
+  }, [tournamentPrizes]);
 
   return (
     <>
-      {tournamentPrizeKeys ? (
+      {tournamentPrizes && tournamentPrizes.length > 0 ? (
         <>
           <div className="flex flex-col">
             <p className="text-4xl text-center uppercase">Claim Prizes</p>
@@ -57,7 +53,7 @@ const ClaimPrizes = ({
           <div className="flex flex-row gap-5">
             <Button
               onClick={handleDistributeAllPrizes}
-              disabled={!tournamentPrizeKeys || unclaimedPrizes.length === 0}
+              disabled={!tournamentPrizes || unclaimedPrizes.length === 0}
             >
               Distribute Prizes
             </Button>

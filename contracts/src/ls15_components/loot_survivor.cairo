@@ -1,8 +1,8 @@
 use starknet::ContractAddress;
-use tournament::ls15_components::models::loot_survivor::{
+use ls_tournaments_v0::ls15_components::models::loot_survivor::{
     Adventurer, AdventurerMetadataStorage, Bag
 };
-use tournament::ls15_components::models::tournament::FreeGameTokenType;
+use ls_tournaments_v0::ls15_components::models::tournament::FreeGameTokenType;
 use adventurer::{adventurer_meta::AdventurerMetadata};
 
 #[starknet::interface]
@@ -47,14 +47,14 @@ pub mod loot_survivor_component {
 
     use adventurer::{adventurer_meta::AdventurerMetadata};
 
-    use tournament::ls15_components::models::loot_survivor::{
+    use ls_tournaments_v0::ls15_components::models::loot_survivor::{
         Adventurer, AdventurerMetadataStorage, Bag, Stats, Equipment, Item, AdventurerModel,
         AdventurerMetaModel, BagModel, GameCountModel, FreeGameAvailableModel, Contracts
     };
-    use tournament::ls15_components::models::tournament::FreeGameTokenType;
-    use tournament::ls15_components::interfaces::{WorldTrait, WorldImpl};
-    use tournament::ls15_components::tests::libs::store::{Store, StoreTrait};
-    use tournament::ls15_components::libs::utils::{pow};
+    use ls_tournaments_v0::ls15_components::models::tournament::FreeGameTokenType;
+    use ls_tournaments_v0::ls15_components::interfaces::{WorldTrait, WorldImpl};
+    use ls_tournaments_v0::ls15_components::tests::libs::store::{Store, StoreTrait};
+    use ls_tournaments_v0::ls15_components::libs::utils::{pow};
 
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::{
@@ -62,8 +62,8 @@ pub mod loot_survivor_component {
     };
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
-    use tournament::ls15_components::constants::{VRF_COST_PER_GAME};
-    use tournament::ls15_components::interfaces::{
+    use ls_tournaments_v0::ls15_components::constants::{VRF_COST_PER_GAME, DEFAULT_NS};
+    use ls_tournaments_v0::ls15_components::interfaces::{
         DataType, IPragmaABIDispatcher, IPragmaABIDispatcherTrait
     };
 
@@ -92,7 +92,7 @@ pub mod loot_survivor_component {
             self: @ComponentState<TContractState>, adventurer_id: felt252
         ) -> Adventurer {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store.get_adventurer_model(adventurer_id).adventurer
@@ -102,7 +102,7 @@ pub mod loot_survivor_component {
             self: @ComponentState<TContractState>, adventurer_id: felt252
         ) -> AdventurerMetadata {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             let adventurer_meta = store.get_adventurer_meta_model(adventurer_id).adventurer_meta;
@@ -121,7 +121,7 @@ pub mod loot_survivor_component {
 
         fn get_bag(self: @ComponentState<TContractState>, adventurer_id: felt252) -> Bag {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store.get_bag_model(adventurer_id).bag
@@ -135,7 +135,7 @@ pub mod loot_survivor_component {
             self: @ComponentState<TContractState>, free_game_type: FreeGameTokenType, token_id: u128
         ) -> bool {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store.get_free_game_available_model(free_game_type, token_id).available
@@ -153,7 +153,7 @@ pub mod loot_survivor_component {
             mint_to: ContractAddress
         ) -> felt252 {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             let contracts = store.get_contracts_model(get_contract_address());
@@ -249,7 +249,7 @@ pub mod loot_survivor_component {
             ref self: ComponentState<TContractState>, adventurer_id: felt252, adventurer: Adventurer
         ) {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store.set_adventurer_model(@AdventurerModel { adventurer_id, adventurer });
@@ -261,7 +261,7 @@ pub mod loot_survivor_component {
             adventurer_meta: AdventurerMetadataStorage
         ) {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store
@@ -270,7 +270,7 @@ pub mod loot_survivor_component {
 
         fn set_bag(ref self: ComponentState<TContractState>, adventurer_id: felt252, bag: Bag) {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store.set_bag_model(@BagModel { adventurer_id, bag });
@@ -280,7 +280,7 @@ pub mod loot_survivor_component {
             self: @ComponentState<TContractState>, free_game_type: FreeGameTokenType, token_id: u128
         ) {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store
@@ -304,7 +304,7 @@ pub mod loot_survivor_component {
             pragma_address: ContractAddress
         ) {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             let contracts = Contracts {
@@ -318,7 +318,7 @@ pub mod loot_survivor_component {
 
         fn get_game_count(self: @ComponentState<TContractState>) -> u128 {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             store.get_game_count_model(get_contract_address()).game_count
@@ -327,7 +327,7 @@ pub mod loot_survivor_component {
 
         fn _convert_usd_to_wei(self: @ComponentState<TContractState>, usd: u128) -> u128 {
             let mut world = WorldTrait::storage(
-                self.get_contract().world_dispatcher(), @"tournament"
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
             );
             let mut store: Store = StoreTrait::new(world);
             let contracts = store.get_contracts_model(get_contract_address());

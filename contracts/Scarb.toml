@@ -1,6 +1,6 @@
 [package]
 cairo-version = "=2.8.4"
-name = "tournament"
+name = "ls_tournaments_v0"
 version = "0.0.0"
 edition = "2024_07"
 
@@ -13,12 +13,12 @@ build-external-contracts = ["dojo::world::world_contract::world"]
 openzeppelin_token = "0.18.0"
 # openzeppelin_token = { git = "https://github.com/starknetdev/cairo-contracts", branch = "ls" }
 adventurer = { git = "https://github.com/Provable-Games/loot-survivor" }
-dojo = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.7" }
+dojo = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.9" }
 starknet = "2.8.4"
 
 [dev-dependencies]
 # This package is required to run tests and add dojo utilities to your project in test only.
-dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.7" }
+dojo_cairo_test = { git = "https://github.com/dojoengine/dojo.git", tag = "v1.0.9" }
 
 [features]
 default = []

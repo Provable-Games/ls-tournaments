@@ -1,23 +1,18 @@
 use starknet::get_block_timestamp;
-use tournament::ls15_components::constants::MIN_SUBMISSION_PERIOD;
-use tournament::tests::{
+use ls_tournaments_v0::ls15_components::constants::MIN_SUBMISSION_PERIOD;
+use ls_tournaments_v0::tests::{
     constants::{
         TOURNAMENT_NAME, TOURNAMENT_DESCRIPTION, TEST_REGISTRATION_START_TIME,
         TEST_REGISTRATION_END_TIME, TEST_START_TIME, TEST_END_TIME
     },
 };
-use tournament::ls15_components::tests::interfaces::{
-    IERC20MockDispatcher, IERC20MockDispatcherTrait
-};
-use tournament::ls15_components::tests::interfaces::{
-    IERC721MockDispatcher, IERC721MockDispatcherTrait
-};
-use tournament::ls15_components::tests::interfaces::{
-    ITournamentMockDispatcher, ITournamentMockDispatcherTrait
+use ls_tournaments_v0::ls15_components::tests::interfaces::{
+    IERC20MockDispatcher, IERC20MockDispatcherTrait, IERC721MockDispatcher,
+    IERC721MockDispatcherTrait, ITournamentMockDispatcher, ITournamentMockDispatcherTrait, Token
 };
 use adventurer::{adventurer::Adventurer, equipment::Equipment, item::Item, stats::Stats};
-use tournament::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
-use tournament::ls15_components::models::tournament::{ERC20Data, ERC721Data, Token, TokenDataType};
+use ls_tournaments_v0::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
+use ls_tournaments_v0::ls15_components::models::tournament::{ERC20Data, ERC721Data, TokenDataType};
 
 //
 // Test Helpers

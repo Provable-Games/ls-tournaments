@@ -1,5 +1,5 @@
 use dojo::world::IWorldDispatcher;
-use tournament::ls15_components::interfaces::{DataType, PragmaPricesResponse};
+use ls_tournaments_v0::ls15_components::interfaces::{DataType, PragmaPricesResponse};
 
 #[starknet::interface]
 pub trait IPragmaMock<TState> {
@@ -18,7 +18,7 @@ pub trait IPragmaMockPublic<TState> {
 
 #[dojo::contract]
 pub mod pragma_mock {
-    use tournament::ls15_components::interfaces::{DataType, PragmaPricesResponse};
+    use ls_tournaments_v0::ls15_components::interfaces::{DataType, PragmaPricesResponse};
 
     #[storage]
     struct Storage {}

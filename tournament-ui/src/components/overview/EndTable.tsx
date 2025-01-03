@@ -5,15 +5,17 @@ import Pagination from "@/components/table/Pagination";
 import { bigintToHex } from "@/lib/utils";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { addAddressPadding } from "starknet";
+import { useDojo } from "@/DojoContext";
 
 const EndTable = () => {
+  const { nameSpace } = useDojo();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const hexTimestamp = bigintToHex(BigInt(new Date().getTime()) / 1000n);
   // const { entities: tournaments, isLoading } =
   //   useGetEndedTournamentsQuery(hexTimestamp);
   const state = useDojoStore((state) => state);
   const endedTournaments = state.getEntities((entity) => {
-    const endTime = entity.models.tournament.TournamentModel?.end_time!;
+    const endTime = entity.models?.[nameSpace]?.Tournament?.end_time!;
     return endTime < addAddressPadding(hexTimestamp);
   });
 
@@ -60,7 +62,7 @@ const EndTable = () => {
               {endedTournaments && endedTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
                   const tournamentModel =
-                    tournament.models.tournament.TournamentModel;
+                    tournament.models?.[nameSpace]?.Tournament;
                   return (
                     <EndRow
                       key={tournament.entityId}

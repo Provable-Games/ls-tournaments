@@ -291,7 +291,11 @@ function Calendar({
         caption_label: "text-sm font-medium",
         nav: "space-x-1 flex items-center ",
         day: cn(
-          "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-terminal-green first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 rounded-1 text-terminal-green hover:bg-terminal-green hover:text-terminal-black disabled:invisible"
+          "h-9 w-9 text-center text-sm p-0 relative",
+          "rounded-1 text-terminal-green hover:bg-terminal-green hover:text-terminal-black",
+          "aria-selected:bg-terminal-green aria-selected:text-terminal-black aria-selected:hover:bg-terminal-green/80",
+          "focus-within:relative focus-within:z-20",
+          "disabled:invisible"
         ),
         ...classNames,
       }}

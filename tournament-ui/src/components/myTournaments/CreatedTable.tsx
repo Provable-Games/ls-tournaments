@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { useAccount } from "@starknet-react/core";
-import { addAddressPadding } from "starknet";
-import { useDojoStore } from "@/hooks/useDojoStore";
-// import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
+import { addAddressPadding, CairoOption } from "starknet";
+import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
 import CreatedRow from "@/components/myTournaments/CreatedRow";
 import Pagination from "@/components/table/Pagination";
+import { Premium } from "@/generated/models.gen";
 
 const CreatedTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -13,26 +13,22 @@ const CreatedTable = () => {
     () => addAddressPadding(account?.address ?? "0x0"),
     [account]
   );
-  const state = useDojoStore();
-  // const { entities: tournaments, isLoading } =
-  //   useGetAccountCreatedTournamentsQuery(address);
-  const createdTournaments = state.getEntities((entity) => {
-    const creator = entity.models.tournament.TournamentModel?.creator!;
-    return creator === address;
-  });
+
+  const { entities: tournaments } =
+    useGetAccountCreatedTournamentsQuery(address);
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
 
   const totalPages = useMemo(() => {
-    if (!createdTournaments) return 0;
-    return Math.ceil(createdTournaments.length / 5);
-  }, [createdTournaments]);
+    if (!tournaments) return 0;
+    return Math.ceil(tournaments.length / 5);
+  }, [tournaments]);
 
   const pagedTournaments = useMemo(() => {
-    if (!createdTournaments) return [];
-    return createdTournaments.slice((currentPage - 1) * 5, currentPage * 5);
-  }, [createdTournaments, currentPage]);
+    if (!tournaments) return [];
+    return tournaments.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [tournaments, currentPage]);
 
   return (
     <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
@@ -40,7 +36,7 @@ const CreatedTable = () => {
         <div className="w-1/4"></div>
         <p className="text-4xl">Created Tournaments</p>
         <div className="w-1/4 flex justify-end">
-          {createdTournaments && createdTournaments.length > 10 ? (
+          {tournaments && tournaments.length > 10 ? (
             <Pagination
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -64,21 +60,19 @@ const CreatedTable = () => {
               </tr>
             </thead>
             <tbody>
-              {createdTournaments && createdTournaments.length > 0 ? (
+              {tournaments && tournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel =
-                    tournament.models.tournament.TournamentModel;
-                  const tournamentPrizeKeys =
-                    tournament.models.tournament.TournamentPrizeKeysModel;
                   return (
                     <CreatedRow
                       key={tournament.entityId}
                       entityId={tournament.entityId}
-                      tournamentId={tournamentModel?.tournament_id}
-                      name={tournamentModel?.name}
-                      startTime={tournamentModel?.start_time}
-                      entryPremium={tournamentModel?.entry_premium}
-                      prizeKeys={tournamentPrizeKeys?.prize_keys}
+                      tournamentId={tournament.Tournament?.tournament_id}
+                      name={tournament.Tournament?.name}
+                      startTime={tournament.Tournament?.start_time}
+                      entryPremium={
+                        tournament.Tournament
+                          ?.entry_premium as unknown as CairoOption<Premium>
+                      }
                     />
                   );
                 })

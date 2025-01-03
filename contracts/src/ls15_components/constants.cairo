@@ -39,5 +39,9 @@ pub fn BEASTS_ADDRESS() -> ContractAddress {
     contract_address_const::<0x0158160018d590d93528995b340260e65aedd76d28a686e9daa5c4e8fad0c5dd>()
 }
 
-pub const ETH_SAFE_AMOUNT: u128 = 1000000000000000; // 0.001 ETH
-pub const LORDS_SAFE_AMOUNT: u128 = 5000000000000000000; // 5 LORDS
+pub const ETH_SAFE_AMOUNT: u128 = 3000000000000000; // 0.003 ETH
+pub const LORDS_SAFE_AMOUNT: u128 = 50000000000000000000; // 50 LORDS
+
+pub fn DEFAULT_NS() -> @ByteArray {
+    @"ls_tournaments_v0"
+}

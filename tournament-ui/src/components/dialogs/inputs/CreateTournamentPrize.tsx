@@ -1,15 +1,16 @@
 import PrizeDialog from "./Prize";
 import { DialogWrapper } from "./DialogWrapper";
 import useUIStore from "@/hooks/useUIStore";
-import { Prize } from "@/lib/types";
+import { TournamentPrize } from "@/generated/models.gen";
 
 const CreatePrizeDialog = () => {
-  const { formData, setFormData, setInputDialog } = useUIStore();
+  const { createTournamentData, setCreateTournamentData, setInputDialog } =
+    useUIStore();
 
-  const handleSubmit = (prizes: Prize[]) => {
-    setFormData({
-      ...formData,
-      prizes: [...formData.prizes, ...prizes],
+  const handleSubmit = (prizes: TournamentPrize[]) => {
+    setCreateTournamentData({
+      ...createTournamentData,
+      prizes: [...createTournamentData.prizes, ...prizes],
     });
     setInputDialog(null);
   };

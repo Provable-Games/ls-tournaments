@@ -7,16 +7,12 @@ import { Manifest } from "@dojoengine/core";
 export type DojoManifest = Manifest & any;
 
 export const useDojoSystem = (systemName: string) => {
-  const {
-    setup: { manifest, nameSpace },
-  } = useDojo();
+  const { manifest, nameSpace } = useDojo();
   return useSystem(nameSpace, systemName, manifest);
 };
 
 export const useDeployedDojoSystem = (systemName: string) => {
-  const {
-    setup: { manifest, nameSpace },
-  } = useDojo();
+  const { manifest, nameSpace } = useDojo();
   return useDeployedSystem(nameSpace, systemName, manifest);
 };
 

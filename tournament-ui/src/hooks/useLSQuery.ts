@@ -7,9 +7,7 @@ type Variables = Record<
 >;
 
 export const useLSQuery = (query: DocumentNode, variables?: Variables) => {
-  const {
-    setup: { selectedChainConfig },
-  } = useDojo();
+  const { selectedChainConfig } = useDojo();
   const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
 
   const { data, loading, error } = useQuery(query, {

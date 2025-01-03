@@ -3,13 +3,13 @@ import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
 
 const TopScores = () => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
 
   const sectionDisabled =
-    !formData.tournamentName ||
-    !formData.startTime ||
-    !formData.endTime ||
-    !formData.submissionPeriod;
+    !createTournamentData.tournamentName ||
+    !createTournamentData.startTime ||
+    !createTournamentData.endTime ||
+    !createTournamentData.submissionPeriod;
 
   return (
     <div className="flex flex-col">
@@ -28,10 +28,17 @@ const TopScores = () => {
         <div className="flex flex-row w-full items-center gap-5">
           <div className="flex flex-row w-full items-center gap-2">
             <Button
-              variant={formData.scoreboardSize === 1 ? "default" : "token"}
-              onClick={() => setFormData({ ...formData, scoreboardSize: 1 })}
+              variant={
+                createTournamentData.scoreboardSize === 1 ? "default" : "token"
+              }
+              onClick={() =>
+                setCreateTournamentData({
+                  ...createTournamentData,
+                  scoreboardSize: 1,
+                })
+              }
               className={`border-terminal-green/75 ${
-                formData.scoreboardSize === 1
+                createTournamentData.scoreboardSize === 1
                   ? "text-terminal-black"
                   : "text-terminal-green/75"
               }`}
@@ -40,10 +47,17 @@ const TopScores = () => {
               1
             </Button>
             <Button
-              variant={formData.scoreboardSize === 3 ? "default" : "token"}
-              onClick={() => setFormData({ ...formData, scoreboardSize: 3 })}
+              variant={
+                createTournamentData.scoreboardSize === 3 ? "default" : "token"
+              }
+              onClick={() =>
+                setCreateTournamentData({
+                  ...createTournamentData,
+                  scoreboardSize: 3,
+                })
+              }
               className={`border-terminal-green/75 ${
-                formData.scoreboardSize === 3
+                createTournamentData.scoreboardSize === 3
                   ? "text-terminal-black"
                   : "text-terminal-green/75"
               }`}
@@ -52,10 +66,17 @@ const TopScores = () => {
               3
             </Button>
             <Button
-              variant={formData.scoreboardSize === 10 ? "default" : "token"}
-              onClick={() => setFormData({ ...formData, scoreboardSize: 10 })}
+              variant={
+                createTournamentData.scoreboardSize === 10 ? "default" : "token"
+              }
+              onClick={() =>
+                setCreateTournamentData({
+                  ...createTournamentData,
+                  scoreboardSize: 10,
+                })
+              }
               className={`border-terminal-green/75 ${
-                formData.scoreboardSize === 10
+                createTournamentData.scoreboardSize === 10
                   ? "text-terminal-black"
                   : "text-terminal-green/75"
               }`}
@@ -63,24 +84,14 @@ const TopScores = () => {
             >
               10
             </Button>
-            {/* <Button
-              variant={formData.scoreboardSize === 25 ? "default" : "token"}
-              onClick={() => setFormData({ ...formData, scoreboardSize: 25 })}
-              className={`border-terminal-green/75 ${
-                formData.scoreboardSize === 25
-                  ? "text-terminal-black"
-                  : "text-terminal-green/75"
-              }`}
-              disabled={sectionDisabled}
-            >
-              25
-            </Button> */}
-            {formData.scoreboardSize > 0 && (
+            {createTournamentData.scoreboardSize > 0 && (
               <span className="flex flex-row items-center gap-2">
                 <span className="w-5 h-5 text-terminal-green">
                   <TrophyIcon />
                 </span>
-                <p className="text-2xl">{formData.scoreboardSize}</p>
+                <p className="text-2xl">
+                  {createTournamentData.scoreboardSize}
+                </p>
               </span>
             )}
           </div>

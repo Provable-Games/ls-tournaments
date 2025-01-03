@@ -7,7 +7,8 @@ import { GatedTypeEnum } from "@/generated/models.gen";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 
 const GatedAddresses = () => {
-  const { setFormData, setInputDialog, formData } = useUIStore();
+  const { setCreateTournamentData, setInputDialog, createTournamentData } =
+    useUIStore();
 
   const [addresses, setAddresses] = useState<string[] | null>([""]);
 
@@ -70,8 +71,8 @@ const GatedAddresses = () => {
               gatedTypeEnum
             );
 
-            setFormData({
-              ...formData,
+            setCreateTournamentData({
+              ...createTournamentData,
               gatedType: someGatedType,
             });
 

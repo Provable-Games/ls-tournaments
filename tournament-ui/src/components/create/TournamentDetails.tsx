@@ -2,13 +2,13 @@ import { ChangeEvent, useState } from "react";
 import useUIStore from "@/hooks/useUIStore";
 
 const TournamentDetails = () => {
-  const { formData, setFormData } = useUIStore();
+  const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [isMaxLength, setIsMaxLength] = useState(false);
 
   const handleChangeName = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setCreateTournamentData({
+      ...createTournamentData,
       [name]: value,
     });
     if (name === "tournamentName" && value.length >= 31) {
@@ -20,8 +20,8 @@ const TournamentDetails = () => {
 
   const handleChangeDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setCreateTournamentData({
+      ...createTournamentData,
       [name]: value,
     });
   };
@@ -36,7 +36,7 @@ const TournamentDetails = () => {
             <input
               type="text"
               name="tournamentName"
-              value={formData.tournamentName}
+              value={createTournamentData.tournamentName}
               onChange={handleChangeName}
               className="px-2 h-6 w-96 text-lg bg-terminal-black border border-terminal-green/50 !no-text-shadow transform focus:outline-none focus:ring-1 focus:ring-terminal-green"
               maxLength={31}
@@ -50,7 +50,7 @@ const TournamentDetails = () => {
             </p>
             <textarea
               name="tournamentDescription"
-              value={formData.tournamentDescription}
+              value={createTournamentData.tournamentDescription}
               onChange={handleChangeDescription}
               className="mb-2 px-2 h-10 max-h-10 w-full text-lg bg-terminal-black border border-terminal-green/50 focus:outline-none focus:ring-1 focus:ring-terminal-green"
             />

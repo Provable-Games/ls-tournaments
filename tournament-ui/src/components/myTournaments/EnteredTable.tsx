@@ -32,7 +32,7 @@ const EnteredTable = () => {
     <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
-        <p className="text-4xl">Created Tournaments</p>
+        <p className="text-4xl">Entered Tournaments</p>
         <div className="w-1/4 flex justify-end">
           {tournaments && tournaments.length > 10 ? (
             <Pagination
@@ -60,10 +60,8 @@ const EnteredTable = () => {
             <tbody>
               {tournaments && tournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel = tournament.TournamentModel;
-                  const tournamentEntries = tournament.TournamentEntriesModel;
-                  const tournamentPrizeKeys =
-                    tournament.TournamentPrizeKeysModel;
+                  const tournamentModel = tournament.Tournament;
+                  const tournamentEntries = tournament.TournamentEntries;
                   return (
                     <EnteredRow
                       key={tournament.entityId}
@@ -73,7 +71,6 @@ const EnteredTable = () => {
                       startTime={tournamentModel?.start_time}
                       entryPremium={tournamentModel?.entry_premium}
                       entries={tournamentEntries?.entry_count}
-                      prizeKeys={tournamentPrizeKeys?.prize_keys}
                     />
                   );
                 })
@@ -83,7 +80,7 @@ const EnteredTable = () => {
                 </div>
               ) : (
                 <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">No Created Tournaments</p>
+                  <p className="text-2xl text-center">No Entered Tournaments</p>
                 </div>
               )}
             </tbody>

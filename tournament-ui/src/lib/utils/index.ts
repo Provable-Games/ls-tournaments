@@ -1,6 +1,9 @@
+import React from "react";
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { BigNumberish, shortString } from "starknet";
+import { TournamentPrize } from "@/generated/models.gen";
+import { TOKEN_ADDRESSES, TOKEN_ICONS, ITEMS } from "../constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -164,4 +167,50 @@ export const getRandomInt = (min: number, max: number): number => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+export function getItemKeyFromValue(searchValue: string): string | null {
+  const entry = Object.entries(ITEMS).find(
+    ([_key, value]) => value === searchValue
+  );
+  return entry ? entry[0] : null;
+}
+
+export function getTokenKeyFromValue(searchValue: string): string | null {
+  const entry = Object.entries(TOKEN_ADDRESSES).find(
+    ([_key, value]) => value === searchValue
+  );
+  return entry ? entry[0] : null;
+}
+
+export function getItemValueFromKey(key: number): string | null {
+  return ITEMS[key];
+}
+
+export const getPrizesByToken = (prizes: TournamentPrize[]) => {
+  return Object.entries(
+    prizes.reduce((acc, prize) => {
+      const key = prize.token;
+      const isERC20 = prize.token_data_type.activeVariant() === "erc20";
+      if (isERC20) {
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(prize);
+      } else {
+        acc[key] = [prize];
+      }
+      return acc;
+    }, {} as Record<string, typeof prizes>)
+  );
+};
+
+export const getTokenNameOrIcon = (
+  namespace: string,
+  token: string,
+  tokens: any[]
+) => {
+  return TOKEN_ICONS[getTokenKeyFromValue(token)!]
+    ? React.createElement(TOKEN_ICONS[getTokenKeyFromValue(token)!])
+    : tokens.find((t) => t.models[namespace].Token?.token === token)?.models[
+        namespace
+      ].Token?.symbol;
 };

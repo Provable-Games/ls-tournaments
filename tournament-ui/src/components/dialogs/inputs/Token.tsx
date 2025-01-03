@@ -3,29 +3,36 @@ import useUIStore from "@/hooks/useUIStore";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
-import { InputTokenModel } from "@/generated/models.gen";
+import { Token } from "@/generated/models.gen";
 import { Button } from "@/components/buttons/Button";
+import { useDojo } from "@/DojoContext";
 
 interface TokenDialogProps {
-  selectedToken: InputTokenModel;
-  setSelectedToken: React.Dispatch<
-    React.SetStateAction<InputTokenModel | null>
-  >;
+  selectedToken: Token;
+  setSelectedToken: React.Dispatch<React.SetStateAction<Token | null>>;
   type?: "erc20" | "erc721";
 }
 
-const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
+const TokenDialog = ({
+  selectedToken,
+  setSelectedToken,
+  type,
+}: TokenDialogProps) => {
   const { setInputDialog } = useUIStore();
+  const { nameSpace } = useDojo();
   const state = useDojoStore();
   const [selectedType, setSelectedType] = useState<"erc20" | "erc721">("erc20");
 
-  const tokens = state.getEntitiesByModel("tournament", "TokenModel");
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
+
+  console.log(tokens);
 
   const filteredTokens = tokens.filter((token) => {
     if (type) {
       return (
-        (token.models.tournament.TokenModel
-          ?.token_data_type as unknown as string) === type
+        (
+          token.models[nameSpace].Token as unknown as Token
+        ).token_data_type?.activeVariant() === type
       );
     }
     return true;
@@ -57,14 +64,15 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
           .filter((token) => {
             if (!type) {
               return (
-                (token.models.tournament.TokenModel
-                  ?.token_data_type as unknown as string) === selectedType
+                (
+                  token.models[nameSpace].Token as unknown as Token
+                ).token_data_type?.activeVariant() === selectedType
               );
             }
             return true;
           })
           .map((token) => {
-            const tokenModel = token.models.tournament.TokenModel!;
+            const tokenModel = token.models[nameSpace].Token!;
             return (
               <div
                 className={`w-full flex flex-col hover:bg-terminal-green/10 hover:cursor-pointer px-5 py-2 ${
@@ -74,7 +82,7 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
                 }`}
                 key={token.entityId}
                 onClick={() => {
-                  setSelectedToken(tokenModel as InputTokenModel);
+                  setSelectedToken(tokenModel as unknown as Token);
                   setInputDialog(null);
                 }}
               >
@@ -93,4 +101,4 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
   );
 };
 
-export default Token;
+export default TokenDialog;
