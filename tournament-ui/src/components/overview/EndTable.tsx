@@ -15,7 +15,7 @@ const EndTable = () => {
   //   useGetEndedTournamentsQuery(hexTimestamp);
   const state = useDojoStore((state) => state);
   const endedTournaments = state.getEntities((entity) => {
-    const endTime = entity.models[nameSpace].Tournament?.end_time!;
+    const endTime = entity.models?.[nameSpace]?.Tournament?.end_time!;
     return endTime < addAddressPadding(hexTimestamp);
   });
 
@@ -62,7 +62,7 @@ const EndTable = () => {
               {endedTournaments && endedTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
                   const tournamentModel =
-                    tournament.models[nameSpace].Tournament;
+                    tournament.models?.[nameSpace]?.Tournament;
                   return (
                     <EndRow
                       key={tournament.entityId}

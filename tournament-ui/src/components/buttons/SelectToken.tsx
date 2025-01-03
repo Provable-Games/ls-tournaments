@@ -1,10 +1,10 @@
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
-import { InputToken } from "@/generated/models.gen";
+import { Token } from "@/generated/models.gen";
 
 interface SelectTokenProps {
-  selectedToken: InputToken | null;
-  setSelectedToken: (token: InputToken | null) => void;
+  selectedToken: Token | null;
+  setSelectedToken: (token: Token | null) => void;
   disabled: boolean;
   type?: "erc20" | "erc721";
 }

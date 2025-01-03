@@ -19,6 +19,9 @@ import {
   useGetTokensQuery,
   useSubscribeTournamentCountsQuery,
   useGetAllTournamentsQuery,
+  useGetAllEntriesQuery,
+  useGetAllPrizesQuery,
+  useGetConfigQuery,
 } from "@/hooks/useSdkQueries";
 import { useSystemCalls } from "@/useSystemCalls";
 import { Toaster } from "@/components/ui/toaster";
@@ -28,7 +31,6 @@ import { useConfig } from "@/hooks/useConfig";
 function App() {
   const { account } = useAccount();
   const { selectedChainConfig } = useDojo();
-  useConfig();
   const { tournament, eth, lords, goldenToken, blobert } =
     useTournamentContracts();
   const { getBalanceGeneral } = useSystemCalls();
@@ -39,10 +41,14 @@ function App() {
 
   // Getters
   useGetAllTournamentsQuery();
+  useGetAllEntriesQuery();
+  useGetAllPrizesQuery();
   useGetTournamentCountsQuery(tournament);
   useGetTokensQuery();
+  useGetConfigQuery(tournament);
+  useConfig();
 
-  // Subscriptions
+  // // Subscriptions
   useSubscribeTournamentCountsQuery(tournament);
 
   const testMenuItems: Menu[] = useMemo(

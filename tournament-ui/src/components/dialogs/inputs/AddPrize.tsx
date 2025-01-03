@@ -1,7 +1,7 @@
 import PrizeDialog from "./Prize";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 import useUIStore from "@/hooks/useUIStore";
-import { Prize } from "@/lib/types";
+import { TournamentPrize } from "@/generated/models.gen";
 import { useSystemCalls } from "@/useSystemCalls";
 import { bigintToHex } from "@/lib/utils";
 import { addAddressPadding } from "starknet";
@@ -21,14 +21,20 @@ const AddPrizeDialog = ({
   const { addPrize, approveERC20General, approveERC721General } =
     useSystemCalls();
 
-  const handleSubmit = async (prizes: Prize[]) => {
+  const handleSubmit = async (prizes: TournamentPrize[]) => {
     let prizeKey = currentPrizeCount;
     for (const prize of prizes) {
       // approve tokens to be added
-      if (prize.tokenDataType.activeVariant() === "erc20") {
-        await approveERC20General(prize);
+      if (prize.token_data_type.activeVariant() === "erc20") {
+        await approveERC20General({
+          token: prize.token,
+          tokenDataType: prize.token_data_type,
+        });
       } else {
-        await approveERC721General(prize);
+        await approveERC721General({
+          token: prize.token,
+          tokenDataType: prize.token_data_type,
+        });
       }
       await addPrize(
         tournamentId,

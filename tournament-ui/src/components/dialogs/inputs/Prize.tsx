@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Button } from "@/components/buttons/Button";
 import { PlusIcon } from "@/components/Icons";
-import { Distribution, Prize } from "@/lib/types";
+import { Distribution } from "@/lib/types";
 import { CairoCustomEnum } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
-import { TokenDataTypeEnum } from "@/generated/models.gen";
+import { TokenDataTypeEnum, TournamentPrize } from "@/generated/models.gen";
 import { useDojo } from "@/DojoContext";
 
 interface PrizeProps {
-  onSubmit: (prizes: Prize[]) => void;
+  onSubmit: (prizes: TournamentPrize[]) => void;
 }
 
 const Prizes = ({ onSubmit }: PrizeProps) => {
@@ -40,7 +40,7 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
 
   const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
-  const prizes: Prize[] = distributions
+  const prizes: TournamentPrize[] = distributions
     .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
     .map((dist) => {
       const tokenDataType = new CairoCustomEnum({
@@ -51,10 +51,12 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
       }) as TokenDataTypeEnum; // Type assertion here
 
       return {
-        tournamentId: 1,
+        tournament_id: 1,
         token: selectedToken,
-        position: dist.position,
-        tokenDataType,
+        payout_position: dist.position,
+        token_data_type: tokenDataType,
+        prize_key: "",
+        claimed: false,
       };
     });
 
@@ -75,7 +77,7 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
           </Button>
         </div>
       </div>
-      <div className="h-20 px-10 w-full flex flex-row items-center gap-5">
+      <div className="h-20 px-10 w-full flex flex-row items-center gap-5 overflow-auto">
         {tokens.map((token) => {
           const tokenModel = token.models[nameSpace].Token;
           return (
@@ -85,10 +87,11 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
                 selectedToken === tokenModel?.token ? "default" : "token"
               }
               onClick={() => setSelectedToken(tokenModel?.token!)}
-              className="relative"
-              size="md"
+              className="relative w-20 !p-2"
             >
-              {tokenModel?.name}
+              <span className="text-xs uppercase whitespace-nowrap text-ellipsis overflow-hidden w-full">
+                {tokenModel?.name}
+              </span>
               <span
                 className={`absolute top-0 text-xs uppercase ${
                   selectedToken === tokenModel?.token
@@ -99,7 +102,7 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
                 {(tokenModel?.token_data_type as unknown as string).toString()}
               </span>
               <span
-                className={`absolute bottom-0 text-xs uppercase ${
+                className={`w-full absolute bottom-0 text-xs uppercase ${
                   selectedToken === tokenModel?.token
                     ? "default text-terminal-black"
                     : "token text-terminal-green/75"

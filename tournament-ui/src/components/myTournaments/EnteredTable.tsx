@@ -4,26 +4,16 @@ import { addAddressPadding } from "starknet";
 import { useGetAccountCreatedTournamentsQuery } from "@/hooks/useSdkQueries";
 import EnteredRow from "@/components/myTournaments/EnteredRow";
 import Pagination from "@/components/table/Pagination";
-import { useDojoStore } from "@/hooks/useDojoStore";
-import { useDojo } from "@/DojoContext";
 
 const EnteredTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const { account } = useAccount();
-  const { nameSpace } = useDojo();
   const address = useMemo(
     () => addAddressPadding(account?.address ?? "0x0"),
     [account]
   );
   const { entities: tournaments, isLoading } =
     useGetAccountCreatedTournamentsQuery(address);
-
-  const state = useDojoStore();
-
-  const tournamentPrizesEntities = state.getEntitiesByModel(
-    nameSpace,
-    "TournamentPrize"
-  );
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
@@ -42,7 +32,7 @@ const EnteredTable = () => {
     <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
-        <p className="text-4xl">Created Tournaments</p>
+        <p className="text-4xl">Entered Tournaments</p>
         <div className="w-1/4 flex justify-end">
           {tournaments && tournaments.length > 10 ? (
             <Pagination
@@ -72,11 +62,6 @@ const EnteredTable = () => {
                 pagedTournaments.map((tournament) => {
                   const tournamentModel = tournament.Tournament;
                   const tournamentEntries = tournament.TournamentEntries;
-                  const tournamentPrizes = tournamentPrizesEntities.filter(
-                    (prize) =>
-                      prize.models[nameSpace].TournamentPrize?.tournament_id ===
-                      tournamentModel?.tournament_id
-                  );
                   return (
                     <EnteredRow
                       key={tournament.entityId}
@@ -86,10 +71,6 @@ const EnteredTable = () => {
                       startTime={tournamentModel?.start_time}
                       entryPremium={tournamentModel?.entry_premium}
                       entries={tournamentEntries?.entry_count}
-                      prizeKeys={tournamentPrizes?.map(
-                        (prize) =>
-                          prize.models[nameSpace].TournamentPrize?.prize_key
-                      )}
                     />
                   );
                 })
@@ -99,7 +80,7 @@ const EnteredTable = () => {
                 </div>
               ) : (
                 <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">No Created Tournaments</p>
+                  <p className="text-2xl text-center">No Entered Tournaments</p>
                 </div>
               )}
             </tbody>

@@ -1,44 +1,43 @@
 import { useMemo, useState } from "react";
-// import { useGetUpcomingTournamentsQuery } from "@/hooks/useSdkQueries";
 import UpcomingRow from "@/components/overview/UpcomingRow";
 import Pagination from "@/components/table/Pagination";
-import { useDojoStore } from "@/hooks/useDojoStore";
 import { bigintToHex } from "@/lib/utils";
-import { addAddressPadding } from "starknet";
-import { useDojo } from "@/DojoContext";
+import { CairoOption } from "starknet";
+import { Premium } from "@/generated/models.gen";
+import { useGetUpcomingTournamentsQuery } from "@/hooks/useSdkQueries";
 
 const UpcomingTable = () => {
-  const { nameSpace } = useDojo();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const hexTimestamp = useMemo(
     () => bigintToHex(BigInt(new Date().getTime()) / 1000n),
     []
   );
-  // const { entities: tournaments, isLoading } =
-  //   useGetUpcomingTournamentsQuery(hexTimestamp);
-  const state = useDojoStore();
-  const upcomingTournaments = state.getEntities((entity) => {
-    const startTime = entity.models[nameSpace].Tournament?.start_time!;
-    return startTime > addAddressPadding(hexTimestamp);
-  });
+  const { entities: tournaments } =
+    useGetUpcomingTournamentsQuery(hexTimestamp);
 
-  const tournamentPrizesEntities = state.getEntitiesByModel(
-    nameSpace,
-    "TournamentPrize"
-  );
+  // const tournamentIds = useMemo(() => {
+  //   return (
+  //     tournaments
+  //       ?.map((tournament) => tournament.Tournament?.tournament_id)
+  //       .filter((id): id is BigNumberish => id !== undefined) ?? []
+  //   );
+  // }, [tournaments]);
+
+  // const { entities: tournamentDetails } =
+  //   useGetTournamentDetailsInListQuery(tournamentIds);
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
 
   const totalPages = useMemo(() => {
-    if (!upcomingTournaments) return 0;
-    return Math.ceil(upcomingTournaments.length / 5);
-  }, [upcomingTournaments]);
+    if (!tournaments) return 0;
+    return Math.ceil(tournaments.length / 5);
+  }, [tournaments]);
 
   const pagedTournaments = useMemo(() => {
-    if (!upcomingTournaments) return [];
-    return upcomingTournaments.slice((currentPage - 1) * 5, currentPage * 5);
-  }, [upcomingTournaments, currentPage]);
+    if (!tournaments) return [];
+    return tournaments.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [tournaments, currentPage]);
 
   return (
     <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
@@ -46,7 +45,7 @@ const UpcomingTable = () => {
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Upcoming</p>
         <div className="w-1/4 flex justify-end">
-          {upcomingTournaments && upcomingTournaments.length > 10 && (
+          {tournaments && tournaments.length > 10 && (
             <Pagination
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -57,59 +56,49 @@ const UpcomingTable = () => {
       </div>
       <div className="w-full max-h-[500px]">
         <div className="flex flex-col gap-4">
-          <table className="relative w-full">
-            <thead className="bg-terminal-green/75 no-text-shadow text-terminal-black text-lg h-10">
-              <tr>
-                <th className="px-2 text-left">Name</th>
-                <th className="text-left">Entries</th>
-                <th className="text-left">Start</th>
-                <th className="text-left">Registration</th>
-                <th className="text-left">Duration</th>
-                <th className="text-left">Entry Fee</th>
-                <th className="text-left">Creator Fee</th>
-                <th className="text-left">Prizes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {upcomingTournaments && upcomingTournaments.length > 0 ? (
-                pagedTournaments.map((tournament) => {
-                  const tournamentModel =
-                    tournament.models[nameSpace].Tournament;
-                  const tournamentPrizes = tournamentPrizesEntities.filter(
-                    (prize) =>
-                      prize.models[nameSpace].TournamentPrize?.tournament_id ===
-                      tournamentModel?.tournament_id
-                  );
+          {tournaments && tournaments.length > 0 ? (
+            <table className="relative w-full">
+              <thead className="bg-terminal-green/75 no-text-shadow text-terminal-black text-lg h-10">
+                <tr>
+                  <th className="px-2 text-left">Name</th>
+                  <th className="text-left">Entries</th>
+                  <th className="text-left">Start</th>
+                  <th className="text-left">Registration</th>
+                  <th className="text-left">Duration</th>
+                  <th className="text-left">Entry Fee</th>
+                  <th className="text-left">Creator Fee</th>
+                  <th className="text-left">Prizes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pagedTournaments.map((tournament) => {
                   return (
                     <UpcomingRow
                       key={tournament.entityId}
-                      tournamentId={tournamentModel?.tournament_id}
-                      name={tournamentModel?.name}
+                      tournamentId={tournament.Tournament?.tournament_id}
+                      name={tournament.Tournament?.name}
                       registrationStartTime={
-                        tournamentModel?.registration_start_time
+                        tournament.Tournament?.registration_start_time
                       }
                       registrationEndTime={
-                        tournamentModel?.registration_end_time
+                        tournament.Tournament?.registration_end_time
                       }
-                      startTime={tournamentModel?.start_time}
-                      endTime={tournamentModel?.end_time}
-                      entryPremium={tournamentModel?.entry_premium}
-                      prizeKeys={tournamentPrizes?.map(
-                        (prize) =>
-                          prize.models[nameSpace].TournamentPrize?.prize_key
-                      )}
+                      startTime={tournament.Tournament?.start_time}
+                      endTime={tournament.Tournament?.end_time}
+                      entryPremium={
+                        tournament.Tournament
+                          ?.entry_premium as unknown as CairoOption<Premium>
+                      }
                     />
                   );
-                })
-              ) : (
-                <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">
-                    No Upcoming Tournaments
-                  </p>
-                </div>
-              )}
-            </tbody>
-          </table>
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className="flex items-center justify-center w-full h-full text-terminal-yellow">
+              <p className="text-2xl text-center">No Upcoming Tournaments</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

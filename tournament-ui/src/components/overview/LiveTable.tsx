@@ -12,8 +12,8 @@ const LiveTable = () => {
   const hexTimestamp = bigintToHex(BigInt(new Date().getTime()) / 1000n);
   const state = useDojoStore((state) => state);
   const liveTournaments = state.getEntities((entity) => {
-    const startTime = entity.models[nameSpace].Tournament?.start_time!;
-    const endTime = entity.models[nameSpace].Tournament?.end_time!;
+    const startTime = entity.models?.[nameSpace]?.Tournament?.start_time!;
+    const endTime = entity.models?.[nameSpace]?.Tournament?.end_time!;
     return (
       startTime < addAddressPadding(hexTimestamp) &&
       endTime > addAddressPadding(hexTimestamp)
@@ -54,7 +54,6 @@ const LiveTable = () => {
               <tr>
                 <th className="px-2 text-left">Name</th>
                 <th className="text-left">Games Played</th>
-                <th className="text-left">Top Scores</th>
                 <th className="text-left">Prizes</th>
                 <th className="text-left">Time Left</th>
               </tr>
@@ -70,7 +69,6 @@ const LiveTable = () => {
                       tournamentId={tournamentModel?.tournament_id}
                       name={tournamentModel?.name}
                       endTime={tournamentModel?.end_time}
-                      winnersCount={tournamentModel?.winners_count}
                     />
                   );
                 })

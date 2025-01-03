@@ -28,6 +28,7 @@ interface StartTournamentProps {
   entryCount: BigNumberish;
   usableGoldenTokens: string[];
   usableBlobertTokens: string[];
+  isSeason: boolean;
 }
 
 const StartTournament = ({
@@ -38,6 +39,7 @@ const StartTournament = ({
   entryCount,
   usableGoldenTokens,
   usableBlobertTokens,
+  isSeason,
 }: StartTournamentProps) => {
   const [customStartCount, setCustomStartCount] = useState(0);
   const { dollarPrice } = useVRFCost();
@@ -53,7 +55,7 @@ const StartTournament = ({
   // lords cost
   const totalGamesCost = lordsCost ? lordsCost * BigInt(entryCount) : 0n;
   const totalGamesAddressCost = lordsCost
-    ? lordsCost * BigInt(entryAddressCount)
+    ? lordsCost * (isSeason ? 1n : BigInt(entryAddressCount))
     : 0n;
   const totalGamesCustomCost = useMemo(
     () => (lordsCost ? lordsCost * BigInt(customStartCount) : 0n),
@@ -403,25 +405,46 @@ const StartTournament = ({
 
   const totalFreeGames = usableGoldenTokens.length + usableBlobertTokens.length;
 
+  console.log(totalGamesAddressCost);
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex flex-col">
         <p className="text-4xl text-center uppercase">Start Tournament</p>
         <div className="w-full bg-terminal-green/50 h-0.5" />
       </div>
-      {tournamentEntriesAddressModel ? (
+      {tournamentEntriesAddressModel || isSeason ? (
         <div className="flex flex-col h-full">
           <div className="w-full flex flex-row justify-center gap-5 p-1">
             <div className="flex flex-col items-center w-1/3">
-              <p className="text-xl uppercase text-terminal-green/75 no-text-shadow text-left">
-                My Games Played
-              </p>
-              <div className="flex flex-row items-center gap-2 px-5 uppercase text-2xl">
-                <p className="uppercase text-2xl">
-                  {BigInt(currentAddressStartCount).toString()}
-                </p>
-                /<p> {BigInt(entryAddressCount).toString()}</p>
-              </div>
+              {!isSeason ? (
+                <>
+                  <p className="text-xl uppercase text-terminal-green/75 no-text-shadow text-left">
+                    My Games Played
+                  </p>
+                  <div className="flex flex-row items-center gap-2 px-5 uppercase text-2xl">
+                    <p className="uppercase text-2xl">
+                      {BigInt(currentAddressStartCount).toString()}
+                    </p>
+                    /<p> {BigInt(entryAddressCount).toString()}</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="whitespace-nowrap uppercase text-xl text-terminal-green/75 no-text-shadow">
+                      Entry Fee
+                    </p>
+                    <p className="text-lg">100 LORDS</p>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    <p className="whitespace-nowrap text-terminal-green/75 no-text-shadow uppercase text-xl">
+                      Requirements
+                    </p>
+                    <p className="text-lg">1 LSVR</p>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex flex-col items-center w-1/3">
@@ -456,7 +479,9 @@ const StartTournament = ({
                   <p className="uppercase text-xl">
                     {`$${(
                       Number(0.5) *
-                      Number(tournamentEntriesAddressModel?.entry_count)
+                      (isSeason
+                        ? 1
+                        : Number(tournamentEntriesAddressModel?.entry_count))
                     ).toFixed(2)}`}
                   </p>
                   <span className="flex h-5 w-5 fill-current">
@@ -487,32 +512,36 @@ const StartTournament = ({
               <AdventurerName />
             </div>
             <div className="w-full flex flex-row items-center justify-center gap-2 p-2 h-full">
-              <Button
-                disabled={
-                  !tournamentEntriesAddressModel ||
-                  entryAddressCount === currentAddressStartCount ||
-                  !ethBalanceForStartAll ||
-                  !lordsBalanceForStartAll ||
-                  !startTournamentData.weapon ||
-                  !startTournamentData.name
-                }
-                onClick={handleStartTournamentAll}
-              >
-                Start All Games
-              </Button>
-              <Button
-                disabled={
-                  !tournamentEntriesAddressModel ||
-                  entryAddressCount === currentAddressStartCount ||
-                  !ethBalanceForStartEveryone ||
-                  !lordsBalanceForStartEveryone ||
-                  !startTournamentData.weapon ||
-                  !startTournamentData.name
-                }
-                onClick={handleStartTournamentForEveryone}
-              >
-                Start For Everyone
-              </Button>
+              {!isSeason && (
+                <Button
+                  disabled={
+                    !tournamentEntriesAddressModel ||
+                    entryAddressCount === currentAddressStartCount ||
+                    !ethBalanceForStartAll ||
+                    !lordsBalanceForStartAll ||
+                    !startTournamentData.weapon ||
+                    !startTournamentData.name
+                  }
+                  onClick={handleStartTournamentAll}
+                >
+                  Start All Games
+                </Button>
+              )}
+              {!isSeason && (
+                <Button
+                  disabled={
+                    !tournamentEntriesAddressModel ||
+                    entryAddressCount === currentAddressStartCount ||
+                    !ethBalanceForStartEveryone ||
+                    !lordsBalanceForStartEveryone ||
+                    !startTournamentData.weapon ||
+                    !startTournamentData.name
+                  }
+                  onClick={handleStartTournamentForEveryone}
+                >
+                  Start For Everyone
+                </Button>
+              )}
               <p
                 className={`text-xl uppercase text-terminal-green/75 no-text-shadow ${
                   !tournamentEntriesAddressModel ||

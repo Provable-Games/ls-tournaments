@@ -1,9 +1,11 @@
-import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useNavigate } from "react-router-dom";
-import { feltToString } from "@/lib/utils";
+import { feltToString, getTokenNameOrIcon } from "@/lib/utils";
 import useModel from "@/useModel.ts";
 import { Models, TournamentPrize } from "@/generated/models.gen";
 import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries.ts";
+import TablePrizes from "@/components/table/Prizes";
+import { useDojoStore } from "@/hooks/useDojoStore";
+import { useDojo } from "@/DojoContext";
 
 interface EnteredRowProps {
   entityId: any;
@@ -12,7 +14,6 @@ interface EnteredRowProps {
   startTime?: any;
   entryPremium?: any;
   entries?: any;
-  prizeKeys?: any;
 }
 
 const EnteredRow = ({
@@ -21,9 +22,10 @@ const EnteredRow = ({
   name,
   startTime,
   entryPremium,
-  prizeKeys,
 }: EnteredRowProps) => {
   const navigate = useNavigate();
+  const state = useDojoStore();
+  const { nameSpace } = useDojo();
   const startTimestamp = Number(startTime) * 1000;
   const startDate = new Date(startTimestamp);
   const displayStartDate = new Intl.DateTimeFormat(undefined, {
@@ -69,6 +71,13 @@ const EnteredRow = ({
     : isSubmissionLive
     ? "Submission Live"
     : "Ended";
+
+  const prizes: TournamentPrize[] = (tournamentDetails
+    ?.filter((detail) => detail.TournamentPrize)
+    .map((detail) => detail.TournamentPrize) ??
+    []) as unknown as TournamentPrize[];
+
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
   return (
     <tr
       className="h-6 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
@@ -87,37 +96,28 @@ const EnteredRow = ({
       <td>{displayStartDate}</td>
       <td>{status}</td>
       <td>
-        {entryPremium === "None"
-          ? "-"
-          : BigInt(entryPremium.Some?.token_amount).toString()}
-      </td>
-      <td>
-        {entryPremium === "None"
-          ? "-"
-          : BigInt(entryPremium.Some?.creator_fee).toString()}
-      </td>
-      <td>
-        <div className="flex flex-col gap-2">
-          {prizeKeys ? (
-            prizeKeys?.map((prizeKey: any) => {
-              const entityId = getEntityIdFromKeys([BigInt(prizeKey)]);
-
-              const prize: TournamentPrize = useModel(
-                entityId,
-                Models.TournamentPrize
-              );
-              // TODO: when token data type data is supported add the details
-              return (
-                <div key={prizeKey}>
-                  {/* {prize?.token_data_type.variant.erc20?.token_amount} */}
-                  {prize ? prize?.token_data_type.toString() : "-"}
-                </div>
-              );
-            })
-          ) : (
-            <p>-</p>
-          )}
+        <div className="flex flex-row gap-1">
+          <span>
+            {entryPremium?.isNone
+              ? "-"
+              : BigInt(entryPremium?.Some?.token_amount ?? 0).toString()}
+          </span>
+          <span>
+            {getTokenNameOrIcon(
+              nameSpace,
+              entryPremium?.Some?.token ?? "",
+              tokens
+            )}
+          </span>
         </div>
+      </td>
+      <td>
+        {entryPremium?.isNone
+          ? "-"
+          : BigInt(entryPremium?.Some?.creator_fee ?? 0).toString()}
+      </td>
+      <td>
+        <TablePrizes prizes={prizes} />
       </td>
     </tr>
   );

@@ -1,6 +1,6 @@
 import { BladeIcon, BludgeonIcon, MagicIcon } from "@/components/Icons";
 import useUIStore from "@/hooks/useUIStore";
-import { feltToString, getKeyFromValue } from "@/lib/utils";
+import { getItemKeyFromValue, getItemValueFromKey } from "@/lib/utils";
 
 export const WeaponSelect = () => {
   const { startTournamentData, setStartTournamentData } = useUIStore();
@@ -34,7 +34,7 @@ export const WeaponSelect = () => {
   const handleWeaponSelectionDesktop = (weapon: string) => {
     setStartTournamentData({
       ...startTournamentData,
-      weapon: getKeyFromValue(weapon) ?? "",
+      weapon: getItemKeyFromValue(weapon) ?? "",
     });
   };
 
@@ -48,7 +48,8 @@ export const WeaponSelect = () => {
           <div
             key={weapon.name}
             className={`flex flex-col items-center justify-center w-16 h-10 hover:cursor-pointer hover:bg-terminal-green hover:text-terminal-black p-1 ${
-              feltToString(startTournamentData.weapon) == weapon.name
+              getItemValueFromKey(Number(startTournamentData.weapon)) ==
+              weapon.name
                 ? "bg-terminal-green text-terminal-black"
                 : "border border-terminal-green"
             }`}

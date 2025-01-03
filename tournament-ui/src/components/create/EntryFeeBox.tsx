@@ -1,12 +1,12 @@
 import { TrophyIcon, CloseIcon } from "../Icons";
 import useUIStore from "@/hooks/useUIStore";
-import { InputPremium } from "@/generated/models.gen";
+import { Premium } from "@/generated/models.gen";
 import { CairoOption, CairoOptionVariant } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { useDojo } from "@/DojoContext";
 
 interface EntryFeeBoxProps {
-  premium: CairoOption<InputPremium>;
+  premium: CairoOption<Premium>;
 }
 
 export default function EntryFeeBox({ premium }: EntryFeeBoxProps) {
@@ -46,7 +46,7 @@ export default function EntryFeeBox({ premium }: EntryFeeBoxProps) {
       <span className="flex flex-col">
         <span className="uppercase">Player Split</span>
         <div className="flex flex-row gap-2">
-          {premium.unwrap()!.token_distribution.map((distribution, index) => (
+          {premium.Some?.token_distribution.map((distribution, index) => (
             <span className="flex flex-row items-center gap-1">
               {index <= 3 ? (
                 <span

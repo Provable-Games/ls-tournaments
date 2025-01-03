@@ -16,6 +16,32 @@ import { useDojo } from "@/DojoContext";
 
 // Tournament
 
+export const useGetConfigQuery = (contract: string) => {
+  const { nameSpace } = useDojo();
+  const query = useMemo<TournamentGetQuery>(
+    () => ({
+      [nameSpace]: {
+        TournamentConfig: {
+          $: {
+            where: {
+              contract: { $eq: addAddressPadding(contract) },
+            },
+          },
+        },
+      },
+    }),
+    []
+  );
+  const { entities, isLoading, refetch } = useSdkGetEntities({
+    query,
+  });
+  const entity = useMemo(
+    () => (Array.isArray(entities) ? entities[0] : entities),
+    [entities]
+  );
+  return { entity, isLoading, refetch };
+};
+
 export const useGetTournamentCountsQuery = (contract: string) => {
   const { nameSpace } = useDojo();
   const query = useMemo<TournamentGetQuery>(
@@ -24,7 +50,7 @@ export const useGetTournamentCountsQuery = (contract: string) => {
         TournamentTotals: {
           $: {
             where: {
-              contract: { $is: addAddressPadding(contract) },
+              contract: { $eq: addAddressPadding(contract) },
             },
           },
         },
@@ -48,7 +74,39 @@ export const useGetAllTournamentsQuery = () => {
     () => ({
       [nameSpace]: {
         Tournament: [],
+      },
+    }),
+    []
+  );
+
+  const { entities, isLoading, refetch } = useSdkGetEntities({
+    query,
+  });
+  return { entities, isLoading, refetch };
+};
+
+export const useGetAllEntriesQuery = () => {
+  const { nameSpace } = useDojo();
+  const query = useMemo<TournamentGetQuery>(
+    () => ({
+      [nameSpace]: {
         TournamentEntries: [],
+      },
+    }),
+    []
+  );
+
+  const { entities, isLoading, refetch } = useSdkGetEntities({
+    query,
+  });
+  return { entities, isLoading, refetch };
+};
+
+export const useGetAllPrizesQuery = () => {
+  const { nameSpace } = useDojo();
+  const query = useMemo<TournamentGetQuery>(
+    () => ({
+      [nameSpace]: {
         TournamentPrize: [],
       },
     }),
@@ -80,6 +138,45 @@ export const useGetUpcomingTournamentsQuery = (currentTime: string) => {
 
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
+    orderBy: [
+      {
+        model: "Tournament",
+        member: "startTime",
+        direction: "Asc",
+      },
+    ],
+  });
+  return { entities, isLoading, refetch };
+};
+
+export const useGetTournamentDetailsInListQuery = (
+  tournamentIds: BigNumberish[]
+) => {
+  const { nameSpace } = useDojo();
+  const query = useMemo<TournamentGetQuery>(
+    () => ({
+      [nameSpace]: {
+        TournamentPrize: {
+          $: {
+            where: {
+              tournament_id: { $in: tournamentIds },
+            },
+          },
+        },
+        TournamentEntries: {
+          $: {
+            where: {
+              tournament_id: { $in: tournamentIds },
+            },
+          },
+        },
+      },
+    }),
+    [tournamentIds]
+  );
+
+  const { entities, isLoading, refetch } = useSdkGetEntities({
+    query,
   });
   return { entities, isLoading, refetch };
 };
@@ -106,6 +203,13 @@ export const useGetLiveTournamentsQuery = (currentTime: string) => {
 
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
+    orderBy: [
+      {
+        model: "Tournament",
+        member: "endTime",
+        direction: "Asc",
+      },
+    ],
   });
   return { entities, isLoading, refetch };
 };
@@ -128,6 +232,13 @@ export const useGetEndedTournamentsQuery = (currentTime: string) => {
   );
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
+    orderBy: [
+      {
+        model: "Tournament",
+        member: "endTime",
+        direction: "Desc",
+      },
+    ],
   });
   return { entities, isLoading, refetch };
 };
@@ -144,33 +255,40 @@ export const useGetAccountTournamentsQuery = (address: string) => {
             },
           },
         },
-        TournamentEntriesAddress: {
-          $: {
-            where: {
-              address: { $eq: addAddressPadding(address) },
-            },
-          },
-        },
-        TournamentStartsAddress: {
-          $: {
-            where: {
-              address: { $eq: addAddressPadding(address) },
-            },
-          },
-        },
-        TournamentStartIds: {
-          $: {
-            where: {
-              address: { $eq: addAddressPadding(address) },
-            },
-          },
-        },
+        // TournamentEntriesAddress: {
+        //   $: {
+        //     where: {
+        //       address: { $eq: addAddressPadding(address) },
+        //     },
+        //   },
+        // },
+        // TournamentStartsAddress: {
+        //   $: {
+        //     where: {
+        //       address: { $eq: addAddressPadding(address) },
+        //     },
+        //   },
+        // },
+        // TournamentStartIds: {
+        //   $: {
+        //     where: {
+        //       address: { $eq: addAddressPadding(address) },
+        //     },
+        //   },
+        // },
       },
     }),
     [address]
   );
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
+    orderBy: [
+      {
+        model: "Tournament",
+        member: "startTime",
+        direction: "Desc",
+      },
+    ],
   });
   return { entities, isLoading, refetch };
 };
@@ -193,6 +311,13 @@ export const useGetAccountCreatedTournamentsQuery = (address: string) => {
   );
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
+    orderBy: [
+      {
+        model: "Tournament",
+        member: "startTime",
+        direction: "Desc",
+      },
+    ],
   });
   return { entities, isLoading, refetch };
 };
@@ -266,32 +391,15 @@ export const useGetTournamentDetailsQuery = (tournamentId: BigNumberish) => {
             },
           },
         },
-        Prizes: [],
       },
     }),
-    []
+    [tournamentId]
   );
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
   });
   return { entities, isLoading, refetch };
 };
-
-// export const useGetTournamentListDetailsQuery = (tournamentIds: BigNumberish[]) => {
-//   const query = useMemo<TournamentGetQuery>(
-//     () => ({
-//       tournament: {
-//         TournamentModel: {
-//           $: {
-//             where: {
-//               tournament_id: { $in: tournamentIds },
-//             },
-//           },
-//         },
-//       },
-//     }),
-//     [tournamentIds]
-//   );
 
 export const useGetTokensQuery = () => {
   const { nameSpace } = useDojo();
@@ -368,6 +476,21 @@ export const useSubscribeTournamentsQuery = () => {
     () => ({
       [nameSpace]: {
         Tournament: [],
+      },
+    }),
+    []
+  );
+  const { entities, isSubscribed } = useSdkSubscribeEntities({
+    query,
+  });
+  return { entities, isSubscribed };
+};
+
+export const useSubscribePrizesQuery = () => {
+  const { nameSpace } = useDojo();
+  const query = useMemo<TournamentSubQuery>(
+    () => ({
+      [nameSpace]: {
         TournamentPrize: [],
       },
     }),
@@ -480,80 +603,3 @@ export const useSubscribeTokensQuery = () => {
   });
   return { entities, isSubscribed };
 };
-
-// TODO: Add when pagination is available
-
-// interface PageTracker {
-//   pageSize: number;
-//   fetchedPages: Set<number>;
-// }
-
-// interface useGetPaginatedTournamentsQueryProps {
-//   limit?: number;
-//   offset?: number;
-// }
-
-// export const useGetPaginatedTournamentsQuery = ({
-//   limit = 10,
-//   offset = 0,
-// }: useGetPaginatedTournamentsQueryProps) => {
-//   const state = useDojoStore((state) => state);
-//   // Track fetched pages using a ref to persist between renders
-//   const pageTracker = useRef<PageTracker>({
-//     pageSize: limit,
-//     fetchedPages: new Set(),
-//   });
-
-//   const getCurrentPage = useCallback(() => {
-//     return Math.floor(offset / limit);
-//   }, [offset, limit]);
-
-//   const isPageFetched = useCallback((page: number) => {
-//     return pageTracker.current.fetchedPages.has(page);
-//   }, []);
-
-//   const currentPage = getCurrentPage();
-
-//   // If we've already fetched this page, just get from state
-//   if (isPageFetched(currentPage)) {
-//     if (logging) {
-//       console.log(`Page ${currentPage} already fetched, using state data`);
-//     }
-
-//     const stateEntities = state.getEntities((entity) =>
-//       matchesQuery(entity, query)
-//     );
-
-//     // Apply pagination to state entities
-//     const paginatedEntities = stateEntities.slice(offset, offset + limit);
-//     state.setEntities(paginatedEntities);
-//     return;
-//   }
-
-//   const query = useMemo<TournamentGetQuery>(
-//     () => ({
-//       tournament: {
-//         TournamentModel: [],
-//       },
-//     }),
-//     []
-//   );
-//   const { entities, isLoading, refetch } = useSdkGetEntities({
-//     query,
-//     limit,
-//     offset,
-//   });
-//   const tournaments = useMemo(
-//     () =>
-//       _filterEntitiesByModel<models.TournamentModel>(
-//         entities,
-//         "TournamentModel"
-//       ),
-//     [entities]
-//   );
-//   useEffect(
-//     () => console.log(`useGetTournamentsQuery()`, tournaments),
-//     [tournaments]
-//   );
-//   return { tournaments, isLoading, refetch };
-// };

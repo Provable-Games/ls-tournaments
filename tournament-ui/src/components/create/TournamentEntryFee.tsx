@@ -2,7 +2,7 @@ import { ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
-import { InputToken } from "@/generated/models.gen";
+import { Token } from "@/generated/models.gen";
 import { calculatePayouts } from "@/lib/utils";
 import SelectToken from "@/components/buttons/SelectToken";
 import { CairoOption, CairoOptionVariant } from "starknet";
@@ -10,7 +10,7 @@ import { CairoOption, CairoOptionVariant } from "starknet";
 const TournamentEntryFee = () => {
   const { createTournamentData, setCreateTournamentData } = useUIStore();
   const [entryFeeDisabled, setEntryFeeDisabled] = useState(true);
-  const [selectedToken, setSelectedToken] = useState<InputToken | null>(null);
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
   const [amount, setAmount] = useState<number>(0);
   const [creatorFee, setCreatorFee] = useState<number>(0);
   const [distributionWeight, setDistributionWeight] = useState<number>(0);
@@ -219,7 +219,7 @@ const TournamentEntryFee = () => {
                     variant="token"
                     className="border-terminal-green/75 !p-2 !h-8"
                     disabled={entryFeeDisabled}
-                    // onClick={() => setSelectedScoreboardIndex(index)}
+                    key={index}
                   >
                     <div className="flex flex-row items-center gap-1">
                       <span

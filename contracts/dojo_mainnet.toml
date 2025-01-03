@@ -1,6 +1,6 @@
 [world]
-name = "Tournament"
-description = "Loot Survivor Tournaments"
+name = "LS Tournaments V0"
+description = "Loot Survivor Tournaments Version 0"
 website = "https://github.com/Provable-Games/ls-tournaments"
 seed = "ls_tournaments_v0"
 
@@ -33,7 +33,7 @@ world_block = 948010
 [init_call_args]
 "ls_tournaments_v0-LSTournament" = [
     "1", # safe_mode
-    "1" # test_mode
+    "0" # test_mode
 ]
 
 [migration]

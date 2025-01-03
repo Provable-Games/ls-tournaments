@@ -3,17 +3,21 @@ import useUIStore from "@/hooks/useUIStore";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
-import { InputToken } from "@/generated/models.gen";
+import { Token } from "@/generated/models.gen";
 import { Button } from "@/components/buttons/Button";
 import { useDojo } from "@/DojoContext";
 
 interface TokenDialogProps {
-  selectedToken: InputToken;
-  setSelectedToken: React.Dispatch<React.SetStateAction<InputToken | null>>;
+  selectedToken: Token;
+  setSelectedToken: React.Dispatch<React.SetStateAction<Token | null>>;
   type?: "erc20" | "erc721";
 }
 
-const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
+const TokenDialog = ({
+  selectedToken,
+  setSelectedToken,
+  type,
+}: TokenDialogProps) => {
   const { setInputDialog } = useUIStore();
   const { nameSpace } = useDojo();
   const state = useDojoStore();
@@ -21,11 +25,14 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
 
   const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
+  console.log(tokens);
+
   const filteredTokens = tokens.filter((token) => {
     if (type) {
       return (
-        (token.models.tournament.Token
-          ?.token_data_type as unknown as string) === type
+        (
+          token.models[nameSpace].Token as unknown as Token
+        ).token_data_type?.activeVariant() === type
       );
     }
     return true;
@@ -57,8 +64,9 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
           .filter((token) => {
             if (!type) {
               return (
-                (token.models[nameSpace].Token
-                  ?.token_data_type as unknown as string) === selectedType
+                (
+                  token.models[nameSpace].Token as unknown as Token
+                ).token_data_type?.activeVariant() === selectedType
               );
             }
             return true;
@@ -74,7 +82,7 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
                 }`}
                 key={token.entityId}
                 onClick={() => {
-                  setSelectedToken(tokenModel as InputToken);
+                  setSelectedToken(tokenModel as unknown as Token);
                   setInputDialog(null);
                 }}
               >
@@ -93,4 +101,4 @@ const Token = ({ selectedToken, setSelectedToken, type }: TokenDialogProps) => {
   );
 };
 
-export default Token;
+export default TokenDialog;

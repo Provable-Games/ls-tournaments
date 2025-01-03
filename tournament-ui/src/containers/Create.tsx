@@ -1,11 +1,14 @@
 import { useAccount } from "@starknet-react/core";
 import { Button } from "@/components/buttons/Button";
-import { InputTournament, Models } from "@/generated/models.gen";
+import { Tournament, Models } from "@/generated/models.gen";
 import useUIStore from "@/hooks/useUIStore";
 import { useSystemCalls } from "@/useSystemCalls";
-import { stringToFelt, bigintToHex, feltToString } from "@/lib/utils";
+import { stringToFelt, bigintToHex } from "@/lib/utils";
 import { addAddressPadding } from "starknet";
-import { useSubscribeTournamentsQuery } from "@/hooks/useSdkQueries";
+import {
+  useSubscribeTournamentsQuery,
+  useSubscribePrizesQuery,
+} from "@/hooks/useSdkQueries";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import useModel from "@/useModel.ts";
@@ -18,28 +21,31 @@ import { useConfig } from "@/hooks/useConfig";
 
 const Create = () => {
   const { account } = useAccount();
-  const { createTournamentData } = useUIStore();
+  const { createTournamentData, resetCreateTournamentData } = useUIStore();
   const { testMode } = useConfig();
 
   const { tournament } = useTournamentContracts();
 
   useSubscribeTournamentsQuery();
+  useSubscribePrizesQuery();
 
   // states
   const contractEntityId = getEntityIdFromKeys([BigInt(tournament)]);
   const tournamentTotals = useModel(contractEntityId, Models.TournamentTotals);
   const tournamentCount = tournamentTotals?.total_tournaments ?? 0n;
+  const prizeCount = tournamentTotals?.total_prizes ?? 0n;
+
+  console.log(createTournamentData);
 
   const {
     createTournament,
-    addPrize,
-    approveERC20General,
-    approveERC721General,
+    createTournamentAndAddPrizes,
+    approveERC20Multiple,
   } = useSystemCalls();
 
   const handleCreateTournament = async () => {
     const currentTime = Number(BigInt(new Date().getTime()) / 1000n + 60n);
-    const tournament: InputTournament = {
+    const tournament: Tournament = {
       tournament_id: addAddressPadding(
         bigintToHex(BigInt(tournamentCount) + 1n)
       ),
@@ -97,25 +103,37 @@ const Create = () => {
       gated_type: createTournamentData.gatedType,
       entry_premium: createTournamentData.entryFee,
     };
-    await createTournament(tournament);
-    // Add prizes sequentially
-    let prizeKey = 0;
-    for (const prize of createTournamentData.prizes) {
-      // approve tokens to be added
-      if (prize.tokenDataType.activeVariant() === "erc20") {
-        await approveERC20General(prize);
-      } else {
-        await approveERC721General(prize);
-      }
-      await addPrize(
+    if (createTournamentData.prizes.length > 0) {
+      const tokens = createTournamentData.prizes.map((prize) => {
+        return {
+          token: prize.token,
+          tokenDataType: prize.token_data_type,
+        };
+      });
+      const newPrizes = createTournamentData.prizes.map((prize, index) => {
+        return {
+          prize_key: addAddressPadding(
+            bigintToHex(BigInt(prizeCount) + BigInt(index) + 1n)
+          ),
+          token: prize.token,
+          token_data_type: prize.token_data_type,
+          tournament_id: addAddressPadding(
+            bigintToHex(BigInt(tournamentCount) + 1n)
+          ),
+          payout_position: prize.payout_position,
+          claimed: prize.claimed,
+        };
+      });
+      await approveERC20Multiple(tokens);
+      await createTournamentAndAddPrizes(
         BigInt(tournamentCount) + 1n,
-        feltToString(createTournamentData.tournamentName),
-        prize,
-        addAddressPadding(bigintToHex(prizeKey)),
-        false
+        tournament,
+        newPrizes
       );
-      prizeKey++;
+    } else {
+      await createTournament(BigInt(tournamentCount) + 1n, tournament);
     }
+    resetCreateTournamentData();
   };
 
   return (

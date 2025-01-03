@@ -237,7 +237,7 @@ const snMainnetConfig: DojoChainConfig = {
   chainId: ChainId.SN_MAINNET,
   name: "Mainnet",
   rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-  toriiUrl: "https://api.cartridge.gg/x/ls-tournaments/torii",
+  toriiUrl: "https://api.cartridge.gg/x/realms-world-04/torii",
   relayUrl: undefined,
   blastRpc:
     "https://starknet-mainnet.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",

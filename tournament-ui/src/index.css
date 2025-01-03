@@ -30,3 +30,19 @@ body {
 .day-hidden[aria-disabled="true"] {
   display: none;
 }
+
+body::-webkit-scrollbar,
+.item-scroll::-webkit-scrollbar {
+  width : 0.2em;
+  height: 0.2em;
+}
+
+body::-webkit-scrollbar-track,
+.item-scroll::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(74, 246, 38, 0.5);
+}
+
+body::-webkit-scrollbar-thumb,
+.item-scroll::-webkit-scrollbar-thumb {
+  @apply bg-black;
+}

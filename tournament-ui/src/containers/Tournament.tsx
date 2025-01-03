@@ -28,6 +28,8 @@ import StartTournament from "@/components/tournament/StartTournament";
 import SubmitScores from "@/components/tournament/SubmitScores";
 import ClaimPrizes from "@/components/tournament/ClaimPrizes";
 import useFreeGames from "@/hooks/useFreeGames";
+import PrizeBoxes from "@/components/box/PrizeBoxes";
+import { TournamentPrize } from "@/generated/models.gen";
 
 const Tournament = () => {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +44,9 @@ const Tournament = () => {
   const { tournament } = useTournamentContracts();
 
   // Data fetching
-  useGetTournamentDetailsQuery(addAddressPadding(bigintToHex(id!)));
+  const { entities: tournamentDetails } = useGetTournamentDetailsQuery(
+    addAddressPadding(bigintToHex(id!))
+  );
   useSubscribeTournamentDetailsQuery(addAddressPadding(bigintToHex(id!)));
   useSubscribeTournamentDetailsAddressQuery(
     addAddressPadding(bigintToHex(id!)),
@@ -90,11 +94,6 @@ const Tournament = () => {
     nameSpace,
     "AdventurerModel"
   );
-  const tournamentPrizes = state.getEntitiesByModel(
-    nameSpace,
-    "TournamentPrize"
-  );
-  const prizesData = state.getEntitiesByModel(nameSpace, "TournamentPrize");
   const allTournamentEntries = tournamentAllEntriesEntities.filter(
     (entry: any) =>
       entry.models[nameSpace].TournamentEntriesAddress.tournament_id ===
@@ -155,6 +154,13 @@ const Tournament = () => {
 
   const isSeason =
     tournamentModel?.start_time === tournamentModel?.registration_start_time;
+
+  const prizes: TournamentPrize[] = (tournamentDetails
+    ?.filter((detail) => detail.TournamentPrize)
+    .map((detail) => detail.TournamentPrize) ??
+    []) as unknown as TournamentPrize[];
+
+  console.log(prizes);
 
   if (!tournamentModel?.tournament_id)
     return (
@@ -301,20 +307,16 @@ const Tournament = () => {
               <p className="text-xl text-terminal-green/75 no-text-shadow uppercase">
                 Prizes
               </p>
-              {tournamentPrizes && tournamentPrizes.length > 0 ? (
-                <p className="text-lg">
-                  {tournamentPrizes?.map((prize: any) =>
-                    feltToString(
-                      prize.models.tournament.TournamentPrize.prize_key
-                    )
-                  )}
-                </p>
+              {prizes && prizes.length > 0 ? (
+                <div className="flex flex-row gap-2">
+                  <PrizeBoxes prizes={prizes} />
+                </div>
               ) : (
                 <p className="text-lg uppercase">No Prizes Added</p>
               )}
             </div>
           </div>
-          {!started && (
+          {!ended && (
             <div className="absolute top-2 right-2">
               <Button
                 className="bg-terminal-green/25 text-terminal-green hover:text-terminal-black"
@@ -363,6 +365,7 @@ const Tournament = () => {
               entryCount={entryCount}
               usableGoldenTokens={usableGoldenTokens}
               usableBlobertTokens={usableBlobertTokens}
+              isSeason={isSeason}
             />
           ) : isSubmissionLive ? (
             <SubmitScores
@@ -375,9 +378,8 @@ const Tournament = () => {
             />
           ) : (
             <ClaimPrizes
-              tournamentPrizes={tournamentPrizes}
+              tournamentPrizes={prizes}
               tournamentModel={tournamentModel}
-              prizesData={prizesData}
             />
           )}
         </div>

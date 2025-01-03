@@ -3,20 +3,16 @@ import { Button } from "@/components/buttons/Button";
 import { useSystemCalls } from "@/useSystemCalls";
 import { feltToString } from "@/lib/utils";
 import { Tournament, TournamentPrize } from "@/generated/models.gen";
-import { SchemaType } from "@/generated/models.gen";
-import { ParsedEntity } from "@dojoengine/sdk";
 import { useDojo } from "@/DojoContext";
 
 interface ClaimPrizesProps {
-  tournamentPrizes: ParsedEntity<SchemaType>[];
+  tournamentPrizes: TournamentPrize[];
   tournamentModel: Tournament;
-  prizesData: any;
 }
 
 const ClaimPrizes = ({
   tournamentPrizes,
   tournamentModel,
-  prizesData,
 }: ClaimPrizesProps) => {
   const { nameSpace } = useDojo();
   const { distributePrizes } = useSystemCalls();
@@ -34,9 +30,9 @@ const ClaimPrizes = ({
 
   const unclaimedPrizes = useMemo<TournamentPrize[]>(() => {
     return (
-      prizesData
-        ?.filter((entity: any) => {
-          const prizeModel = entity.models[nameSpace].PrizesModel;
+      tournamentPrizes
+        ?.filter((prize: any) => {
+          const prizeModel = prize.models[nameSpace].TournamentPrize;
           return !prizeModel.claimed;
         })
         .map(
@@ -44,11 +40,11 @@ const ClaimPrizes = ({
             entity.models[nameSpace].PrizesModel as TournamentPrize
         ) ?? []
     );
-  }, [prizesData, tournamentPrizes]);
+  }, [tournamentPrizes]);
 
   return (
     <>
-      {tournamentPrizes ? (
+      {tournamentPrizes && tournamentPrizes.length > 0 ? (
         <>
           <div className="flex flex-col">
             <p className="text-4xl text-center uppercase">Claim Prizes</p>

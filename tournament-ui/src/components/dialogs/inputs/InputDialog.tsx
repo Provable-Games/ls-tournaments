@@ -6,6 +6,8 @@ import GatedAddressesDialog from "@/components/dialogs/inputs/GatedAddresses";
 import GatedTournamentsDialog from "@/components/dialogs/inputs/GatedTournament";
 import EntryFeeDialog from "@/components/dialogs/inputs/EntryFee";
 import TokenDialog from "@/components/dialogs/inputs/Token";
+import Addresses from "@/components/dialogs/inputs/Addresses";
+import TournamentList from "@/components/dialogs/inputs/TournamentList";
 
 const InputDialog = () => {
   const { inputDialog } = useUIStore();
@@ -21,6 +23,8 @@ const InputDialog = () => {
     "gated-tournaments": GatedTournamentsDialog,
     "entry-fee": EntryFeeDialog,
     token: TokenDialog,
+    addresses: Addresses,
+    "tournament-list": TournamentList,
     // ... other dialogs
   };
 

@@ -1,11 +1,10 @@
 import { ReactElement } from "react";
 import { ScreenPage } from "../hooks/useUIStore";
 import {
-  InputPremium,
-  InputGatedTypeEnum,
   Premium,
   GatedTypeEnum,
   TokenDataTypeEnum,
+  TournamentPrize,
 } from "@/generated/models.gen";
 import {
   ByteArray,
@@ -31,9 +30,9 @@ export type CreateTournamentData = {
   endTime: Date | undefined;
   submissionPeriod: number;
   scoreboardSize: number;
-  gatedType: CairoOption<InputGatedTypeEnum>;
-  entryFee: CairoOption<InputPremium>;
-  prizes: Prize[];
+  gatedType: CairoOption<GatedTypeEnum>;
+  entryFee: CairoOption<Premium>;
+  prizes: TournamentPrize[];
 };
 
 export type StartTournamentData = {
@@ -50,13 +49,6 @@ export type Tournament = {
   winners_count: number;
   gated_type: CairoOption<GatedTypeEnum>;
   entry_premium: CairoOption<Premium>;
-};
-
-export type Prize = {
-  tournamentId: number;
-  token: string;
-  tokenDataType: TokenDataTypeEnum;
-  position: number;
 };
 
 // export interface GatedToken<T> {
@@ -118,13 +110,6 @@ export type TypedCairoEnum<T> = CairoCustomEnum & {
 
 export type DataTypeEnum = TypedCairoEnum<DataType>;
 export type GatedSubmissionTypeEnum = TypedCairoEnum<GatedSubmissionType>;
-
-// export type Premium = {
-//   token: string;
-//   token_amount: number;
-//   token_distribution: Array<number>;
-//   creator_fee: number;
-// };
 
 export type ERC20Data = {
   token_amount: number;

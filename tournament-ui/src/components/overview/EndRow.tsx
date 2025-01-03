@@ -1,5 +1,9 @@
-import { feltToString } from "@/lib/utils";
+import { feltToString, bigintToHex } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries";
+import { addAddressPadding } from "starknet";
+import { TournamentPrize } from "@/generated/models.gen";
+import TablePrizes from "../table/Prizes";
 
 interface EndRowProps {
   tournamentId?: any;
@@ -17,7 +21,6 @@ const EndRow = ({
   submissionPeriod,
 }: EndRowProps) => {
   const navigate = useNavigate();
-
   const endTimestamp = Number(endTime) * 1000;
   const endDate = new Date(endTimestamp);
   const submissionEndDate = new Date(
@@ -32,6 +35,15 @@ const EndRow = ({
   const isSubmissionLive = ended && !submissionEnded;
 
   const status = isSubmissionLive ? "Submitting" : "Closed";
+
+  const { entities: tournamentDetails } = useGetTournamentDetailsQuery(
+    addAddressPadding(bigintToHex(tournamentId ?? 0))
+  );
+
+  const prizes: TournamentPrize[] = (tournamentDetails
+    ?.filter((detail) => detail.TournamentPrize)
+    .map((detail) => detail.TournamentPrize) ??
+    []) as unknown as TournamentPrize[];
 
   return (
     <tr
@@ -49,8 +61,9 @@ const EndRow = ({
       <td>0/0</td>
       <td>{winnersCount}</td>
       <td>{status}</td>
-      {/* <td>{prizes}</td> */}
-      <td>0</td>
+      <td>
+        <TablePrizes prizes={prizes} />
+      </td>
     </tr>
   );
 };

@@ -1,17 +1,19 @@
-import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useNavigate } from "react-router-dom";
-import { feltToString } from "@/lib/utils";
+import { feltToString, getTokenNameOrIcon } from "@/lib/utils";
 import useModel from "@/useModel.ts";
-import { Models, TournamentPrize } from "@/generated/models.gen";
+import { Models, TournamentPrize, Premium } from "@/generated/models.gen";
 import { useGetTournamentDetailsQuery } from "@/hooks/useSdkQueries.ts";
+import TablePrizes from "@/components/table/Prizes";
+import { BigNumberish, CairoOption } from "starknet";
+import { useDojo } from "@/DojoContext";
+import { useDojoStore } from "@/hooks/useDojoStore";
 
 interface CreatedRowProps {
   entityId: any;
-  tournamentId?: any;
-  name?: any;
-  startTime?: any;
-  entryPremium?: any;
-  prizeKeys?: any;
+  tournamentId?: BigNumberish;
+  name?: BigNumberish;
+  startTime?: BigNumberish;
+  entryPremium?: CairoOption<Premium>;
 }
 
 const CreatedRow = ({
@@ -20,17 +22,19 @@ const CreatedRow = ({
   name,
   startTime,
   entryPremium,
-  prizeKeys,
 }: CreatedRowProps) => {
   const navigate = useNavigate();
+  const { nameSpace } = useDojo();
+  const state = useDojoStore();
   const startTimestamp = Number(startTime) * 1000;
   const startDate = new Date(startTimestamp);
   const displayStartDate = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(startDate);
-  const { entities: tournamentDetails } =
-    useGetTournamentDetailsQuery(tournamentId);
+  const { entities: tournamentDetails } = useGetTournamentDetailsQuery(
+    tournamentId!
+  );
   const entryIndex =
     tournamentDetails?.findIndex((detail) => detail.TournamentEntries) ?? -1;
   const tournamentEntries =
@@ -68,6 +72,13 @@ const CreatedRow = ({
     : isSubmissionLive
     ? "Submission Live"
     : "Ended";
+
+  const prizes: TournamentPrize[] = (tournamentDetails
+    ?.filter((detail) => detail.TournamentPrize)
+    .map((detail) => detail.TournamentPrize) ??
+    []) as unknown as TournamentPrize[];
+
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
   return (
     <tr
       className="h-6 hover:bg-terminal-green/50 hover:cursor-pointer border border-terminal-green/50"
@@ -86,37 +97,28 @@ const CreatedRow = ({
       <td>{displayStartDate}</td>
       <td>{status}</td>
       <td>
-        {!entryPremium || entryPremium === "None"
-          ? "-"
-          : (entryPremium.Some?.token_amount as unknown as string)}
-      </td>
-      <td>
-        {!entryPremium || entryPremium === "None"
-          ? "-"
-          : (entryPremium.Some as unknown as string)}
-      </td>
-      <td>
-        <div className="flex flex-col gap-2">
-          {prizeKeys ? (
-            prizeKeys?.map((prizeKey: any) => {
-              const entityId = getEntityIdFromKeys([BigInt(prizeKey)]);
-
-              const prize: TournamentPrize = useModel(
-                entityId,
-                Models.TournamentPrize
-              );
-              // TODO: when token data type data is supported add the details
-              return (
-                <div key={prizeKey}>
-                  {/* {prize?.token_data_type.variant.erc20?.token_amount} */}
-                  {prize ? prize?.token_data_type.toString() : "-"}
-                </div>
-              );
-            })
-          ) : (
-            <p>-</p>
-          )}
+        <div className="flex flex-row gap-1">
+          <span>
+            {entryPremium?.isNone
+              ? "-"
+              : BigInt(entryPremium?.Some?.token_amount ?? 0).toString()}
+          </span>
+          <span>
+            {getTokenNameOrIcon(
+              nameSpace,
+              entryPremium?.Some?.token ?? "",
+              tokens
+            )}
+          </span>
         </div>
+      </td>
+      <td>
+        {entryPremium?.isNone
+          ? "-"
+          : BigInt(entryPremium?.Some?.creator_fee ?? 0).toString()}
+      </td>
+      <td>
+        <TablePrizes prizes={prizes} />
       </td>
     </tr>
   );

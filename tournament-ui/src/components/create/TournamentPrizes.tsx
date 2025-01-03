@@ -2,12 +2,15 @@ import { ChangeEvent, useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
-import { Prize } from "@/lib/types";
-import { InputToken, TokenDataTypeEnum } from "@/generated/models.gen";
+import {
+  Token,
+  TokenDataTypeEnum,
+  TournamentPrize,
+} from "@/generated/models.gen";
 import SelectToken from "@/components/buttons/SelectToken";
 import { BigNumberish, CairoCustomEnum } from "starknet";
 import { calculatePayouts } from "@/lib/utils";
-import PrizeBoxes from "@/components/create/PrizeBoxes";
+import PrizeBoxes from "@/components/box/PrizeBoxes";
 
 interface TournamentPrizesProps {
   tournamentCount: BigNumberish;
@@ -21,7 +24,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
     Record<
       number,
       {
-        selectedToken: InputToken | null;
+        selectedToken: Token | null;
         amount: number;
         distributionWeight: number;
         position: number;
@@ -64,7 +67,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
     [scoreboardSize, currentPrize.distributionWeight]
   );
 
-  const formattedERC20Prizes: Prize[] = useMemo(
+  const formattedERC20Prizes: TournamentPrize[] = useMemo(
     () =>
       payouts.map((dist, index) => {
         const tokenDataType = new CairoCustomEnum({
@@ -75,16 +78,18 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
         }) as TokenDataTypeEnum;
 
         return {
-          tournamentId: Number(BigInt(tournamentCount) + 1n),
+          tournament_id: Number(BigInt(tournamentCount) + 1n),
           token: currentPrize.selectedToken?.token!,
-          position: index + 1,
-          tokenDataType,
+          payout_position: index + 1,
+          token_data_type: tokenDataType,
+          prize_key: "",
+          claimed: false,
         };
       }),
     [payouts, currentPrize]
   );
 
-  const formattedERC721Prizes: Prize[] = useMemo(() => {
+  const formattedERC721Prizes: TournamentPrize[] = useMemo(() => {
     const tokenDataType = new CairoCustomEnum({
       erc20: undefined,
       erc721: {
@@ -93,10 +98,12 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
     }) as TokenDataTypeEnum;
     return [
       {
-        tournamentId: Number(BigInt(tournamentCount) + 1n),
+        tournament_id: Number(BigInt(tournamentCount) + 1n),
         token: currentPrize.selectedToken?.token!,
-        position: currentPrize.position,
-        tokenDataType,
+        payout_position: currentPrize.position,
+        token_data_type: tokenDataType,
+        prize_key: "",
+        claimed: false,
       },
     ];
   }, [currentPrize]);
@@ -176,8 +183,8 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
           <div className="h-full w-0.5 bg-terminal-green/50" />
           {currentPrize.selectedToken && (
             <>
-              {(currentPrize.selectedToken
-                .token_data_type as unknown as string) === "erc20" ? (
+              {currentPrize.selectedToken.token_data_type.activeVariant() ===
+              "erc20" ? (
                 <>
                   <div className="flex flex-col py-2">
                     <p className="text-xl uppercase text-terminal-green/75">
@@ -383,6 +390,7 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
                                 },
                               }));
                             }}
+                            key={index}
                           >
                             <span
                               className={`flex items-center w-4 h-4 text-xl ${

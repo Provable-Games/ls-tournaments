@@ -50,6 +50,7 @@ export const makeControllerConnector = (
   const connector = new ControllerConnector({
     rpc: rpcUrl,
     theme: "loot-survivor",
+    colorMode: "dark",
     policies,
   }) as never as Connector;
   return connector;

@@ -15,7 +15,7 @@ import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useDojo } from "@/DojoContext";
 import TokenBox from "@/components/registerToken/TokenBox";
 import { useSubscribeTokensQuery } from "@/hooks/useSdkQueries";
-import { TokenDataTypeEnum } from "@/generated/models.gen";
+import { TokenDataTypeEnum, Token } from "@/generated/models.gen";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 const RegisterToken = () => {
@@ -169,7 +169,10 @@ const RegisterToken = () => {
           standard="eth"
           balance={formatBalance(tokenBalance["eth"])}
           onMint={async () => {
-            await mintEth(account?.address!, 100000000000000000000n, 0n);
+            await mintEth(account?.address!, {
+              low: 100000000000000000000n,
+              high: 0n,
+            });
           }}
           onCopy={handleCopyAddress}
           isCopied={copiedStates["eth"]}
@@ -180,7 +183,10 @@ const RegisterToken = () => {
           standard="lords"
           balance={formatBalance(tokenBalance["lords"])}
           onMint={async () => {
-            await mintLords(account?.address!, 100000000000000000000n, 0n);
+            await mintLords(account?.address!, {
+              low: 100000000000000000000n,
+              high: 0n,
+            });
           }}
           onCopy={handleCopyAddress}
           isCopied={copiedStates["lords"]}
@@ -191,7 +197,10 @@ const RegisterToken = () => {
           standard="erc20"
           balance={formatBalance(tokenBalance["erc20"])}
           onMint={async () => {
-            await mintErc20(account?.address!, 100000000000000000000n, 0n);
+            await mintErc20(account?.address!, {
+              low: 100000000000000000000n,
+              high: 0n,
+            });
           }}
           onCopy={handleCopyAddress}
           isCopied={copiedStates["erc20"]}
@@ -203,7 +212,7 @@ const RegisterToken = () => {
           standard="erc721"
           balance={Number(tokenBalance["erc721"])}
           onMint={async () => {
-            await mintErc721(account?.address!, 1n, 0n);
+            await mintErc721(account?.address!, { low: 1n, high: 0n });
           }}
           onCopy={handleCopyAddress}
           isCopied={copiedStates["erc721"]}
@@ -213,7 +222,8 @@ const RegisterToken = () => {
       {!!tokens && tokens.length > 0 ? (
         <div className="flex flex-row gap-2 justify-center">
           {tokens.map((token) => {
-            const tokenModel = token.models[nameSpace].Token;
+            const tokenModel = token.models[nameSpace]
+              .Token as unknown as Token;
             return (
               <Button
                 key={token.entityId}
@@ -223,7 +233,7 @@ const RegisterToken = () => {
               >
                 {tokenModel?.name}
                 <span className="absolute top-0 text-xs uppercase text-terminal-green/75">
-                  {tokenModel?.token_data_type as unknown as string}
+                  {tokenModel?.token_data_type?.activeVariant()}
                 </span>
                 <span className="absolute bottom-0 text-xs uppercase text-terminal-green/75">
                   {displayAddress(tokenModel?.token!)}

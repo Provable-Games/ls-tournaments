@@ -77,7 +77,7 @@ export const Countdown = ({ targetTime, countDownExpired }: CountdownProps) => {
       <span className="flex flex-col gap-1 items-center justify-center">
         {targetTime ? (
           <>
-            <p
+            <span
               className={`text-4xl ${
                 seconds < 10
                   ? "animate-pulse text-terminal-green"
@@ -85,10 +85,12 @@ export const Countdown = ({ targetTime, countDownExpired }: CountdownProps) => {
               }`}
             >
               {formatTime(seconds)}
-            </p>
+            </span>
           </>
         ) : (
-          <p className="text-6xl animate-pulse text-terminal-yellow">Loading</p>
+          <span className="text-6xl animate-pulse text-terminal-yellow">
+            Loading
+          </span>
         )}
       </span>
     </div>
