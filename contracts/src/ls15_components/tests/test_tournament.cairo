@@ -20,10 +20,10 @@ use ls_tournaments_v0::ls15_components::models::{
     },
     tournament::{
         m_Tournament, m_TournamentGame, m_TournamentEntryAddresses, m_TournamentEntriesAddress,
-        m_TournamentStartsAddress, m_TournamentEntries, m_TournamentScores,
-        m_TournamentTotals, m_TournamentPrize, m_Token, m_TournamentConfig, ERC20Data,
-        ERC721Data, Premium, GatedToken, EntryCriteria, TokenDataType, GatedType, GatedEntryType,
-        GatedSubmissionType, FreeGameTokenType
+        m_TournamentStartsAddress, m_TournamentEntries, m_TournamentScores, m_TournamentTotals,
+        m_TournamentPrize, m_Token, m_TournamentConfig, ERC20Data, ERC721Data, Premium, GatedToken,
+        EntryCriteria, TokenDataType, GatedType, GatedEntryType, GatedSubmissionType,
+        FreeGameTokenType
     }
 };
 
@@ -53,17 +53,17 @@ use openzeppelin_token::erc721::interface;
 use openzeppelin_token::erc721::{ERC721Component::{Transfer, Approval,}};
 
 #[derive(Drop)]
-struct TestContracts {
-    world: WorldStorage,
-    tournament: ITournamentMockDispatcher,
-    loot_survivor: ILootSurvivorMockDispatcher,
-    pragma: IPragmaMockDispatcher,
-    eth: IERC20MockDispatcher,
-    lords: IERC20MockDispatcher,
-    erc20: IERC20MockDispatcher,
-    erc721: IERC721MockDispatcher,
-    golden_token: IERC721MockDispatcher,
-    blobert: IERC721MockDispatcher,
+pub struct TestContracts {
+    pub world: WorldStorage,
+    pub tournament: ITournamentMockDispatcher,
+    pub loot_survivor: ILootSurvivorMockDispatcher,
+    pub pragma: IPragmaMockDispatcher,
+    pub eth: IERC20MockDispatcher,
+    pub lords: IERC20MockDispatcher,
+    pub erc20: IERC20MockDispatcher,
+    pub erc721: IERC721MockDispatcher,
+    pub golden_token: IERC721MockDispatcher,
+    pub blobert: IERC721MockDispatcher,
 }
 
 
@@ -666,7 +666,14 @@ fn test_create_gated_tournament_with_unsettled_tournament() {
     contracts
         .tournament
         .start_tournament(
-            first_tournament_id, false, Option::None, ZERO(), array![].span(), array![].span(), 12, 'test'
+            first_tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     // Try to create a second tournament gated by the first (unsettled) tournament
@@ -740,7 +747,14 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
     contracts
         .tournament
         .start_tournament(
-            first_tournament_id, false, Option::None, ZERO(), array![].span(), array![].span(), 12, 'test'
+            first_tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
@@ -756,7 +770,14 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
     contracts
         .tournament
         .start_tournament(
-            second_tournament_id, false, Option::None, ZERO(), array![].span(), array![].span(), 12, 'test'
+            second_tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
@@ -1009,7 +1030,14 @@ fn test_enter_tournament_wrong_submission_type() {
     contracts
         .tournament
         .start_tournament(
-            first_tournament_id, false, Option::None, ZERO(), array![].span(), array![].span(), 12, 'test'
+            first_tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     testing::set_block_timestamp(TEST_END_TIME().into());
@@ -1176,12 +1204,26 @@ fn test_start_tournament_multiple_starts() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::Some(1), ZERO(), array![].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::Some(1),
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::Some(1), ZERO(), array![].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::Some(1),
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
 }
 
@@ -1222,7 +1264,14 @@ fn test_start_tournament_multiple_starts_multiple_addresses() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, true, Option::Some(2), ZERO(), array![].span(), array![].span(), 12, 'test'
+            tournament_id,
+            true,
+            Option::Some(2),
+            ZERO(),
+            array![].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     utils::impersonate(player3);
@@ -1254,7 +1303,14 @@ fn test_start_tournament_with_free_game() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::None, ZERO(), array![1].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![1].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     // check tournament entries
@@ -1291,7 +1347,14 @@ fn test_start_tournament_with_free_game_multiple() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::None, ZERO(), array![1, 2].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![1, 2].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     // check tournament entries
@@ -1338,7 +1401,14 @@ fn test_start_tournament_with_free_game_multiple_and_lords() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::None, ZERO(), array![1, 2].span(), array![1, 2].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![1, 2].span(),
+            array![1, 2].span(),
+            12,
+            'test'
         );
 
     // check tournament entries
@@ -1379,7 +1449,14 @@ fn test_start_tournament_with_free_game_over_start_count() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::Some(1), ZERO(), array![1, 2].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::Some(1),
+            ZERO(),
+            array![1, 2].span(),
+            array![].span(),
+            12,
+            'test'
         );
 }
 
@@ -1410,7 +1487,14 @@ fn test_start_tournament_with_free_game_over_entries() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::None, ZERO(), array![1, 2].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![1, 2].span(),
+            array![].span(),
+            12,
+            'test'
         );
 }
 
@@ -1475,7 +1559,14 @@ fn test_start_tournament_with_free_game_multiple_starts() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::Some(1), ZERO(), array![1].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::Some(1),
+            ZERO(),
+            array![1].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     contracts.eth.approve(contracts.tournament.contract_address, 200000000000000);
@@ -1484,7 +1575,14 @@ fn test_start_tournament_with_free_game_multiple_starts() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::None, ZERO(), array![1].span(), array![].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![1].span(),
+            array![].span(),
+            12,
+            'test'
         );
 
     // check tournament entries
@@ -1520,7 +1618,14 @@ fn test_start_tournament_with_free_game_blobert_and_golden() {
     contracts
         .tournament
         .start_tournament(
-            tournament_id, false, Option::None, ZERO(), array![1].span(), array![1].span(), 12, 'test'
+            tournament_id,
+            false,
+            Option::None,
+            ZERO(),
+            array![1].span(),
+            array![1].span(),
+            12,
+            'test'
         );
 
     // check tournament entries
@@ -1538,19 +1643,19 @@ fn test_start_season() {
     utils::impersonate(OWNER());
 
     let tournament_id = contracts
-    .tournament
-    .create_tournament(
-        TOURNAMENT_NAME(),
-        TOURNAMENT_DESCRIPTION(),
-        TEST_START_TIME().into(),
-        TEST_END_TIME().into(),
-        TEST_START_TIME().into(),
-        TEST_END_TIME().into(),
-        MIN_SUBMISSION_PERIOD.into(),
-        1,
-        Option::None,
-        Option::None,
-    );
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            1,
+            Option::None,
+            Option::None,
+        );
 
     testing::set_block_timestamp(TEST_START_TIME().into());
 
@@ -2831,26 +2936,26 @@ fn test_tournament_with_no_starts() {
     assert(contracts.erc721.owner_of(1) == OWNER(), 'Prize should return to caller');
 }
 
-#[test] 
+#[test]
 fn test_distribute_prizes_season() {
     let contracts = setup();
 
     utils::impersonate(OWNER());
 
     let tournament_id = contracts
-    .tournament
-    .create_tournament(
-        TOURNAMENT_NAME(),
-        TOURNAMENT_DESCRIPTION(),
-        TEST_START_TIME().into(),
-        TEST_END_TIME().into(),
-        TEST_START_TIME().into(),
-        TEST_END_TIME().into(),
-        MIN_SUBMISSION_PERIOD.into(),
-        1,
-        Option::None,
-        Option::None,
-    );
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            1,
+            Option::None,
+            Option::None,
+        );
 
     contracts.erc20.approve(contracts.tournament.contract_address, STARTING_BALANCE);
     contracts.erc721.approve(contracts.tournament.contract_address, 1);

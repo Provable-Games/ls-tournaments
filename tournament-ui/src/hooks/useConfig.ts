@@ -4,11 +4,12 @@ import useModel from "@/useModel";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojoSystem } from "@/hooks/useDojoSystem";
 import { useDojo } from "@/DojoContext";
+import { ChainId } from "@/config";
 
 export const useConfig = () => {
   const { selectedChainConfig } = useDojo();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const tournament = isMainnet
     ? useDojoSystem("LSTournament").contractAddress

@@ -77,10 +77,10 @@ pub mod tournament_component {
     };
     use ls_tournaments_v0::ls15_components::models::tournament::{
         Tournament as TournamentModel, TournamentGame, TournamentEntryAddresses,
-        TournamentEntriesAddress, TournamentEntries, TournamentStartsAddress,
-        TournamentScores, TournamentTotals, TournamentPrize, Token, TournamentConfig,
-        TokenDataType, EntryStatus, GatedType, GatedSubmissionType, GatedEntryType, GatedToken,
-        Premium, ERC20Data, ERC721Data, FreeGameTokenType
+        TournamentEntriesAddress, TournamentEntries, TournamentStartsAddress, TournamentScores,
+        TournamentTotals, TournamentPrize, Token, TournamentConfig, TokenDataType, EntryStatus,
+        GatedType, GatedSubmissionType, GatedEntryType, GatedToken, Premium, ERC20Data, ERC721Data,
+        FreeGameTokenType
     };
     use ls_tournaments_v0::ls15_components::interfaces::{WorldTrait, WorldImpl,};
     use ls_tournaments_v0::ls15_components::libs::store::{Store, StoreTrait};

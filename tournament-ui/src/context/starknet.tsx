@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Chain } from "@starknet-react/chains";
 import { jsonRpcProvider, StarknetConfig } from "@starknet-react/core";
 import React from "react";
@@ -8,8 +8,13 @@ import {
   DojoAppConfig,
   dojoContextConfig,
   getDojoChainConfig,
+  ChainId,
 } from "../config";
 import { getStarknetProviderChains } from "@/config";
+import {
+  predeployedAccounts,
+  PredeployedAccountsConnector,
+} from "@dojoengine/predeployed-connector";
 
 export function StarknetProvider({
   children,
@@ -41,18 +46,33 @@ export function StarknetProvider({
     [dojoContextConfig, selectedChainId]
   );
 
-  console.log(selectedChainConfig);
-
   const chainConnectors = useChainConnectors(
     dojoAppConfig,
     selectedChainConfig!
   );
 
+  const [pa, setPa] = useState<PredeployedAccountsConnector[]>([]);
+
+  console.log(selectedChainId);
+
+  useEffect(() => {
+    if (selectedChainId === ChainId.KATANA_LOCAL) {
+      predeployedAccounts({
+        rpc: selectedChainConfig?.rpcUrl as string,
+        id: "katana",
+        name: "Katana",
+      }).then(setPa);
+    }
+  }, [selectedChainConfig?.rpcUrl]);
+
+  console.log(pa);
+  console.log(chains);
+
   return (
     <StarknetConfig
-      autoConnect={true}
+      autoConnect
       chains={chains}
-      connectors={chainConnectors}
+      connectors={[...chainConnectors, ...pa]}
       provider={() => provider(selectedChainConfig?.chain!)}
     >
       {children}

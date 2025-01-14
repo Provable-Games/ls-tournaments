@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { BigNumberish } from "starknet";
-import { QueryType } from "@dojoengine/sdk";
+import { QueryType, ParsedEntity } from "@dojoengine/sdk";
 import { useDojo } from "@/DojoContext";
 import { SchemaType } from "@/generated/models.gen";
 import { useDojoStore } from "@/hooks/useDojoStore";
@@ -43,6 +43,9 @@ export const useSdkGetEntities = ({
   const [entities, setEntities] = useState<EntityResult[] | null>(null);
   const { setEntities: setStoreEntities } = useDojoStore((state) => state);
 
+  // Add a mount ref
+  const isMounted = useRef(false);
+
   const fetchEntities = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -54,7 +57,7 @@ export const useSdkGetEntities = ({
             return;
           }
           if (resp.data) {
-            setStoreEntities(resp.data);
+            setStoreEntities(resp.data as ParsedEntity<SchemaType>[]);
             setEntities(
               resp.data.map(
                 (e: any) =>
@@ -75,13 +78,17 @@ export const useSdkGetEntities = ({
     } finally {
       setIsLoading(false);
     }
-  }, [enabled, sdk, query, limit, offset]);
+  }, [sdk, query, orderBy, limit, offset, nameSpace, setStoreEntities]);
 
   useEffect(() => {
-    if (enabled) {
-      fetchEntities();
-    } else {
-      setIsLoading(false);
+    if (!isMounted.current) {
+      isMounted.current = true;
+
+      if (enabled) {
+        fetchEntities();
+      } else {
+        setIsLoading(false);
+      }
     }
   }, [enabled, fetchEntities]);
 

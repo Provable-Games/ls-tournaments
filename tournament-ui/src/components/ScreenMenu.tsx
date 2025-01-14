@@ -5,6 +5,7 @@ import { Menu } from "@/lib/types";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useDojo } from "@/DojoContext";
+import { ChainId } from "@/config";
 
 export interface ButtonData {
   id: number;
@@ -30,7 +31,7 @@ const HorizontalKeyboardControl: React.FC<HorizontalKeyboardControlProps> = ({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {

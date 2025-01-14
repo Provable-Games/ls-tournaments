@@ -34,7 +34,11 @@ const GatedTournament = ({
     () => bigintToHex(BigInt(new Date().getTime()) / 1000n),
     []
   );
-  const { entities: tournaments } = useGetEndedTournamentsQuery(hexTimestamp);
+  const { entities: tournaments } = useGetEndedTournamentsQuery(
+    hexTimestamp,
+    10,
+    (currentPage - 1) * 10
+  );
 
   const [tournamentID, setTournamentID] = useState<number | null>(null);
 

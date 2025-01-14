@@ -3,7 +3,6 @@ import { Button } from "@/components/buttons/Button";
 import { useSystemCalls } from "@/useSystemCalls";
 import { feltToString } from "@/lib/utils";
 import { Tournament, TournamentPrize } from "@/generated/models.gen";
-import { useDojo } from "@/DojoContext";
 
 interface ClaimPrizesProps {
   tournamentPrizes: TournamentPrize[];
@@ -14,13 +13,10 @@ const ClaimPrizes = ({
   tournamentPrizes,
   tournamentModel,
 }: ClaimPrizesProps) => {
-  const { nameSpace } = useDojo();
   const { distributePrizes } = useSystemCalls();
 
   const handleDistributeAllPrizes = async () => {
-    const prizeKeys = tournamentPrizes?.map(
-      (prize: any) => prize.models[nameSpace].TournamentPrize.prize_key
-    );
+    const prizeKeys = tournamentPrizes?.map((prize: any) => prize.prize_key);
     await distributePrizes(
       tournamentModel?.tournament_id!,
       feltToString(tournamentModel?.name!),
@@ -29,17 +25,9 @@ const ClaimPrizes = ({
   };
 
   const unclaimedPrizes = useMemo<TournamentPrize[]>(() => {
-    return (
-      tournamentPrizes
-        ?.filter((prize: any) => {
-          const prizeModel = prize.models[nameSpace].TournamentPrize;
-          return !prizeModel.claimed;
-        })
-        .map(
-          (entity: any) =>
-            entity.models[nameSpace].PrizesModel as TournamentPrize
-        ) ?? []
-    );
+    return tournamentPrizes?.filter((prize: any) => {
+      return !prize.claimed;
+    });
   }, [tournamentPrizes]);
 
   return (

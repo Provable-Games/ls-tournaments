@@ -31,9 +31,11 @@ const TablePrizes = ({ prizes }: TablePrizesProps) => {
             )
           : null; // Return null for ERC721 since we don't want to sum them
         return (
-          <div className="flex flex-row gap-1" key={index}>
+          <div className="flex flex-row items-center gap-1" key={index}>
             <div>{totalAmount}</div>
-            {getTokenNameOrIcon(nameSpace, token, tokens)}
+            <span className="w-4 h-4 fill-current">
+              {getTokenNameOrIcon(nameSpace, token, tokens)}
+            </span>
           </div>
         );
       })}

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import Pagination from "@/components/table/Pagination";
 import GameRow from "@/components/tournament/GameRow";
 import { useDojo } from "@/DojoContext";
+import { ChainId } from "@/config";
 
 interface GamesTableProps {
   adventurersData: any;
@@ -9,7 +10,7 @@ interface GamesTableProps {
 
 const GamesTable = ({ adventurersData }: GamesTableProps) => {
   const { selectedChainConfig, nameSpace } = useDojo();
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
     if (!adventurersData) return 0;

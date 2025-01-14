@@ -12,6 +12,7 @@ import { Button } from "@/components/buttons/Button";
 import { useSystemCalls } from "@/useSystemCalls";
 import { feltToString, bigintToHex } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { ChainId } from "@/config";
 
 interface SubmitScoresProps {
   tournamentModel: Tournament;
@@ -35,7 +36,7 @@ const SubmitScores = ({
   const navigate = useNavigate();
   const { submitScores } = useSystemCalls();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const scores =
     addressGameIds?.reduce((acc: any, id: any) => {
@@ -68,12 +69,13 @@ const SubmitScores = ({
     } else {
       if (adventurersData) {
         const sortedScores = adventurersData.sort((a: any, b: any) => {
-          return BigInt(a.xp) - BigInt(b.xp);
+          return Number(BigInt(b.xp) - BigInt(a.xp)); // switched a and b
         });
         const winnersCount = tournamentModel?.winners_count;
         const adventurerIds = sortedScores.map((score: any) =>
           addAddressPadding(bigintToHex(BigInt(score.id)))
         );
+        console.log(sortedScores);
         return winnersCount
           ? adventurerIds.slice(0, winnersCount)
           : adventurerIds;
@@ -118,9 +120,7 @@ const SubmitScores = ({
             {/* TODO: Show qualifying scores */}
           </div>
           <div className="flex flex-row gap-5">
-            <Button onClick={handleSubmitScores} disabled={!!tournamentScores}>
-              Submit Scores
-            </Button>
+            <Button onClick={handleSubmitScores}>Submit Scores</Button>
           </div>
         </>
       ) : (

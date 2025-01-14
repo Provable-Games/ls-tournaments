@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BigNumberish } from "starknet";
-import { SubscriptionQueryType } from "@dojoengine/sdk";
+import { SubscriptionQueryType, ParsedEntity } from "@dojoengine/sdk";
 import { useDojo } from "@/DojoContext";
 import { SchemaType } from "@/generated/models.gen";
 import { useDojoStore } from "@/hooks/useDojoStore";
@@ -43,9 +43,13 @@ export const useSdkSubscribeEntities = ({
               "useSdkSubscribeEntities() error:",
               response.error.message
             );
-          } else if (response.data && response.data[0].entityId !== "0x0") {
+          } else if (
+            response.data &&
+            (response.data[0] as Partial<ParsedEntity<SchemaType>>).entityId !==
+              "0x0"
+          ) {
             response.data.forEach((entity) => {
-              state.updateEntity(entity);
+              state.updateEntity(entity as Partial<ParsedEntity<SchemaType>>);
             });
             setEntities(
               response.data.map(
