@@ -119,7 +119,11 @@ export const useGetAllPrizesQuery = () => {
   return { entities, isLoading, refetch };
 };
 
-export const useGetUpcomingTournamentsQuery = (currentTime: string) => {
+export const useGetUpcomingTournamentsQuery = (
+  currentTime: string,
+  limit: number,
+  offset: number
+) => {
   const { nameSpace } = useDojo();
   const query = useMemo<TournamentGetQuery>(
     () => ({
@@ -140,11 +144,13 @@ export const useGetUpcomingTournamentsQuery = (currentTime: string) => {
     query,
     orderBy: [
       {
-        model: "Tournament",
-        member: "startTime",
+        model: `${nameSpace}-Tournament`,
+        member: "start_time",
         direction: "Asc",
       },
     ],
+    limit: limit,
+    offset: offset,
   });
   return { entities, isLoading, refetch };
 };
@@ -181,7 +187,11 @@ export const useGetTournamentDetailsInListQuery = (
   return { entities, isLoading, refetch };
 };
 
-export const useGetLiveTournamentsQuery = (currentTime: string) => {
+export const useGetLiveTournamentsQuery = (
+  currentTime: string,
+  limit: number,
+  offset: number
+) => {
   const { nameSpace } = useDojo();
   const query = useMemo<TournamentGetQuery>(
     () => ({
@@ -205,16 +215,22 @@ export const useGetLiveTournamentsQuery = (currentTime: string) => {
     query,
     orderBy: [
       {
-        model: "Tournament",
-        member: "endTime",
+        model: `${nameSpace}-Tournament`,
+        member: "end_time",
         direction: "Asc",
       },
     ],
+    limit: limit,
+    offset: offset,
   });
   return { entities, isLoading, refetch };
 };
 
-export const useGetEndedTournamentsQuery = (currentTime: string) => {
+export const useGetEndedTournamentsQuery = (
+  currentTime: string,
+  limit: number,
+  offset: number
+) => {
   const { nameSpace } = useDojo();
   const query = useMemo<TournamentGetQuery>(
     () => ({
@@ -228,17 +244,19 @@ export const useGetEndedTournamentsQuery = (currentTime: string) => {
         },
       },
     }),
-    []
+    [nameSpace, currentTime]
   );
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
     orderBy: [
       {
-        model: "Tournament",
-        member: "endTime",
+        model: `${nameSpace}-Tournament`,
+        member: "end_time",
         direction: "Desc",
       },
     ],
+    limit: limit,
+    offset: offset,
   });
   return { entities, isLoading, refetch };
 };

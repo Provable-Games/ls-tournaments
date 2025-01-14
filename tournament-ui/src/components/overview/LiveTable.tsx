@@ -1,24 +1,20 @@
 import { useMemo, useState } from "react";
 import LiveRow from "@/components/overview/LiveRow";
 import Pagination from "@/components/table/Pagination";
-import { useDojoStore } from "@/hooks/useDojoStore";
 import { bigintToHex } from "@/lib/utils";
-import { addAddressPadding } from "starknet";
-import { useDojo } from "@/DojoContext";
+import { useGetLiveTournamentsQuery } from "@/hooks/useSdkQueries";
 
 const LiveTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const { nameSpace } = useDojo();
-  const hexTimestamp = bigintToHex(BigInt(new Date().getTime()) / 1000n);
-  const state = useDojoStore((state) => state);
-  const liveTournaments = state.getEntities((entity) => {
-    const startTime = entity.models?.[nameSpace]?.Tournament?.start_time!;
-    const endTime = entity.models?.[nameSpace]?.Tournament?.end_time!;
-    return (
-      startTime < addAddressPadding(hexTimestamp) &&
-      endTime > addAddressPadding(hexTimestamp)
-    );
-  });
+  const hexTimestamp = useMemo(
+    () => bigintToHex(BigInt(new Date().getTime()) / 1000n),
+    []
+  );
+  const { entities: liveTournaments } = useGetLiveTournamentsQuery(
+    hexTimestamp,
+    5,
+    (currentPage - 1) * 5
+  );
 
   const totalPages = useMemo(() => {
     if (!liveTournaments) return 0;
@@ -35,7 +31,7 @@ const LiveTable = () => {
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Live</p>
-        {liveTournaments && liveTournaments.length > 10 ? (
+        {liveTournaments && liveTournaments.length > 5 ? (
           <div className="w-1/4 flex justify-end">
             <Pagination
               currentPage={currentPage}
@@ -61,8 +57,7 @@ const LiveTable = () => {
             <tbody>
               {liveTournaments && liveTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel =
-                    tournament.models[nameSpace].Tournament;
+                  const tournamentModel = tournament.Tournament;
                   return (
                     <LiveRow
                       key={tournament.entityId}
@@ -73,9 +68,15 @@ const LiveTable = () => {
                   );
                 })
               ) : (
-                <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">No Live Tournaments</p>
-                </div>
+                <tr>
+                  <td colSpan={4} className="h-full">
+                    <div className="flex items-center justify-center w-full h-full">
+                      <p className="text-2xl text-center">
+                        No Live Tournaments
+                      </p>
+                    </div>
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

@@ -54,7 +54,7 @@ const getAdventurerById = gql`
 const getAdventurersInList = gql`
   ${ADVENTURERS_FRAGMENT}
   query get_adventurer_by_id($ids: [FeltValue!]) {
-    adventurers(where: { id: { In: $ids } }, limit: 10) {
+    adventurers(where: { id: { In: $ids } }, limit: 500) {
       ...AdventurerFields
     }
   }

@@ -30,6 +30,7 @@ import ClaimPrizes from "@/components/tournament/ClaimPrizes";
 import useFreeGames from "@/hooks/useFreeGames";
 import PrizeBoxes from "@/components/box/PrizeBoxes";
 import { TournamentPrize } from "@/generated/models.gen";
+import { ChainId } from "@/config";
 
 const Tournament = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +39,7 @@ const Tournament = () => {
   const { setInputDialog } = useUIStore();
   const { usableGoldenTokens, usableBlobertTokens } = useFreeGames();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const state = useDojoStore((state) => state);
   const { tournament } = useTournamentContracts();
@@ -106,6 +107,8 @@ const Tournament = () => {
   );
   const formattedGameIds = addressGameIds?.map((id: any) => Number(id));
 
+  console.log(formattedGameIds);
+
   const adventurersListVariables = useMemo(() => {
     return {
       ids: formattedGameIds,
@@ -160,7 +163,8 @@ const Tournament = () => {
     .map((detail) => detail.TournamentPrize) ??
     []) as unknown as TournamentPrize[];
 
-  console.log(prizes);
+  console.log(tournamentScores);
+  console.log(adventurersData);
 
   if (!tournamentModel?.tournament_id)
     return (

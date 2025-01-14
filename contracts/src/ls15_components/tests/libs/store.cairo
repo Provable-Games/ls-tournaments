@@ -7,9 +7,9 @@ use ls_tournaments_v0::ls15_components::models::loot_survivor::{
     Contracts
 };
 use ls_tournaments_v0::ls15_components::models::tournament::{
-    TournamentTotals, Tournament, TournamentEntries, TournamentPrize, TournamentScores,
-    Token, TournamentEntriesAddress, TournamentEntryAddresses, TournamentStartsAddress,
-    TournamentGame, TournamentConfig, FreeGameTokenType
+    TournamentTotals, Tournament, TournamentEntries, TournamentPrize, TournamentScores, Token,
+    TournamentEntriesAddress, TournamentEntryAddresses, TournamentStartsAddress, TournamentGame,
+    TournamentConfig, FreeGameTokenType
 };
 
 #[derive(Copy, Drop)]

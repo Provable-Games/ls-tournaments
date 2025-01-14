@@ -3,9 +3,9 @@ use dojo::world::{WorldStorage};
 use dojo::model::{ModelStorage};
 
 use ls_tournaments_v0::ls15_components::models::tournament::{
-    TournamentTotals, Tournament, TournamentEntries, TournamentPrize, TournamentScores,
-    Token, TournamentEntriesAddress, TournamentEntryAddresses, TournamentStartsAddress,
-    TournamentGame, TournamentConfig
+    TournamentTotals, Tournament, TournamentEntries, TournamentPrize, TournamentScores, Token,
+    TournamentEntriesAddress, TournamentEntryAddresses, TournamentStartsAddress, TournamentGame,
+    TournamentConfig
 };
 
 #[derive(Copy, Drop)]

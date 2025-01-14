@@ -1,6 +1,7 @@
 import { useDojo } from "@/DojoContext";
 import { FirstIcon, SecondIcon, ThirdIcon } from "../Icons";
 import { displayAddress } from "@/lib/utils";
+import { ChainId } from "@/config";
 
 // First, define the props interface
 interface ScoreRowProps {
@@ -12,7 +13,7 @@ const ScoreRow = ({ rank, adventurer }: ScoreRowProps) => {
   const { selectedChainConfig, nameSpace } = useDojo();
 
   if (!adventurer) return null;
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
   const formattedAdventurer = isMainnet
     ? adventurer
     : adventurer.models[nameSpace].AdventurerModel.adventurer;

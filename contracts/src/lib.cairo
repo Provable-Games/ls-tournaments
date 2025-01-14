@@ -29,8 +29,8 @@ mod ls15_components {
         #[cfg(test)]
         mod test_tournament;
         pub mod interfaces;
-        // #[cfg(test)]
-    // mod test_tournament_stress_tests;
+        #[cfg(test)]
+        mod test_tournament_stress_tests;
     }
 }
 mod presets {

@@ -12,21 +12,22 @@ import { checkCartridgeConnector } from "../lib/connectors";
 import { useDojo } from "../DojoContext";
 import { useConnectToSelectedChain } from "@/lib/dojo/hooks/useChain";
 import {
-  useControllerMenu,
   useControllerUsername,
+  useControllerProfile,
 } from "@/hooks/useController";
 import useUIStore from "@/hooks/useUIStore";
+import { ChainId } from "@/config";
 
 export default function Header() {
   const { account } = useAccount();
   const { connector } = useConnect();
   const { connect } = useConnectToSelectedChain();
-  const { openMenu } = useControllerMenu();
   const { username } = useControllerUsername();
+  const { openProfile } = useControllerProfile();
   const { selectedChainConfig } = useDojo();
   const { tokenBalance } = useUIStore();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   // const displayCart = useUIStore((state) => state.displayCart);
   // const setDisplayCart = useUIStore((state) => state.setDisplayCart);
@@ -122,7 +123,7 @@ export default function Header() {
               size={"sm"}
               onClick={() => {
                 if (account) {
-                  openMenu();
+                  openProfile();
                 } else {
                   connect();
                 }
@@ -150,7 +151,7 @@ export default function Header() {
               size={"sm"}
               onClick={() => {
                 if (account) {
-                  openMenu();
+                  openProfile();
                 } else {
                   connect();
                 }
@@ -179,7 +180,7 @@ export default function Header() {
             <span className="text-xl">
               {selectedChainConfig.chainId === "WP_LS_TOURNAMENTS_KATANA"
                 ? "Slot"
-                : selectedChainConfig.chainId === "SN_MAINNET"
+                : selectedChainConfig.chainId === ChainId.SN_MAIN
                 ? "Mainnet"
                 : "Katana"}
             </span>

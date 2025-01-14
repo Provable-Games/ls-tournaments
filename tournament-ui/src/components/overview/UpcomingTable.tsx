@@ -12,32 +12,21 @@ const UpcomingTable = () => {
     () => bigintToHex(BigInt(new Date().getTime()) / 1000n),
     []
   );
-  const { entities: tournaments } =
-    useGetUpcomingTournamentsQuery(hexTimestamp);
-
-  // const tournamentIds = useMemo(() => {
-  //   return (
-  //     tournaments
-  //       ?.map((tournament) => tournament.Tournament?.tournament_id)
-  //       .filter((id): id is BigNumberish => id !== undefined) ?? []
-  //   );
-  // }, [tournaments]);
-
-  // const { entities: tournamentDetails } =
-  //   useGetTournamentDetailsInListQuery(tournamentIds);
-
-  // TODO: Remove handling of pagination within client for paginated queries
-  // (get totalPages from the totals model)
+  const { entities: upcomingTournaments } = useGetUpcomingTournamentsQuery(
+    hexTimestamp,
+    5,
+    (currentPage - 1) * 5
+  );
 
   const totalPages = useMemo(() => {
-    if (!tournaments) return 0;
-    return Math.ceil(tournaments.length / 5);
-  }, [tournaments]);
+    if (!upcomingTournaments) return 0;
+    return Math.ceil(upcomingTournaments.length / 5);
+  }, [upcomingTournaments]);
 
   const pagedTournaments = useMemo(() => {
-    if (!tournaments) return [];
-    return tournaments.slice((currentPage - 1) * 5, currentPage * 5);
-  }, [tournaments, currentPage]);
+    if (!upcomingTournaments) return [];
+    return upcomingTournaments.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [upcomingTournaments, currentPage]);
 
   return (
     <div className="w-full flex flex-col items-center border-4 border-terminal-green/75 h-1/2">
@@ -45,7 +34,7 @@ const UpcomingTable = () => {
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Upcoming</p>
         <div className="w-1/4 flex justify-end">
-          {tournaments && tournaments.length > 10 && (
+          {upcomingTournaments && upcomingTournaments.length > 10 && (
             <Pagination
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
@@ -56,7 +45,7 @@ const UpcomingTable = () => {
       </div>
       <div className="w-full max-h-[500px]">
         <div className="flex flex-col gap-4">
-          {tournaments && tournaments.length > 0 ? (
+          {upcomingTournaments && upcomingTournaments.length > 0 ? (
             <table className="relative w-full">
               <thead className="bg-terminal-green/75 no-text-shadow text-terminal-black text-lg h-10">
                 <tr>

@@ -4,6 +4,7 @@ import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useDojo } from "@/DojoContext";
 import useModel from "@/useModel";
 import { Models } from "@/generated/models.gen";
+import { ChainId } from "@/config";
 
 interface ContractAddresses {
   tournament: string;
@@ -18,7 +19,7 @@ interface ContractAddresses {
 export function useTournamentContracts(): ContractAddresses {
   const { selectedChainConfig } = useDojo();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const TOURNAMENT_SYSTEM_NAME = isMainnet ? "LSTournament" : "tournament_mock";
 

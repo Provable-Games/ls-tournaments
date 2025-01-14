@@ -2,8 +2,7 @@ import { useMemo, useState } from "react";
 import Pagination from "@/components/table/Pagination";
 import ScoreRow from "@/components/tournament/ScoreRow";
 import { useDojo } from "@/DojoContext";
-import { bigintToHex } from "@/lib/utils";
-import { addAddressPadding } from "starknet";
+import { ChainId } from "@/config";
 
 interface ScoreTableProps {
   tournamentScores: any;
@@ -12,7 +11,7 @@ interface ScoreTableProps {
 
 const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
   const { selectedChainConfig, nameSpace } = useDojo();
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
     if (!tournamentScores) return 0;
@@ -61,10 +60,7 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
                 pagedScores.map((gameId: any, index: any) => {
                   const adventurer = isMainnet
                     ? adventurersData?.find(
-                        (adventurer: any) =>
-                          addAddressPadding(
-                            bigintToHex(BigInt(adventurer.id))
-                          ) === gameId
+                        (adventurer: any) => adventurer.id === gameId
                       )
                     : adventurersData.find(
                         (entity: any) =>

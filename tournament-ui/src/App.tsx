@@ -18,15 +18,13 @@ import {
   useGetTournamentCountsQuery,
   useGetTokensQuery,
   useSubscribeTournamentCountsQuery,
-  useGetAllTournamentsQuery,
-  useGetAllEntriesQuery,
-  useGetAllPrizesQuery,
   useGetConfigQuery,
 } from "@/hooks/useSdkQueries";
 import { useSystemCalls } from "@/useSystemCalls";
 import { Toaster } from "@/components/ui/toaster";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import { useConfig } from "@/hooks/useConfig";
+import { ChainId } from "./config";
 
 function App() {
   const { account } = useAccount();
@@ -36,13 +34,9 @@ function App() {
   const { getBalanceGeneral } = useSystemCalls();
   const { inputDialog, setTokenBalance } = useUIStore();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
-  // const isMainnet = false;
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   // Getters
-  useGetAllTournamentsQuery();
-  useGetAllEntriesQuery();
-  useGetAllPrizesQuery();
   useGetTournamentCountsQuery(tournament);
   useGetTokensQuery();
   useGetConfigQuery(tournament);

@@ -1,23 +1,19 @@
 import { useMemo, useState } from "react";
-// import { useGetEndedTournamentsQuery } from "@/hooks/useSdkQueries";
+import { useGetEndedTournamentsQuery } from "@/hooks/useSdkQueries";
 import EndRow from "@/components/overview/EndRow";
 import Pagination from "@/components/table/Pagination";
 import { bigintToHex } from "@/lib/utils";
-import { useDojoStore } from "@/hooks/useDojoStore";
-import { addAddressPadding } from "starknet";
-import { useDojo } from "@/DojoContext";
 
 const EndTable = () => {
-  const { nameSpace } = useDojo();
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const hexTimestamp = bigintToHex(BigInt(new Date().getTime()) / 1000n);
-  // const { entities: tournaments, isLoading } =
-  //   useGetEndedTournamentsQuery(hexTimestamp);
-  const state = useDojoStore((state) => state);
-  const endedTournaments = state.getEntities((entity) => {
-    const endTime = entity.models?.[nameSpace]?.Tournament?.end_time!;
-    return endTime < addAddressPadding(hexTimestamp);
-  });
+  const hexTimestamp = useMemo(() => {
+    return bigintToHex(BigInt(new Date().getTime()) / 1000n);
+  }, []);
+  const { entities: endedTournaments } = useGetEndedTournamentsQuery(
+    hexTimestamp,
+    5,
+    (currentPage - 1) * 5
+  );
 
   const totalPages = useMemo(() => {
     if (!endedTournaments) return 0;
@@ -34,7 +30,7 @@ const EndTable = () => {
       <div className="flex flex-row items-center justify-between w-full">
         <div className="w-1/4"></div>
         <p className="w-1/2 text-4xl text-center">Ended</p>
-        {endedTournaments && endedTournaments.length > 10 ? (
+        {endedTournaments && endedTournaments.length > 5 ? (
           <div className="w-1/4 flex justify-end">
             <Pagination
               currentPage={currentPage}
@@ -61,8 +57,7 @@ const EndTable = () => {
             <tbody>
               {endedTournaments && endedTournaments.length > 0 ? (
                 pagedTournaments.map((tournament) => {
-                  const tournamentModel =
-                    tournament.models?.[nameSpace]?.Tournament;
+                  const tournamentModel = tournament.Tournament;
                   return (
                     <EndRow
                       key={tournament.entityId}
@@ -75,9 +70,15 @@ const EndTable = () => {
                   );
                 })
               ) : (
-                <div className="absolute flex items-center justify-center w-full h-full">
-                  <p className="text-2xl text-center">No Ended Tournaments</p>
-                </div>
+                <tr>
+                  <td colSpan={5} className="h-full">
+                    <div className="flex items-center justify-center w-full h-full">
+                      <p className="text-2xl text-center">
+                        No Ended Tournaments
+                      </p>
+                    </div>
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>

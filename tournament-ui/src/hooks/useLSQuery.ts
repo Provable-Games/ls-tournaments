@@ -1,5 +1,6 @@
 import { useDojo } from "@/DojoContext";
 import { useQuery, DocumentNode } from "@apollo/client";
+import { ChainId } from "@/config";
 
 type Variables = Record<
   string,
@@ -8,7 +9,7 @@ type Variables = Record<
 
 export const useLSQuery = (query: DocumentNode, variables?: Variables) => {
   const { selectedChainConfig } = useDojo();
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const { data, loading, error } = useQuery(query, {
     variables,

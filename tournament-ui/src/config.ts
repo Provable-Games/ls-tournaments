@@ -31,20 +31,20 @@ export interface DojoAppConfig {
   initialChainId: ChainId;
   starknetDomain: StarknetDomain;
   manifests: { [chain_id: string]: DojoManifest | undefined };
-  controllerConnector: Connector;
+  controllerConnector?: Connector;
 }
 
 export enum ChainId {
   KATANA_LOCAL = "KATANA_LOCAL",
   WP_LS_TOURNAMENTS_KATANA = "WP_LS_TOURNAMENTS_KATANA",
-  SN_MAINNET = "SN_MAINNET",
+  SN_MAIN = "SN_MAIN",
 }
 
 // TODO: fix for running between katana and mainnet
 const supportedChainIds: ChainId[] = [
   ChainId.KATANA_LOCAL,
   ChainId.WP_LS_TOURNAMENTS_KATANA,
-  ChainId.SN_MAINNET,
+  ChainId.SN_MAIN,
 ];
 
 export const defaultChainId = (import.meta.env.VITE_CHAIN_ID ||
@@ -110,7 +110,7 @@ export const getStarknetProviderChains = (
 const manifests: Record<ChainId, DojoManifest> = {
   [ChainId.KATANA_LOCAL]: tournament_manifest_dev as DojoManifest,
   [ChainId.WP_LS_TOURNAMENTS_KATANA]: tournament_manifest_slot as DojoManifest,
-  [ChainId.SN_MAINNET]: tournament_manifest_mainnet as DojoManifest,
+  [ChainId.SN_MAIN]: tournament_manifest_mainnet as DojoManifest,
 };
 
 const NAMESPACE = "ls_tournaments_v0";
@@ -132,7 +132,7 @@ let mainnetContractInterfaces: ContractInterfaces = {
 const CONTRACT_INTERFACES: Record<ChainId, ContractInterfaces> = {
   [ChainId.KATANA_LOCAL]: katanaContractInterfaces,
   [ChainId.WP_LS_TOURNAMENTS_KATANA]: katanaContractInterfaces,
-  [ChainId.SN_MAINNET]: mainnetContractInterfaces,
+  [ChainId.SN_MAIN]: mainnetContractInterfaces,
 };
 
 //
@@ -200,7 +200,7 @@ const localKatanaConfig: DojoChainConfig = {
   clientRewardAddress: [
     "0x036cE487952f25878a0158bA4A0C2Eb5eb66f0282567163a4B893A0EA5847D2d",
   ],
-  connectorIds: [supportedConnectorIds.CONTROLLER],
+  connectorIds: [supportedConnectorIds.PREDEPLOYED],
   // starknet Chain
   nativeCurrency: ETH_KATANA,
   explorers: WORLD_EXPLORER,
@@ -234,10 +234,10 @@ const slotKatanaConfig: DojoChainConfig = {
 
 const snMainnetConfig: DojoChainConfig = {
   chain: { ...mainnet },
-  chainId: ChainId.SN_MAINNET,
+  chainId: ChainId.SN_MAIN,
   name: "Mainnet",
   rpcUrl: "https://api.cartridge.gg/x/starknet/mainnet",
-  toriiUrl: "https://api.cartridge.gg/x/realms-world-04/torii",
+  toriiUrl: "https://api.cartridge.gg/x/ls-tournaments/torii",
   relayUrl: undefined,
   blastRpc:
     "https://starknet-mainnet.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",
@@ -252,6 +252,7 @@ const snMainnetConfig: DojoChainConfig = {
     "0x0616E6a5F9b1f86a0Ece6E965B2f3b27E3D784be79Cb2F6304D92Db100C7D29E",
     "0x049FB4281D13E1f5f488540Cd051e1507149E99CC2E22635101041Ec5E4e4557",
     "0x02CD97240DB3f679De98A729aE91EB996cAb9Fd92a9A578Df11a72F49bE1c356",
+    "0x03F7F4E5a23A712787F0C100f02934c4A88606B7F0C880c2FD43e817E6275d83",
   ],
   connectorIds: [
     supportedConnectorIds.CONTROLLER,
@@ -279,13 +280,21 @@ export const envChainConfig: DojoChainConfig = {
 export const dojoContextConfig: Record<ChainId, DojoChainConfig> = {
   [ChainId.KATANA_LOCAL]: localKatanaConfig,
   [ChainId.WP_LS_TOURNAMENTS_KATANA]: slotKatanaConfig,
-  [ChainId.SN_MAINNET]: snMainnetConfig,
+  [ChainId.SN_MAIN]: snMainnetConfig,
 };
 
-const CONTROLLER = makeControllerConnector(
-  manifests[defaultChainId],
-  dojoContextConfig[defaultChainId]?.rpcUrl!
-);
+console.log(defaultChainId);
+console.log(dojoContextConfig[defaultChainId]);
+
+const CONTROLLER =
+  defaultChainId !== ChainId.KATANA_LOCAL
+    ? makeControllerConnector(
+        manifests[defaultChainId],
+        dojoContextConfig[defaultChainId]?.rpcUrl!,
+        defaultChainId,
+        dojoContextConfig[defaultChainId]
+      )
+    : undefined;
 //------------------------
 
 export const makeDojoAppConfig = (): DojoAppConfig => {
@@ -337,5 +346,5 @@ const snMainnetLSClientConfig: LSClientConfig = {
 export const lsClientsConfig = {
   [ChainId.KATANA_LOCAL]: snMainnetLSClientConfig,
   [ChainId.WP_LS_TOURNAMENTS_KATANA]: snMainnetLSClientConfig,
-  [ChainId.SN_MAINNET]: snMainnetLSClientConfig,
+  [ChainId.SN_MAIN]: snMainnetLSClientConfig,
 };

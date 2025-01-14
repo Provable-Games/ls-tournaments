@@ -14,7 +14,6 @@ import {
   Account,
   BigNumberish,
   CairoOption,
-  byteArray,
   CallData,
   Uint256,
 } from "starknet";
@@ -22,6 +21,7 @@ import { useToast } from "@/hooks/useToast";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
 import { feltToString, getRandomInt } from "@/lib/utils";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
+import { ChainId } from "@/config";
 
 export function selectTournament(client: any, isMainnet: boolean): any {
   return isMainnet ? client["LSTournament"] : client["tournament_mock"];
@@ -44,7 +44,7 @@ export const useSystemCalls = () => {
   } = useOptimisticUpdates();
   const { tournament } = useTournamentContracts();
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   // Tournament
 
@@ -101,7 +101,7 @@ export const useSystemCalls = () => {
         ? await tournamentContract.createTournament(
             account!,
             tournament.name,
-            byteArray.byteArrayFromString(tournament.description),
+            tournament.description,
             tournament.registration_start_time,
             tournament.registration_end_time,
             tournament.start_time,
@@ -114,7 +114,7 @@ export const useSystemCalls = () => {
         : tournamentContract.createTournament(
             account!,
             tournament.name,
-            byteArray.byteArrayFromString(tournament.description),
+            tournament.description,
             tournament.registration_start_time,
             tournament.registration_end_time,
             tournament.start_time,
@@ -374,7 +374,7 @@ export const useSystemCalls = () => {
         ? await tournamentContract.createTournament_and_addPrizes(
             account!,
             tournament.name,
-            byteArray.byteArrayFromString(tournament.description),
+            tournament.description,
             tournament.registration_start_time,
             tournament.registration_end_time,
             tournament.start_time,
@@ -388,7 +388,7 @@ export const useSystemCalls = () => {
         : tournamentContract.createTournament_and_addPrizes(
             account!,
             tournament.name,
-            byteArray.byteArrayFromString(tournament.description),
+            tournament.description,
             tournament.registration_start_time,
             tournament.registration_end_time,
             tournament.start_time,

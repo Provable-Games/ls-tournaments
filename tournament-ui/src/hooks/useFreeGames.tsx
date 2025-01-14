@@ -6,6 +6,7 @@ import { useDojo } from "@/DojoContext";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import { getOwnerTokens } from "@/hooks/graphql/queries";
 import { useLSQuery } from "@/hooks/useLSQuery";
+import { ChainId } from "@/config";
 
 const useFreeGames = () => {
   const { selectedChainConfig } = useDojo();
@@ -16,7 +17,7 @@ const useFreeGames = () => {
   const [usableGoldenTokens, setUsableGoldenTokens] = useState<string[]>([]);
   const [usableBlobertTokens, setUsableBlobertTokens] = useState<string[]>([]);
 
-  const isMainnet = selectedChainConfig.chainId === "SN_MAINNET";
+  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
   const getGoldenTokens = async (
     owner: string,

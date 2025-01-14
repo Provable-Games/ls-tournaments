@@ -4,6 +4,7 @@ import { DojoAppConfig, DojoChainConfig } from "@/config";
 
 export const supportedConnectorIds = {
   CONTROLLER: "controller",
+  PREDEPLOYED: "katana-0",
 };
 
 export const checkCartridgeConnector = (connector?: Connector) => {
@@ -21,13 +22,14 @@ export const useChainConnectors = (
   chainConfig: DojoChainConfig
 ) => {
   // Cartridge Controller
+  console.log(chainConfig);
   const connectorIds = useMemo<Connector[]>(() => {
     const result = (chainConfig?.connectorIds ?? []).reduce((acc, id) => {
       // if (id == supportedConnetorIds.ARGENT) acc.push(argent())
       // if (id == supportedConnetorIds.BRAAVOS) acc.push(braavos())
       // if (id == supportedConnetorIds.CONTROLLER) acc.push(controller());
       if (id == supportedConnectorIds.CONTROLLER)
-        acc.push(dojoAppConfig.controllerConnector);
+        acc.push(dojoAppConfig.controllerConnector!);
       return acc;
     }, [] as Connector[]);
     return result;
