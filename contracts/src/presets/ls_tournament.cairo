@@ -201,5 +201,14 @@ pub mod LSTournament {
                 "Beasts",
                 "BEASTS"
             );
+        self
+            .tournament
+            .initialize_erc721(
+                contract_address_const::<
+                    0x033faad68bac7f856a01eeb4f80f6e98e2cfca9dfc0c8774aee42d68406510cd
+                >(),
+                "Dark Shuffle Game Token",
+                "DSGT"
+            );
     }
 }
