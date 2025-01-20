@@ -1,6 +1,8 @@
 use starknet::testing;
 use ls_tournaments_v0::ls15_components::constants::{MIN_SUBMISSION_PERIOD};
-use ls_tournaments_v0::ls15_components::models::tournament::{TournamentGame, EntryStatus, TokenDataType, ERC20Data, TournamentPrize};
+use ls_tournaments_v0::ls15_components::models::tournament::{
+    TournamentGame, EntryStatus, TokenDataType, ERC20Data, TournamentPrize
+};
 
 use ls_tournaments_v0::ls15_components::tests::interfaces::{
     ILootSurvivorMockDispatcherTrait, ITournamentMockDispatcherTrait, IERC20MockDispatcherTrait
@@ -89,19 +91,19 @@ fn test_distribute_many_prizes() {
     let mut contracts: TestContracts = setup();
 
     let tournament_id = contracts
-    .tournament
-    .create_tournament(
-        TOURNAMENT_NAME(),
-        TOURNAMENT_DESCRIPTION(),
-        TEST_REGISTRATION_START_TIME().into(),
-        TEST_REGISTRATION_END_TIME().into(),
-        TEST_START_TIME().into(),
-        TEST_END_TIME().into(),
-        MIN_SUBMISSION_PERIOD.into(),
-        250, // 250 top scores
-        Option::None, // zero gated type
-        Option::None, // zero entry premium
-    );
+        .tournament
+        .create_tournament(
+            TOURNAMENT_NAME(),
+            TOURNAMENT_DESCRIPTION(),
+            TEST_REGISTRATION_START_TIME().into(),
+            TEST_REGISTRATION_END_TIME().into(),
+            TEST_START_TIME().into(),
+            TEST_END_TIME().into(),
+            MIN_SUBMISSION_PERIOD.into(),
+            250, // 250 top scores
+            Option::None, // zero gated type
+            Option::None, // zero entry premium
+        );
 
     utils::impersonate(OWNER());
 
@@ -125,7 +127,6 @@ fn test_distribute_many_prizes() {
                     payout_position: (i + 1).try_into().unwrap(),
                     claimed: true
                 }
-                
             );
         i += 1;
     };

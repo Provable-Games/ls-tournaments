@@ -118,11 +118,7 @@ const useFreeGames = () => {
         );
       }
     } else {
-      const arr = Array.from(
-        { length: Number(tokenBalance.goldenToken) },
-        (_, i) => String(i + 1)
-      );
-      setUsableGoldenTokens(arr);
+      setUsableGoldenTokens([]);
     }
   }, [account?.address, tokenBalance.goldenToken, isMainnet]);
 
@@ -132,10 +128,7 @@ const useFreeGames = () => {
         getUsableBlobertToken(blobertsData.tokens);
       }
     } else {
-      const arr = Array.from({ length: Number(tokenBalance.blobert) }, (_, i) =>
-        String(i + 1)
-      );
-      setUsableBlobertTokens(arr);
+      setUsableBlobertTokens([]);
     }
   }, [blobertsData, isMainnet]);
 

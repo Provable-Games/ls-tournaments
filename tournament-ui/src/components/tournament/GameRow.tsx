@@ -1,5 +1,5 @@
 import { useDojo } from "@/DojoContext";
-import { FirstIcon, SecondIcon, ThirdIcon } from "../Icons";
+import { TrophyIcon } from "@/components/Icons";
 import { displayAddress } from "@/lib/utils";
 import { ChainId } from "@/config";
 
@@ -10,31 +10,34 @@ interface GameRowProps {
 }
 
 const GameRow = ({ rank, adventurer }: GameRowProps) => {
-  const { selectedChainConfig } = useDojo();
+  const { selectedChainConfig, nameSpace } = useDojo();
   if (!adventurer) return null;
   const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
-  const formattedAdventurer = isMainnet ? adventurer : adventurer.adventurer;
+  const formattedAdventurer = isMainnet
+    ? adventurer
+    : adventurer.models[nameSpace].AdventurerModel.adventurer;
   return (
-    <tr className="h-10">
+    <tr className="h-8 border border-terminal-green/50">
       <td className="px-2">
         <div className="flex items-center justify-center">
           {rank === 1 ? (
-            <span className="flex w-4 h-8">
-              <FirstIcon />
+            <span className="flex w-4 h-6 text-terminal-gold">
+              <TrophyIcon />
             </span>
           ) : rank === 2 ? (
-            <span className="flex w-4 h-8">
-              <SecondIcon />
+            <span className="flex w-4 h-6 text-terminal-silver">
+              <TrophyIcon />
             </span>
           ) : rank === 3 ? (
-            <span className="flex w-4 h-8">
-              <ThirdIcon />
+            <span className="flex w-4 h-6 text-terminal-bronze">
+              <TrophyIcon />
             </span>
           ) : (
             rank
           )}
         </div>
       </td>
+      <td>{formattedAdventurer.name ?? "-"}</td>
       <td>{displayAddress(formattedAdventurer.owner) ?? "-"}</td>
       <td>{formattedAdventurer.id ?? "-"}</td>
       <td>{formattedAdventurer.level ?? "-"}</td>

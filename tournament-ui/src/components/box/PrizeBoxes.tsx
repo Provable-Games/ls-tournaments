@@ -1,5 +1,6 @@
 import { TournamentPrize } from "@/generated/models.gen";
-import PrizeBox from "@/components/box/PrizeBox";
+import ERC20PrizeBox from "@/components/box/ERC20PrizeBox";
+import ERC721PrizeBox from "@/components/box/ERC721PrizeBox";
 import { getPrizesByToken } from "@/lib/utils";
 
 interface PrizeBoxesProps {
@@ -8,32 +9,38 @@ interface PrizeBoxesProps {
 }
 
 const PrizeBoxes = ({ prizes, form }: PrizeBoxesProps) => {
-  console.log(prizes);
+  const erc20Prizes = prizes.filter(
+    (p) => p.token_data_type.activeVariant() === "erc20"
+  );
+  const erc721Prizes = prizes.filter(
+    (p) => p.token_data_type.activeVariant() === "erc721"
+  );
   return (
     <>
-      {getPrizesByToken(prizes).map(([token, prizes], index) => {
-        const variant = prizes[0].token_data_type.activeVariant() as
-          | "erc20"
-          | "erc721";
-        const isERC20 = variant === "erc20";
-        const totalAmount = isERC20
-          ? prizes.reduce(
-              (sum, prize) =>
-                sum + Number(prize.token_data_type.variant.erc20?.token_amount),
-              0
-            )
-          : null; // Return null for ERC721 since we don't want to sum them
-        return (
-          <PrizeBox
-            key={index}
-            token={token}
-            variant={variant}
-            prizes={prizes}
-            totalAmount={totalAmount}
-            form={form}
-          />
-        );
-      })}
+      {/* Group and display ERC20 prizes */}
+      {getPrizesByToken(erc20Prizes).map(([token, prizes], index) => (
+        <ERC20PrizeBox
+          key={`erc20-${index}`}
+          token={token}
+          prizes={prizes}
+          totalAmount={prizes.reduce(
+            (sum, prize) =>
+              sum + Number(prize.token_data_type.variant.erc20?.token_amount),
+            0
+          )}
+          form={form}
+        />
+      ))}
+
+      {/* Display individual ERC721 prizes */}
+      {getPrizesByToken(erc721Prizes).map(([token, prizes], index) => (
+        <ERC721PrizeBox
+          key={`erc721-${index}`}
+          token={token}
+          prizes={prizes}
+          form={form}
+        />
+      ))}
     </>
   );
 };

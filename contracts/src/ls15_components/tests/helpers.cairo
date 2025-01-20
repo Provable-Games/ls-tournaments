@@ -8,11 +8,10 @@ use ls_tournaments_v0::tests::{
 };
 use ls_tournaments_v0::ls15_components::tests::interfaces::{
     IERC20MockDispatcher, IERC20MockDispatcherTrait, IERC721MockDispatcher,
-    IERC721MockDispatcherTrait, ITournamentMockDispatcher, ITournamentMockDispatcherTrait, Token
+    IERC721MockDispatcherTrait, ITournamentMockDispatcher, ITournamentMockDispatcherTrait
 };
 use adventurer::{adventurer::Adventurer, equipment::Equipment, item::Item, stats::Stats};
 use ls_tournaments_v0::ls15_components::models::loot_survivor::AdventurerMetadataStorage;
-use ls_tournaments_v0::ls15_components::models::tournament::{ERC20Data, ERC721Data, TokenDataType};
 
 //
 // Test Helpers
@@ -90,26 +89,4 @@ pub fn create_adventurer_metadata_with_death_date(death_date: u64) -> Adventurer
         delay_stat_reveal: false,
         golden_token_id: 0,
     }
-}
-
-pub fn register_tokens_for_test(
-    tournament: ITournamentMockDispatcher,
-    erc20: IERC20MockDispatcher,
-    erc721: IERC721MockDispatcher,
-) {
-    let tokens = array![
-        Token {
-            token: erc20.contract_address,
-            token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 })
-        },
-        Token {
-            token: erc721.contract_address,
-            token_data_type: TokenDataType::erc721(ERC721Data { token_id: 1 })
-        },
-    ];
-
-    erc20.approve(tournament.contract_address, 1);
-    erc721.approve(tournament.contract_address, 1);
-
-    tournament.register_tokens(tokens);
 }

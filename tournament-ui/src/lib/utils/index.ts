@@ -191,13 +191,8 @@ export const getPrizesByToken = (prizes: TournamentPrize[]) => {
   return Object.entries(
     prizes.reduce((acc, prize) => {
       const key = prize.token;
-      const isERC20 = prize.token_data_type.activeVariant() === "erc20";
-      if (isERC20) {
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(prize);
-      } else {
-        acc[key] = [prize];
-      }
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(prize);
       return acc;
     }, {} as Record<string, typeof prizes>)
   );
@@ -213,4 +208,12 @@ export const getTokenNameOrIcon = (
     : tokens.find((t) => t.models[namespace].Token?.token === token)?.models[
         namespace
       ].Token?.symbol;
+};
+
+export const getOrdinalSuffix = (position: number) => {
+  const formatPosition = isNaN(position) ? 0 : position;
+  if (formatPosition % 10 === 1 && formatPosition !== 11) return "st";
+  if (formatPosition % 10 === 2 && formatPosition !== 12) return "nd";
+  if (position % 10 === 3 && position !== 13) return "rd";
+  return "th";
 };

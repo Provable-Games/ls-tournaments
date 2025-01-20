@@ -8,6 +8,7 @@ import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
 import { DialogWrapper } from "@/components/dialogs/inputs/DialogWrapper";
 import { useDojo } from "@/DojoContext";
+import { getOrdinalSuffix } from "@/lib/utils";
 
 const EntryFee = () => {
   const { createTournamentData, setCreateTournamentData, setInputDialog } =
@@ -191,16 +192,6 @@ const EntryFee = () => {
               .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
               .sort((a, b) => a.position - b.position) // Add this line to sort by position
               .map((distribution, index) => {
-                const getOrdinalSuffix = (position: number) => {
-                  const formatPosition = isNaN(position) ? 0 : position;
-                  if (formatPosition % 10 === 1 && formatPosition !== 11)
-                    return "st";
-                  if (formatPosition % 10 === 2 && formatPosition !== 12)
-                    return "nd";
-                  if (position % 10 === 3 && position !== 13) return "rd";
-                  return "th";
-                };
-
                 return (
                   <p key={index} className="text-lg uppercase font-bold">
                     {isNaN(distribution.percentage)

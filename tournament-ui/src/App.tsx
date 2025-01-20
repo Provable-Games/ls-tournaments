@@ -7,6 +7,7 @@ import ScreenMenu from "@/components/ScreenMenu";
 import useUIStore, { ScreenPage } from "@/hooks/useUIStore";
 import { Menu } from "@/lib//types";
 import Overview from "@/containers/Overview";
+import DarkShuffleOverview from "@/containers/DarkShuffleOverview";
 import MyTournaments from "@/containers/MyTournaments";
 import Create from "@/containers/Create";
 import RegisterToken from "@/containers/RegisterToken";
@@ -25,6 +26,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 import { useConfig } from "@/hooks/useConfig";
 import { ChainId } from "./config";
+import LoginDialog from "@/components/dialogs/LoginDialog";
 
 function App() {
   const { account } = useAccount();
@@ -32,9 +34,10 @@ function App() {
   const { tournament, eth, lords, goldenToken, blobert } =
     useTournamentContracts();
   const { getBalanceGeneral } = useSystemCalls();
-  const { inputDialog, setTokenBalance } = useUIStore();
+  const { inputDialog, setTokenBalance, showLoginDialog } = useUIStore();
 
   const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
+  const isDsTournament = import.meta.env.VITE_DS_TOURNAMENT === "true";
 
   // Getters
   useGetTournamentCountsQuery(tournament);
@@ -114,7 +117,7 @@ function App() {
         label: "Create",
         screen: "create" as ScreenPage,
         path: "/create",
-        disabled: false,
+        disabled: true,
       },
       {
         id: 4,
@@ -127,6 +130,25 @@ function App() {
     []
   );
 
+  const dsTournamentMenuItems = useMemo(() => {
+    return [
+      {
+        id: 1,
+        label: "Overview",
+        screen: "overview" as ScreenPage,
+        path: "/",
+        disabled: false,
+      },
+      {
+        id: 2,
+        label: "Tournament",
+        screen: "tournament" as ScreenPage,
+        path: `/tournament/${import.meta.env.VITE_DS_TOURNAMENT_ID}`,
+        disabled: false,
+      },
+    ];
+  }, []);
+
   const testMenuDisabled = useMemo(
     () => [false, false, false, false, false, false],
     []
@@ -138,8 +160,12 @@ function App() {
   );
 
   const menuItems = useMemo(() => {
-    return isMainnet ? mainMenuItems : testMenuItems;
-  }, [isMainnet]);
+    return isDsTournament
+      ? dsTournamentMenuItems
+      : isMainnet
+      ? mainMenuItems
+      : testMenuItems;
+  }, [isMainnet, isDsTournament]);
 
   const menuDisabled = useMemo(() => {
     return isMainnet ? mainMenuDisabled : testMenuDisabled;
@@ -187,15 +213,22 @@ function App() {
         <div className="w-full h-1 sm:h-6 sm:my-2 bg-terminal-green text-terminal-black px-4" />
         <ScreenMenu buttonsData={menuItems} disabled={menuDisabled} />
         <Routes>
-          <Route path="/" element={<Overview />} />
+          {isDsTournament ? (
+            <Route path="/" element={<DarkShuffleOverview />} />
+          ) : (
+            <Route path="/" element={<Overview />} />
+          )}
           <Route path="/my-tournaments" element={<MyTournaments />} />
           <Route path="/create" element={<Create />} />
           <Route path="/register-token" element={<RegisterToken />} />
-          <Route path="/tournament/:id" element={<Tournament />} />
+          <Route path="/tournament">
+            <Route path=":id" element={<Tournament />} />
+          </Route>
           <Route path="/guide" element={<Guide />} />
           <Route path="/loot-survivor" element={<LootSurvivor />} />
         </Routes>
         {inputDialog && <InputDialog />}
+        {showLoginDialog && <LoginDialog />}
         <Toaster />
       </div>
     </div>

@@ -35,12 +35,11 @@ const Create = () => {
   const tournamentCount = tournamentTotals?.total_tournaments ?? 0n;
   const prizeCount = tournamentTotals?.total_prizes ?? 0n;
 
-  console.log(createTournamentData);
-
   const {
     createTournament,
     createTournamentAndAddPrizes,
     approveERC20Multiple,
+    approveERC721Multiple,
   } = useSystemCalls();
 
   const handleCreateTournament = async () => {
@@ -110,6 +109,12 @@ const Create = () => {
           tokenDataType: prize.token_data_type,
         };
       });
+      const erc20Tokens = tokens.filter(
+        (token) => token.tokenDataType.activeVariant() === "erc20"
+      );
+      const erc721Tokens = tokens.filter(
+        (token) => token.tokenDataType.activeVariant() === "erc721"
+      );
       const newPrizes = createTournamentData.prizes.map((prize, index) => {
         return {
           prize_key: addAddressPadding(
@@ -124,7 +129,12 @@ const Create = () => {
           claimed: prize.claimed,
         };
       });
-      await approveERC20Multiple(tokens);
+      if (erc20Tokens.length > 0) {
+        await approveERC20Multiple(erc20Tokens);
+      }
+      if (erc721Tokens.length > 0) {
+        await approveERC721Multiple(erc721Tokens);
+      }
       await createTournamentAndAddPrizes(
         BigInt(tournamentCount) + 1n,
         tournament,

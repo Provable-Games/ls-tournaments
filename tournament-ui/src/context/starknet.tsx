@@ -53,8 +53,6 @@ export function StarknetProvider({
 
   const [pa, setPa] = useState<PredeployedAccountsConnector[]>([]);
 
-  console.log(selectedChainId);
-
   useEffect(() => {
     if (selectedChainId === ChainId.KATANA_LOCAL) {
       predeployedAccounts({
@@ -64,9 +62,6 @@ export function StarknetProvider({
       }).then(setPa);
     }
   }, [selectedChainConfig?.rpcUrl]);
-
-  console.log(pa);
-  console.log(chains);
 
   return (
     <StarknetConfig

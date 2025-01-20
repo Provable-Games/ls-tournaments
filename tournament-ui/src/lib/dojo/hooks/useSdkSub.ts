@@ -48,6 +48,10 @@ export const useSdkSubscribeEntities = ({
             (response.data[0] as Partial<ParsedEntity<SchemaType>>).entityId !==
               "0x0"
           ) {
+            console.log(
+              "useSdkSubscribeEntities() response.data:",
+              response.data
+            );
             response.data.forEach((entity) => {
               state.updateEntity(entity as Partial<ParsedEntity<SchemaType>>);
             });

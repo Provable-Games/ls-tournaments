@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { TrophyIcon, CloseIcon } from "../Icons";
 import useUIStore from "@/hooks/useUIStore";
 import { TournamentPrize } from "@/generated/models.gen";
@@ -5,21 +6,19 @@ import { useDojoStore } from "@/hooks/useDojoStore";
 import { formatBalance } from "@/lib/utils";
 import { useDojo } from "@/DojoContext";
 
-interface PrizeBoxProps {
+interface ERC20PrizeBoxProps {
   token: string;
-  variant: "erc20" | "erc721";
   prizes: TournamentPrize[];
   totalAmount: number | null;
   form?: boolean;
 }
 
-export default function PrizeBox({
+export default function ERC20PrizeBox({
   token,
-  variant,
   prizes,
   totalAmount,
   form,
-}: PrizeBoxProps) {
+}: ERC20PrizeBoxProps) {
   const { createTournamentData, setCreateTournamentData } = useUIStore();
   const { nameSpace } = useDojo();
   const state = useDojoStore((state) => state);
@@ -28,9 +27,26 @@ export default function PrizeBox({
     (t) => t.models[nameSpace].Token?.token === token
   )?.models[nameSpace].Token;
 
+  // Group prizes by position and sum their amounts
+  const groupedPrizes = useMemo(() => {
+    return prizes.reduce((acc, prize) => {
+      const position = prize.payout_position.toString(); // Convert bigint to string
+      if (!acc[position]) {
+        acc[position] = {
+          payout_position: position,
+          amount: 0n,
+        };
+      }
+      acc[position].amount += BigInt(
+        prize.token_data_type.variant.erc20?.token_amount || 0
+      );
+      return acc;
+    }, {} as Record<string, { payout_position: string; amount: bigint }>);
+  }, [prizes]);
+
   return (
     <>
-      <div className="relative flex flex-row gap-2 p-2 text-terminal-green border border-terminal-green">
+      <div className="relative flex flex-col gap-2 p-2 w-40 text-terminal-green border border-terminal-green">
         {form && (
           <span
             className="absolute top-1 right-1 w-2 h-2 cursor-pointer"
@@ -46,32 +62,26 @@ export default function PrizeBox({
             <CloseIcon />
           </span>
         )}
-        <span className="flex flex-col items-center">
+        <span className="flex flex-row items-center justify-between">
           <span className="flex flex-row gap-1">
             <span>{formatBalance(totalAmount!)}</span>
             <span>{tokenModel?.symbol}</span>
           </span>
           <span className="text-terminal-green/50 text-md uppercase">
-            {variant}
+            ERC20
           </span>
         </span>
-        <div className="flex flex-col overflow-scroll">
-          {prizes.map((prize, index) => {
-            const isERC20 = variant === "erc20";
-            const tokenValue = Number(
-              isERC20
-                ? prize.token_data_type.variant.erc20?.token_amount
-                : prize.token_data_type.variant.erc721?.token_id
-            );
-            let value = "";
-            if (isERC20) {
-              value = `${((tokenValue / totalAmount!) * 100).toFixed(0)}%`;
-            } else {
-              value = tokenValue.toString();
-            }
-
+        <div className="flex flex-row h-full gap-2 overflow-x-scroll item-scroll">
+          {Object.values(groupedPrizes).map((prize) => {
+            let value = `${(
+              (Number(prize.amount) / Number(totalAmount!)) *
+              100
+            ).toFixed(0)}%`;
             return (
-              <span key={index} className="flex flex-row items-center gap-1">
+              <span
+                key={prize.payout_position}
+                className="flex flex-row items-center gap-1"
+              >
                 {BigInt(prize.payout_position) <= 3n ? (
                   <span
                     className={`w-4 h-4 ${

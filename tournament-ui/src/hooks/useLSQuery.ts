@@ -11,7 +11,7 @@ export const useLSQuery = (query: DocumentNode, variables?: Variables) => {
   const { selectedChainConfig } = useDojo();
   const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
 
-  const { data, loading, error } = useQuery(query, {
+  const { data, loading, error, refetch } = useQuery(query, {
     variables,
     skip: !isMainnet,
   });
@@ -21,5 +21,6 @@ export const useLSQuery = (query: DocumentNode, variables?: Variables) => {
     loading,
     error,
     isMainnet,
+    refetch,
   };
 };

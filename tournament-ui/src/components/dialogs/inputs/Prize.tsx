@@ -7,6 +7,7 @@ import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
 import { TokenDataTypeEnum, TournamentPrize } from "@/generated/models.gen";
 import { useDojo } from "@/DojoContext";
+import { getOrdinalSuffix } from "@/lib/utils";
 
 interface PrizeProps {
   onSubmit: (prizes: TournamentPrize[]) => void;
@@ -172,16 +173,6 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
             .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
             .sort((a, b) => a.position - b.position) // Add this line to sort by position
             .map((distribution, index) => {
-              const getOrdinalSuffix = (position: number) => {
-                const formatPosition = isNaN(position) ? 0 : position;
-                if (formatPosition % 10 === 1 && formatPosition !== 11)
-                  return "st";
-                if (formatPosition % 10 === 2 && formatPosition !== 12)
-                  return "nd";
-                if (position % 10 === 3 && position !== 13) return "rd";
-                return "th";
-              };
-
               return (
                 <p key={index} className="text-lg uppercase font-bold">
                   {isNaN(distribution.percentage)

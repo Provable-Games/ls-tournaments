@@ -1,4 +1,3 @@
-world_address = "0x6a9e4c6f0799160ea8ddc43ff982a5f83d7f633e9732ce42701de1288ff705f"
 rpc = "https://api.cartridge.gg/x/starknet/mainnet"
 explorer = false
 
@@ -8,4 +7,4 @@ events_chunk_size = 1024
 blocks_chunk_size = 100
 transactions = false
 contracts = ["ERC721:0x00539f522b29ae9251dbf7443c7a950cf260372e69efab3710a11bf17a9599f1", "ERC721:0x04f5e296c805126637552cf3930e857f380e7c078e8f00696de4fc8545356b1d"]
-namespaces = ["ls_tournaments_v0"]
+namespaces = []
