@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const formatTime = (totalSeconds: number) => {
+const formatTime = (totalSeconds: number, dateClassName?: string) => {
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor(
@@ -11,7 +11,9 @@ const formatTime = (totalSeconds: number) => {
     <div className="flex flex-row no-text-shadow">
       {days > 0 && (
         <div className="relative flex flex-col">
-          <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+          <span
+            className={`absolute top-[-20px] text-terminal-green/75 no-text-shadow ${dateClassName} text-2xl`}
+          >
             D
           </span>
           <span>{`${days.toString().padStart(2, "0")}:`}</span>
@@ -19,7 +21,9 @@ const formatTime = (totalSeconds: number) => {
       )}
       {(hours > 0 || days > 0) && (
         <div className="relative flex flex-col">
-          <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+          <span
+            className={`absolute top-[-20px] text-terminal-green/75 no-text-shadow ${dateClassName} text-2xl`}
+          >
             H
           </span>
           <span>{`${hours.toString().padStart(2, "0")}:`}</span>
@@ -27,14 +31,18 @@ const formatTime = (totalSeconds: number) => {
       )}
       {(minutes > 0 || hours > 0 || days > 0) && (
         <div className="relative flex flex-col">
-          <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+          <span
+            className={`absolute top-[-20px] text-terminal-green/75 no-text-shadow ${dateClassName} text-2xl`}
+          >
             M
           </span>
           <span>{`${minutes.toString().padStart(2, "0")}:`}</span>
         </div>
       )}
       <div className="relative flex flex-col">
-        <span className="absolute top-[-20px] text-terminal-green/75 no-text-shadow text-2xl">
+        <span
+          className={`absolute top-[-20px] text-terminal-green/75 no-text-shadow ${dateClassName} text-2xl`}
+        >
           S
         </span>
         <span>{`${seconds.toString().padStart(2, "0")}`}</span>
@@ -46,9 +54,16 @@ const formatTime = (totalSeconds: number) => {
 export interface CountdownProps {
   targetTime: number | null;
   countDownExpired: () => void;
+  countClassName?: string;
+  dateClassName?: string;
 }
 
-export const Countdown = ({ targetTime, countDownExpired }: CountdownProps) => {
+export const Countdown = ({
+  targetTime,
+  countDownExpired,
+  countClassName,
+  dateClassName,
+}: CountdownProps) => {
   const [seconds, setSeconds] = useState(0);
   useEffect(() => {
     if (targetTime) {
@@ -78,13 +93,13 @@ export const Countdown = ({ targetTime, countDownExpired }: CountdownProps) => {
         {targetTime ? (
           <>
             <span
-              className={`text-4xl ${
+              className={`${countClassName} text-4xl ${
                 seconds < 10
                   ? "animate-pulse text-terminal-green"
                   : "text-terminal-green"
               }`}
             >
-              {formatTime(seconds)}
+              {formatTime(seconds, dateClassName)}
             </span>
           </>
         ) : (
