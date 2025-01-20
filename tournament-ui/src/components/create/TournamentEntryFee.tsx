@@ -1,4 +1,4 @@
-import { ChangeEvent, useState, useMemo, useEffect } from "react";
+import { ChangeEvent, useState, useEffect } from "react";
 import { Button } from "@/components/buttons/Button";
 import useUIStore from "@/hooks/useUIStore";
 import { TrophyIcon } from "@/components/Icons";
@@ -14,6 +14,7 @@ const TournamentEntryFee = () => {
   const [amount, setAmount] = useState<number>(0);
   const [creatorFee, setCreatorFee] = useState<number>(0);
   const [distributionWeight, setDistributionWeight] = useState<number>(0);
+  const [payouts, setPayouts] = useState<number[]>([]);
 
   const handleChangeAmount = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -50,13 +51,12 @@ const TournamentEntryFee = () => {
     !createTournamentData.submissionPeriod ||
     !createTournamentData.scoreboardSize;
 
-  const payouts = useMemo(
-    () => calculatePayouts(scoreboardSize, distributionWeight),
-    [scoreboardSize, distributionWeight]
-  );
+  useEffect(() => {
+    setPayouts(calculatePayouts(scoreboardSize, distributionWeight));
+  }, [distributionWeight]);
 
   useEffect(() => {
-    if (amount && creatorFee && payouts && selectedToken) {
+    if (amount && payouts && selectedToken) {
       const entryFeeValue = new CairoOption(CairoOptionVariant.Some, {
         token: selectedToken?.token!,
         token_amount: amount * 10 ** 18,
@@ -198,7 +198,23 @@ const TournamentEntryFee = () => {
           </div>
           <div className="h-full w-0.5 bg-terminal-green/50" />
           <div className="flex flex-col py-2 overflow-hidden w-full">
-            <p className="text-xl uppercase text-terminal-green/75">Split</p>
+            <div className="flex flex-row justify-between">
+              <p className="text-xl uppercase text-terminal-green/75">Split</p>
+              <Button
+                variant="token"
+                onClick={() => {
+                  const basePayouts = [50, 30, 20];
+                  const paddedPayouts = [
+                    ...basePayouts,
+                    ...Array(scoreboardSize - basePayouts.length).fill(0),
+                  ];
+                  setPayouts(paddedPayouts);
+                }}
+                className="!h-4"
+              >
+                3:2:1
+              </Button>
+            </div>
             <div className="flex flex-col gap-2 w-[150px]">
               {/* <p className="text-lg text-terminal-green/75">
                 Distribution Weight

@@ -28,6 +28,8 @@ const EnteredRow = ({
   const { nameSpace } = useDojo();
   const startTimestamp = Number(startTime) * 1000;
   const startDate = new Date(startTimestamp);
+  console.log(startTime);
+  console.log(startDate);
   const displayStartDate = new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",

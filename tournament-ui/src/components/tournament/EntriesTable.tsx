@@ -14,12 +14,12 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
     if (!tournamentEntires) return 0;
-    return Math.ceil(tournamentEntires.length / 10);
+    return Math.ceil(tournamentEntires.length / 5);
   }, [tournamentEntires]);
 
   const pagedEntries = useMemo(() => {
     if (!tournamentEntires) return [];
-    return tournamentEntires.slice((currentPage - 1) * 10, currentPage * 10);
+    return tournamentEntires.slice((currentPage - 1) * 5, currentPage * 5);
   }, [tournamentEntires, currentPage]);
 
   const addresses = useMemo(
@@ -32,6 +32,8 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
 
   const { usernames } = useGetUsernames(addresses);
 
+  console.log(usernames?.get(indexAddress("0x0")));
+
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
       {tournamentEntires && tournamentEntires.length > 0 ? (
@@ -40,7 +42,7 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
             <div className="w-1/4"></div>
             <p className="w-1/2 text-4xl text-center uppercase">Entries</p>
             <div className="w-1/4 flex justify-end">
-              {tournamentEntires && tournamentEntires.length > 10 && (
+              {tournamentEntires && tournamentEntires.length > 5 && (
                 <Pagination
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
@@ -52,8 +54,7 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
           <table className="w-full">
             <thead className="bg-terminal-green/75 text-terminal-black text-lg h-10 uppercase">
               <tr>
-                <th className="text-left px-2">Name</th>
-                <th className="text-left">Address</th>
+                <th className="text-left px-2">Address / Username</th>
                 <th className="text-left">Entries</th>
               </tr>
             </thead>
@@ -65,10 +66,10 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
                   return (
                     <EntryRow
                       key={index}
-                      name={
+                      address={entryModel.address}
+                      username={
                         usernames?.get(indexAddress(entryModel.address)) || ""
                       }
-                      address={entryModel.address}
                       entryCount={entryModel.entry_count}
                     />
                   );

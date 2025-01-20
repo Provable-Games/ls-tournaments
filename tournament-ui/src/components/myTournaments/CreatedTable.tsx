@@ -14,8 +14,11 @@ const CreatedTable = () => {
     [account]
   );
 
-  const { entities: tournaments } =
-    useGetAccountCreatedTournamentsQuery(address);
+  const { entities: tournaments } = useGetAccountCreatedTournamentsQuery(
+    address,
+    5,
+    (currentPage - 1) * 5
+  );
 
   // TODO: Remove handling of pagination within client for paginated queries
   // (get totalPages from the totals model)
@@ -36,7 +39,7 @@ const CreatedTable = () => {
         <div className="w-1/4"></div>
         <p className="text-4xl">Created Tournaments</p>
         <div className="w-1/4 flex justify-end">
-          {tournaments && tournaments.length > 10 ? (
+          {tournaments && tournaments.length > 5 ? (
             <Pagination
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}

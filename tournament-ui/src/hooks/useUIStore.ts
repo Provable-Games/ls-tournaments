@@ -31,6 +31,8 @@ type State = {
   setStartTournamentData: (value: StartTournamentData) => void;
   tokenBalance: Record<string, bigint>;
   setTokenBalance: (value: Record<string, bigint>) => void;
+  showLoginDialog: boolean;
+  setShowLoginDialog: (value: boolean) => void;
 };
 
 const initialCreateTournamentData: CreateTournamentData = {
@@ -77,6 +79,8 @@ const useUIStore = create<State>((set) => ({
   },
   setTokenBalance: (value: Record<string, bigint>) =>
     set({ tokenBalance: value }),
+  showLoginDialog: false,
+  setShowLoginDialog: (value: boolean) => set({ showLoginDialog: value }),
 }));
 
 export default useUIStore;

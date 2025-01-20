@@ -6,25 +6,29 @@ import { ChainId } from "@/config";
 
 interface GamesTableProps {
   adventurersData: any;
+  tournamentGames: any;
 }
 
-const GamesTable = ({ adventurersData }: GamesTableProps) => {
+const GamesTable = ({ adventurersData, tournamentGames }: GamesTableProps) => {
   const { selectedChainConfig, nameSpace } = useDojo();
   const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
-    if (!adventurersData) return 0;
-    return Math.ceil(adventurersData.length / 10);
-  }, [adventurersData]);
+    if (!tournamentGames) return 0;
+    return Math.ceil(tournamentGames.length / 5);
+  }, [tournamentGames]);
 
   const pagedAdventurers = useMemo(() => {
-    if (!adventurersData) return [];
-    return adventurersData.slice((currentPage - 1) * 10, currentPage * 10);
-  }, [adventurersData, currentPage]);
+    if (!tournamentGames) return [];
+    return tournamentGames.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [tournamentGames, currentPage]);
+
+  console.log(tournamentGames);
+  console.log(adventurersData);
 
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
-      {adventurersData && adventurersData.length > 0 ? (
+      {tournamentGames && tournamentGames.length > 0 ? (
         <>
           <div className="flex flex-row items-center justify-between w-full">
             <div className="w-1/4"></div>
@@ -32,7 +36,7 @@ const GamesTable = ({ adventurersData }: GamesTableProps) => {
               Games In Play
             </p>
             <div className="w-1/4 flex justify-end">
-              {adventurersData && adventurersData.length > 10 && (
+              {tournamentGames && tournamentGames.length > 5 && (
                 <Pagination
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
@@ -45,6 +49,7 @@ const GamesTable = ({ adventurersData }: GamesTableProps) => {
             <thead className="bg-terminal-green/75 text-terminal-black text-lg h-10 uppercase">
               <tr>
                 <th className="text-center">Rank</th>
+                <th className="text-left">Name</th>
                 <th className="text-left">Address</th>
                 <th className="text-left">ID</th>
                 <th className="text-left">Level</th>
@@ -53,16 +58,24 @@ const GamesTable = ({ adventurersData }: GamesTableProps) => {
               </tr>
             </thead>
             <tbody>
-              {adventurersData &&
-                adventurersData.length > 0 &&
+              {tournamentGames &&
+                tournamentGames.length > 0 &&
                 pagedAdventurers.map((data: any, index: any) => {
                   const adventurer = isMainnet
-                    ? data
-                    : data.models[nameSpace].AdventurerModel;
+                    ? adventurersData?.find(
+                        (adventurer: any) => adventurer.id === data.game_id
+                      )
+                    : adventurersData.find(
+                        (entity: any) =>
+                          Number(
+                            entity.models[nameSpace].AdventurerModel
+                              .adventurer_id
+                          ) === data.game_id
+                      );
                   return (
                     <GameRow
                       key={index}
-                      rank={index + 1}
+                      rank={index + (currentPage - 1) * 5 + 1}
                       adventurer={adventurer}
                     />
                   );

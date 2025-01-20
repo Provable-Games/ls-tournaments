@@ -446,7 +446,10 @@ const TournamentPrizes = ({ tournamentCount }: TournamentPrizesProps) => {
         </div>
       </div>
       <div className="absolute w-3/4 justify-end right-0 bottom-[-80px] h-16 flex flex-row gap-2">
-        <PrizeBoxes prizes={createTournamentData.prizes} />
+        {createTournamentData.prizes.length > 0 && (
+          <p className="uppercase">Added prizes:</p>
+        )}
+        <PrizeBoxes prizes={createTournamentData.prizes} form={true} />
       </div>
     </div>
   );

@@ -39,6 +39,10 @@ pub fn BEASTS_ADDRESS() -> ContractAddress {
     contract_address_const::<0x0158160018d590d93528995b340260e65aedd76d28a686e9daa5c4e8fad0c5dd>()
 }
 
+pub fn DARK_SHUFFLE_ADDRESS() -> ContractAddress {
+    contract_address_const::<0x033faad68bac7f856a01eeb4f80f6e98e2cfca9dfc0c8774aee42d68406510cd>()
+}
+
 pub const ETH_SAFE_AMOUNT: u128 = 3000000000000000; // 0.003 ETH
 pub const LORDS_SAFE_AMOUNT: u128 = 50000000000000000000; // 50 LORDS
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getEntityIdFromKeys } from "@dojoengine/utils";
 import { useAccount } from "@starknet-react/core";
@@ -6,7 +6,7 @@ import useModel from "@/useModel.ts";
 import { Models } from "@/generated/models.gen";
 import { feltToString, formatTime, bigintToHex } from "@/lib/utils";
 import { Button } from "@/components/buttons/Button.tsx";
-import { addAddressPadding } from "starknet";
+import { addAddressPadding, CairoCustomEnum } from "starknet";
 import {
   useGetAdventurersQuery,
   useGetTournamentDetailsQuery,
@@ -27,9 +27,8 @@ import EnterTournament from "@/components/tournament/EnterTournament";
 import StartTournament from "@/components/tournament/StartTournament";
 import SubmitScores from "@/components/tournament/SubmitScores";
 import ClaimPrizes from "@/components/tournament/ClaimPrizes";
-import useFreeGames from "@/hooks/useFreeGames";
-import PrizeBoxes from "@/components/box/PrizeBoxes";
-import { TournamentPrize } from "@/generated/models.gen";
+import PrizesDisplay from "@/components/tournament/PrizesDisplay";
+import { TournamentPrize, TokenDataTypeEnum } from "@/generated/models.gen";
 import { ChainId } from "@/config";
 
 const Tournament = () => {
@@ -37,9 +36,9 @@ const Tournament = () => {
   const { account } = useAccount();
   const { nameSpace, selectedChainConfig } = useDojo();
   const { setInputDialog } = useUIStore();
-  const { usableGoldenTokens, usableBlobertTokens } = useFreeGames();
 
   const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
+  const isDsTournament = import.meta.env.VITE_DS_TOURNAMENT === "true";
 
   const state = useDojoStore((state) => state);
   const { tournament } = useTournamentContracts();
@@ -82,19 +81,23 @@ const Tournament = () => {
     tournamentAddressEntityId,
     Models.TournamentEntriesAddress
   );
+  console.log(tournamentAddressEntityId);
   const tournamentStartsAddressModel = useModel(
     tournamentAddressEntityId,
     Models.TournamentStartsAddress
   );
+  console.log(tournamentStartsAddressModel);
   const tournamentAllEntriesEntities = state.getEntitiesByModel(
     nameSpace,
     "TournamentEntriesAddress"
   );
   const tournamentGames = state.getEntitiesByModel(nameSpace, "TournamentGame");
+  console.log(tournamentGames);
   const adventurersTestEntities = state.getEntitiesByModel(
     nameSpace,
     "AdventurerModel"
   );
+  const tokens = state.getEntitiesByModel(nameSpace, "Token");
   const allTournamentEntries = tournamentAllEntriesEntities.filter(
     (entry: any) =>
       entry.models[nameSpace].TournamentEntriesAddress.tournament_id ===
@@ -102,10 +105,16 @@ const Tournament = () => {
   );
 
   // Handle get adventurer scores fir account
-  const addressGameIds = tournamentGames?.map(
-    (game: any) => game.models[nameSpace].TournamentGame.game_id
+  const tournamentGameModels = tournamentGames
+    ?.filter(
+      (game: any) =>
+        game.models[nameSpace].TournamentGame.tournament_id ===
+        tournamentModel?.tournament_id
+    )
+    .map((game: any) => game.models[nameSpace].TournamentGame);
+  const formattedGameIds = tournamentGameModels?.map((game: any) =>
+    Number(game.game_id)
   );
-  const formattedGameIds = addressGameIds?.map((id: any) => Number(id));
 
   console.log(formattedGameIds);
 
@@ -115,16 +124,26 @@ const Tournament = () => {
     };
   }, [formattedGameIds]);
 
-  const { data: adventurersMainData } = useLSQuery(
+  console.log(adventurersListVariables);
+
+  const { data: adventurersMainData, refetch } = useLSQuery(
     getAdventurersInList,
     adventurersListVariables
   );
 
+  useEffect(() => {
+    refetch();
+  }, [adventurersListVariables, refetch]);
+
+  // todo need to pull the data when tournament games is updated
   const adventurersData = isMainnet
     ? adventurersMainData?.adventurers
     : adventurersTestEntities;
 
   // Calculate dates
+  const registrationEndDate = new Date(
+    Number(tournamentModel?.registration_end_time) * 1000
+  );
   const startDate = new Date(Number(tournamentModel?.start_time) * 1000);
   const endDate = new Date(Number(tournamentModel?.end_time) * 1000);
   const submissionEndDate = new Date(
@@ -163,8 +182,117 @@ const Tournament = () => {
     .map((detail) => detail.TournamentPrize) ??
     []) as unknown as TournamentPrize[];
 
-  console.log(tournamentScores);
-  console.log(adventurersData);
+  const hasEntryPremium = tournamentModel?.entry_premium.isSome();
+
+  const premiumPrizes = useMemo(() => {
+    if (!hasEntryPremium) return [];
+
+    const entryPremium = tournamentModel?.entry_premium.unwrap();
+
+    const totalPremiumAmount =
+      BigInt(entryPremium?.token_amount!) * BigInt(entryCount);
+
+    if (totalPremiumAmount === 0n) return [];
+
+    return entryPremium?.token_distribution
+      .map((distribution, index) => {
+        if (distribution === 0) return null;
+        const tokenDataType = new CairoCustomEnum({
+          erc20: {
+            token_amount: addAddressPadding(
+              bigintToHex((totalPremiumAmount * BigInt(distribution)) / 100n)
+            ),
+          },
+          erc721: undefined,
+        }) as TokenDataTypeEnum;
+        return {
+          tournament_id: tournamentModel.tournament_id,
+          payout_position: index + 1,
+          prize_key: "",
+          claimed: false,
+          token: entryPremium.token,
+          token_data_type: tokenDataType,
+        };
+      })
+      .filter((prize): prize is NonNullable<typeof prize> => prize !== null);
+  }, [hasEntryPremium, tournamentModel, entryCount]);
+
+  const allPrizes = useMemo(() => {
+    // Create a map using a unique key combination to identify duplicates
+    const uniquePrizes = new Map(
+      [...prizes, ...(premiumPrizes || [])].map((prize) => [
+        // Use combination of relevant properties as key
+        `${prize.payout_position}-${prize.token}-${JSON.stringify(
+          prize.token_data_type
+        )}`,
+        prize,
+      ])
+    );
+
+    return Array.from(uniquePrizes.values());
+  }, [prizes, premiumPrizes]);
+
+  const groupedPrizes = useMemo(() => {
+    return allPrizes.reduce(
+      (acc, prize) => {
+        const position = prize.payout_position.toString();
+        if (!acc[position]) {
+          acc[position] = {
+            payout_position: position,
+            tokens: {} as Record<
+              string,
+              {
+                type: "erc20" | "erc721";
+                values: string[];
+              }
+            >,
+          };
+        }
+
+        const tokenModel = tokens.find(
+          (t) => t.models[nameSpace].Token?.token === prize.token
+        )?.models[nameSpace].Token;
+
+        const tokenSymbol = tokenModel?.symbol!;
+        if (!acc[position].tokens[tokenSymbol]) {
+          acc[position].tokens[tokenSymbol] = {
+            type: prize.token_data_type.variant.erc721 ? "erc721" : "erc20",
+            values: [],
+          };
+        }
+
+        if (prize.token_data_type.variant.erc721) {
+          acc[position].tokens[tokenSymbol].values.push(
+            `#${Number(
+              prize.token_data_type.variant.erc721.token_id!
+            ).toString()}`
+          );
+        } else if (prize.token_data_type.variant.erc20) {
+          acc[position].tokens[tokenSymbol].values.push(
+            (
+              BigInt(prize.token_data_type.variant.erc20.token_amount) /
+              10n ** 18n
+            ).toString()
+          );
+        }
+
+        return acc;
+      },
+      {} as Record<
+        string,
+        {
+          payout_position: string;
+          tokens: Record<
+            string,
+            {
+              type: "erc20" | "erc721";
+              values: string[];
+            }
+          >;
+        }
+      >
+    );
+  }, [allPrizes]);
 
   if (!tournamentModel?.tournament_id)
     return (
@@ -185,50 +313,72 @@ const Tournament = () => {
               {feltToString(tournamentModel?.name!)}
             </h1>
           </div>
-          {isLive ? (
-            <div className="w-1/4 flex flex-row gap-5 justify-end">
-              {!countDownExpired ? (
-                <>
+          <div className="w-1/4 flex border border-2 border-terminal-green/75 items-center justify-end h-[70px] p-2 pt-4">
+            {!started && !isSeason ? (
+              <div className="w-full flex flex-row items-center gap-5">
+                {!countDownExpired ? (
+                  <>
+                    <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                      Registration Ends
+                    </h2>
+                    <Countdown
+                      targetTime={registrationEndDate.getTime()}
+                      countDownExpired={() => setCountDownExpired(true)}
+                    />
+                  </>
+                ) : (
                   <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
-                    Tournament Ends
+                    Registration Closed
                   </h2>
-                  <Countdown
-                    targetTime={endDate.getTime()}
-                    countDownExpired={() => setCountDownExpired(true)}
-                  />
-                </>
-              ) : (
-                <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
-                  Tournament Ended
-                </h2>
-              )}
-            </div>
-          ) : isSubmissionLive ? (
-            <div className="w-1/4 flex flex-row gap-5 justify-end">
-              {!countDownExpired ? (
-                <>
+                )}
+              </div>
+            ) : isLive ? (
+              <div className="flex flex-row gap-5">
+                {!countDownExpired ? (
+                  <>
+                    <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                      Tournament Ends
+                    </h2>
+                    <Countdown
+                      targetTime={endDate.getTime()}
+                      countDownExpired={() => setCountDownExpired(true)}
+                    />
+                  </>
+                ) : (
                   <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
-                    Submission Ends
+                    Tournament Ended
                   </h2>
-                  <Countdown
-                    targetTime={
-                      endDate.getTime() +
-                      Number(tournamentModel?.submission_period) * 1000
-                    }
-                    countDownExpired={() => setCountDownExpired(true)}
-                  />
-                </>
-              ) : (
-                <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
-                  Submission Ended
-                </h2>
-              )}
-            </div>
-          ) : (
-            <div className="w-1/4"></div>
-          )}
+                )}
+              </div>
+            ) : isSubmissionLive ? (
+              <div className="flex flex-row gap-5">
+                {!countDownExpired ? (
+                  <>
+                    <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                      Submission Ends
+                    </h2>
+                    <Countdown
+                      targetTime={
+                        endDate.getTime() +
+                        Number(tournamentModel?.submission_period) * 1000
+                      }
+                      countDownExpired={() => setCountDownExpired(true)}
+                    />
+                  </>
+                ) : (
+                  <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                    Submission Ended
+                  </h2>
+                )}
+              </div>
+            ) : (
+              <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                Submission Ended
+              </h2>
+            )}
+          </div>
         </div>
-        <div className="relative flex flex-row gap-2 border-4 border-terminal-green/75 p-2">
+        <div className="relative flex flex-row gap-2 border-4 border-terminal-green/75 h-[200px] p-2">
           <div className="flex flex-col gap-1 w-1/3">
             <div className="flex flex-col gap-1">
               <p className="text-xl text-terminal-green/75 no-text-shadow uppercase">
@@ -307,20 +457,18 @@ const Tournament = () => {
             </div>
           </div>
           <div className="flex flex-col justify-between w-1/3">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col h-full gap-2">
               <p className="text-xl text-terminal-green/75 no-text-shadow uppercase">
                 Prizes
               </p>
               {prizes && prizes.length > 0 ? (
-                <div className="flex flex-row gap-2">
-                  <PrizeBoxes prizes={prizes} />
-                </div>
+                <PrizesDisplay prizes={groupedPrizes} />
               ) : (
                 <p className="text-lg uppercase">No Prizes Added</p>
               )}
             </div>
           </div>
-          {!ended && (
+          {!ended && !isDsTournament && (
             <div className="absolute top-2 right-2">
               <Button
                 className="bg-terminal-green/25 text-terminal-green hover:text-terminal-black"
@@ -345,11 +493,17 @@ const Tournament = () => {
         {!started && !isSeason && (
           <EntriesTable tournamentEntires={allTournamentEntries} />
         )}
-        {isLive && <GameTable adventurersData={adventurersData} />}
+        {isLive && (
+          <GameTable
+            adventurersData={adventurersData}
+            tournamentGames={tournamentGameModels}
+          />
+        )}
         {ended && (
           <ScoreTable
             tournamentScores={tournamentScores}
             adventurersData={adventurersData}
+            prizes={groupedPrizes}
           />
         )}
         <div className="w-1/2 flex flex-col gap-2 border-4 border-terminal-green/75 h-[250px]">
@@ -366,9 +520,6 @@ const Tournament = () => {
               tournamentModel={tournamentModel}
               currentAddressStartCount={currentAddressStartCount}
               entryAddressCount={entryAddressCount}
-              entryCount={entryCount}
-              usableGoldenTokens={usableGoldenTokens}
-              usableBlobertTokens={usableBlobertTokens}
               isSeason={isSeason}
             />
           ) : isSubmissionLive ? (
@@ -377,7 +528,7 @@ const Tournament = () => {
               tournamentEntriesAddress={tournamentEntriesAddressModel}
               currentAddressStartCount={currentAddressStartCount}
               tournamentScores={tournamentScores}
-              addressGameIds={addressGameIds}
+              tournamentGames={tournamentGameModels}
               adventurersData={adventurersData}
             />
           ) : (

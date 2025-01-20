@@ -256,8 +256,8 @@ const snMainnetConfig: DojoChainConfig = {
   ],
   connectorIds: [
     supportedConnectorIds.CONTROLLER,
-    // supportedConnectorIds.ARGENT,
-    // supportedConnectorIds.BRAAVOS,
+    supportedConnectorIds.ARGENT,
+    supportedConnectorIds.BRAAVOS,
   ],
 } as const;
 
@@ -283,9 +283,6 @@ export const dojoContextConfig: Record<ChainId, DojoChainConfig> = {
   [ChainId.SN_MAIN]: snMainnetConfig,
 };
 
-console.log(defaultChainId);
-console.log(dojoContextConfig[defaultChainId]);
-
 const CONTROLLER =
   defaultChainId !== ChainId.KATANA_LOCAL
     ? makeControllerConnector(
@@ -293,6 +290,7 @@ const CONTROLLER =
         dojoContextConfig[defaultChainId]?.rpcUrl!,
         defaultChainId,
         dojoContextConfig[defaultChainId]
+        // NAMESPACE
       )
     : undefined;
 //------------------------

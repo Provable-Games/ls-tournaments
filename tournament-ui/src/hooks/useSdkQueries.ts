@@ -261,57 +261,11 @@ export const useGetEndedTournamentsQuery = (
   return { entities, isLoading, refetch };
 };
 
-export const useGetAccountTournamentsQuery = (address: string) => {
-  const { nameSpace } = useDojo();
-  const query = useMemo<TournamentGetQuery>(
-    () => ({
-      [nameSpace]: {
-        Tournament: {
-          $: {
-            where: {
-              creator: { $eq: addAddressPadding(address) },
-            },
-          },
-        },
-        // TournamentEntriesAddress: {
-        //   $: {
-        //     where: {
-        //       address: { $eq: addAddressPadding(address) },
-        //     },
-        //   },
-        // },
-        // TournamentStartsAddress: {
-        //   $: {
-        //     where: {
-        //       address: { $eq: addAddressPadding(address) },
-        //     },
-        //   },
-        // },
-        // TournamentStartIds: {
-        //   $: {
-        //     where: {
-        //       address: { $eq: addAddressPadding(address) },
-        //     },
-        //   },
-        // },
-      },
-    }),
-    [address]
-  );
-  const { entities, isLoading, refetch } = useSdkGetEntities({
-    query,
-    orderBy: [
-      {
-        model: "Tournament",
-        member: "startTime",
-        direction: "Desc",
-      },
-    ],
-  });
-  return { entities, isLoading, refetch };
-};
-
-export const useGetAccountCreatedTournamentsQuery = (address: string) => {
+export const useGetAccountTournamentsQuery = (
+  address: string,
+  limit: number,
+  offset: number
+) => {
   const { nameSpace } = useDojo();
   const query = useMemo<TournamentGetQuery>(
     () => ({
@@ -336,11 +290,52 @@ export const useGetAccountCreatedTournamentsQuery = (address: string) => {
         direction: "Desc",
       },
     ],
+    limit: limit,
+    offset: offset,
   });
   return { entities, isLoading, refetch };
 };
 
-export const useGetAccountEnteredTournamentsQuery = (address: string) => {
+export const useGetAccountCreatedTournamentsQuery = (
+  address: string,
+  limit: number,
+  offset: number
+) => {
+  const { nameSpace } = useDojo();
+  const query = useMemo<TournamentGetQuery>(
+    () => ({
+      [nameSpace]: {
+        Tournament: {
+          $: {
+            where: {
+              creator: { $eq: addAddressPadding(address) },
+            },
+          },
+        },
+      },
+    }),
+    [address]
+  );
+  const { entities, isLoading, refetch } = useSdkGetEntities({
+    query,
+    orderBy: [
+      {
+        model: `${nameSpace}-Tournament`,
+        member: "start_time",
+        direction: "Desc",
+      },
+    ],
+    limit: limit,
+    offset: offset,
+  });
+  return { entities, isLoading, refetch };
+};
+
+export const useGetAccountEnteredTournamentsQuery = (
+  address: string
+  // limit: number,
+  // offset: number
+) => {
   const { nameSpace } = useDojo();
   const query = useMemo<TournamentGetQuery>(
     () => ({
@@ -352,6 +347,7 @@ export const useGetAccountEnteredTournamentsQuery = (address: string) => {
             },
           },
         },
+        // TournamentEntriesAddress: [],
       },
     }),
     [address]
@@ -534,6 +530,13 @@ export const useSubscribeTournamentDetailsQuery = (
             },
           },
         },
+        TournamentGame: {
+          $: {
+            where: {
+              tournament_id: { $eq: addAddressPadding(tournamentId) },
+            },
+          },
+        },
         TournamentPrize: {
           $: {
             where: {
@@ -556,6 +559,13 @@ export const useSubscribeTournamentDetailsQuery = (
           },
         },
         TournamentEntriesAddress: {
+          $: {
+            where: {
+              tournament_id: { $is: addAddressPadding(tournamentId) },
+            },
+          },
+        },
+        TournamentStartsAddress: {
           $: {
             where: {
               tournament_id: { $is: addAddressPadding(tournamentId) },

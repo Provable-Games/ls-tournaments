@@ -332,7 +332,9 @@ fn test_create_tournament() {
         tournament_data.registration_end_time == TEST_REGISTRATION_END_TIME().into(),
         'Invalid registration end'
     );
-    assert(tournament_data.start_time == TEST_START_TIME().into(), 'Invalid tournament start time');
+    assert(
+        tournament_data.start_time == TEST_START_TIME().into(), 'Invalid tournament start time'
+    );
     assert(tournament_data.end_time == TEST_END_TIME().into(), 'Invalid tournament end time');
     assert(tournament_data.gated_type == Option::None, 'Invalid tournament gated token');
     assert(tournament_data.entry_premium == Option::None, 'Invalid entry premium');
@@ -811,7 +813,9 @@ fn test_create_tournament_gated_by_multiple_tournaments() {
 
     // Verify the gated tournament was created with correct parameters
     let gated_tournament = contracts.tournament.tournament(gated_tournament_id);
-    assert(gated_tournament.gated_type == Option::Some(gated_type), 'Invalid tournament gate type');
+    assert(
+        gated_tournament.gated_type == Option::Some(gated_type), 'Invalid tournament gate type'
+    );
 
     testing::set_block_timestamp(current_time + MIN_REGISTRATION_PERIOD.into());
 
@@ -854,7 +858,9 @@ fn test_create_tournament_gated_accounts() {
 
     // Verify tournament was created with correct gating
     let tournament_data = contracts.tournament.tournament(tournament_id);
-    assert(tournament_data.gated_type == Option::Some(gated_type), 'Invalid tournament gate type');
+    assert(
+        tournament_data.gated_type == Option::Some(gated_type), 'Invalid tournament gate type'
+    );
 
     // Start tournament entries
     testing::set_block_timestamp(TEST_REGISTRATION_START_TIME().into());
@@ -917,67 +923,56 @@ fn test_create_tournament_season() {
 // Test registering tokens
 //
 
-// #[test]
-// fn test_register_token() {
-//     let (_world, mut tournament, _loot_survivor, _pragma, _eth, _lords, mut erc20, mut
-// erc721,) =
-//         setup();
+#[test]
+fn test_register_token() {
+    let contracts = setup();
 
-//     utils::impersonate(OWNER());
-//     erc20.approve(tournament.contract_address, 1);
-//     erc721.approve(tournament.contract_address, 1);
-//     let tokens = array![
-//         Token {
-//             token: erc20.contract_address,
-//             token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 })
-//         },
-//         Token {
-//             token: erc721.contract_address,
-//             token_data_type: TokenDataType::erc721(ERC721Data { token_id: 1 })
-//         },
-//     ];
+    utils::impersonate(OWNER());
+    contracts.lords.approve(contracts.tournament.contract_address, 1);
+    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+    contracts
+        .tournament
+        .register_token(
+            contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
+        );
+    contracts
+        .tournament
+        .register_token(
+            contracts.golden_token.contract_address,
+            TokenDataType::erc721(ERC721Data { token_id: 1 })
+        );
+    assert(contracts.erc20.balance_of(OWNER()) == 1000000000000000000000, 'Invalid balance');
+    assert(contracts.erc721.balance_of(OWNER()) == 1, 'Invalid balance');
+    assert(
+        contracts.tournament.is_token_registered(contracts.erc20.contract_address),
+        'Invalid registration'
+    );
+    assert(
+        contracts.tournament.is_token_registered(contracts.erc721.contract_address),
+        'Invalid registration'
+    );
+}
 
-//     tournament.register_tokens(tokens);
-//     assert(erc20.balance_of(OWNER()) == 1000000000000000000000, 'Invalid balance');
-//     assert(erc721.balance_of(OWNER()) == 1, 'Invalid balance');
-//     assert(tournament.is_token_registered(erc20.contract_address), 'Invalid registration');
-//     assert(tournament.is_token_registered(erc721.contract_address), 'Invalid registration');
-// }
+#[test]
+#[should_panic(expected: ('token already registered', 'ENTRYPOINT_FAILED'))]
+fn test_register_token_already_registered() {
+    let contracts = setup();
 
-// #[test]
-// #[should_panic(expected: ('token already registered', 'ENTRYPOINT_FAILED'))]
-// fn test_register_token_already_registered() {
-//     let (_world, mut tournament, _loot_survivor, _pragma, _eth, _lords, mut erc20, mut erc721,
-// _golden_token, _blobert) =
-//         setup();
+    utils::impersonate(OWNER());
+    contracts.lords.approve(contracts.tournament.contract_address, 1);
+    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
 
-//     utils::impersonate(OWNER());
-//     erc20.approve(tournament.contract_address, 1);
-//     erc721.approve(tournament.contract_address, 1);
-//     let tokens = array![
-//         Token {
-//             token: erc20.contract_address,
-//             token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 })
-//         },
-//         Token {
-//             token: erc721.contract_address,
-//             token_data_type: TokenDataType::erc721(ERC721Data { token_id: 1 })
-//         },
-//     ];
-
-//     tournament.register_tokens(tokens);
-//     let tokens = array![
-//         Token {
-//             token: erc20.contract_address,
-//             token_data_type: TokenDataType::erc20(ERC20Data { token_amount: 1 })
-//         },
-//         Token {
-//             token: erc721.contract_address,
-//             token_data_type: TokenDataType::erc721(ERC721Data { token_id: 1 })
-//         },
-//     ];
-//     tournament.register_tokens(tokens);
-// }
+    contracts
+        .tournament
+        .register_token(
+            contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
+        );
+    contracts
+        .tournament
+        .register_token(
+            contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
+        );
+}
 
 //
 // Test entering tournaments
@@ -1151,7 +1146,9 @@ fn test_start_tournament() {
         'Invalid balance'
     );
     assert(
-        contracts.eth.balance_of(OWNER()) == STARTING_BALANCE - 200000000000000, 'Invalid balance'
+        contracts.eth.balance_of(OWNER()) == STARTING_BALANCE - 200000000000000,
+        'Invalid
+        balance'
     );
 }
 
@@ -1672,7 +1669,6 @@ fn test_start_season() {
     // check tournament entries
     assert(contracts.tournament.tournament_entries(tournament_id) == 1, 'Invalid entries');
 }
-
 
 //
 // Test submitting scores
@@ -3003,3 +2999,4 @@ fn test_distribute_prizes_season() {
     assert(contracts.erc20.balance_of(OWNER()) == STARTING_BALANCE, 'Invalid balance');
     assert(contracts.erc721.owner_of(1) == OWNER(), 'Invalid owner');
 }
+

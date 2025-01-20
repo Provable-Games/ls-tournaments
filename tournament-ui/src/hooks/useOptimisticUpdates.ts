@@ -156,6 +156,12 @@ export const useOptimisticUpdates = () => {
     ]);
     const transactionId = uuidv4();
 
+    console.log(startsAddressEntityId, nameSpace, "TournamentStartsAddress", {
+      tournament_id: tournamentId,
+      address: accountAddress,
+      start_count: newAddressStartCount,
+    });
+
     state.applyOptimisticUpdate(transactionId, (draft) => {
       applyModelUpdate(
         draft,

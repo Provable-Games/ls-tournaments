@@ -45,10 +45,9 @@ export const makeControllerConnector = (
   rpcUrl: string,
   defaultChainId: string,
   dojoChainConfig: DojoChainConfig
+  // namespace: string
 ): Connector => {
   const policies = _makeControllerPolicies(manifest);
-
-  console.log(rpcUrl);
 
   const connector = new ControllerConnector({
     chains: [{ rpcUrl: rpcUrl }],
@@ -62,7 +61,10 @@ export const makeControllerConnector = (
     colorMode: "dark",
     policies,
     // namespace,
-    slot: "ls-tournaments",
+    slot:
+      defaultChainId == ChainId.SN_MAIN
+        ? "ls-tournaments"
+        : "ls-tournaments-katana",
     tokens: {
       erc20: [dojoChainConfig.lordsAddress!],
     },
@@ -86,6 +88,7 @@ export const useControllerConnector = (
         rpcUrl,
         defaultChainId,
         dojoChainConfig
+        // namespace
       );
     }
     return connectorRef.current;
@@ -137,14 +140,16 @@ export const useConnectedController = () => {
 export const useControllerUsername = () => {
   const { connector } = useConnect();
   const [username, setUsername] = useState<string | undefined>(undefined);
+  const isController = isControllerAccount();
 
   const getUsername = useCallback(async () => {
     if (!connector) return;
+    if (!isController) return;
     const username = await (
       connector as unknown as ControllerConnector
     ).username();
     setUsername(username || "");
-  }, [connector]);
+  }, [connector, isController]);
 
   useEffect(() => {
     getUsername();
@@ -174,6 +179,11 @@ export const useGetUsernames = (addresses: string[]) => {
     usernames,
     refetch: fetchUsernames,
   };
+};
+
+export const isControllerAccount = () => {
+  const { connector } = useConnect();
+  return connector?.id == supportedConnectorIds.CONTROLLER;
 };
 
 // export const useControllerAccount = (contractAddress: BigNumberish) => {

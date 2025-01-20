@@ -120,7 +120,7 @@ pub trait ITournamentMock<TState> {
         gated_type: Option<GatedType>,
         entry_premium: Option<Premium>,
     ) -> u64;
-    fn register_tokens(ref self: TState, tokens: Array<Token>);
+    fn register_token(ref self: TState, token: ContractAddress, token_data_type: TokenDataType);
     fn enter_tournament(
         ref self: TState, tournament_id: u64, gated_submission_type: Option<GatedSubmissionType>
     );

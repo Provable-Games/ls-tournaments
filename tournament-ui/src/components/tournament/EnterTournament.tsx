@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/buttons/Button";
 import { formatNumber, getTokenKeyFromValue } from "@/lib/utils";
 import { useLordsCost } from "@/hooks/useLordsCost";
@@ -20,6 +20,7 @@ import useUIStore from "@/hooks/useUIStore";
 import { TOKEN_ICONS } from "@/lib/constants";
 import { useDojo } from "@/DojoContext";
 import { useDojoStore } from "@/hooks/useDojoStore";
+import { useAccount } from "@starknet-react/core";
 
 interface EnterTournamentProps {
   tournamentModel: Tournament;
@@ -34,8 +35,10 @@ const EnterTournament = ({
   entryCount,
   entryAddressCount,
 }: EnterTournamentProps) => {
+  const { account } = useAccount();
   const { lordsCost } = useLordsCost();
-  const { enterTournament, approveERC20General } = useSystemCalls();
+  const { enterTournament, approveERC20General, getBalanceGeneral } =
+    useSystemCalls();
   const { nameSpace } = useDojo();
   const state = useDojoStore();
   const { setInputDialog } = useUIStore();
@@ -43,8 +46,10 @@ const EnterTournament = ({
 
   const [submittingTokenId, setSubmittingTokenId] = useState<BigNumberish>();
   const [submittingGameIds, _] = useState<BigNumberish[]>();
+  const [entryPremiumBalance, setEntryPremiumBalance] = useState<bigint>();
 
   const handleEnterTournament = async () => {
+    if (!account) return;
     let gatedSubmission: CairoOption<GatedEntryTypeEnum> =
       new CairoOption<GatedEntryTypeEnum>(CairoOptionVariant.None);
     // handle gated submissions
@@ -91,6 +96,7 @@ const EnterTournament = ({
       addAddressPadding(bigintToHex(BigInt(entryAddressCount) + 1n)),
       gatedSubmission
     );
+    await getEntryPremiumBalance();
   };
 
   const tokens = state.getEntitiesByModel(nameSpace, "Token");
@@ -108,10 +114,31 @@ const EnterTournament = ({
   const noEntryPremium = tournamentModel.entry_premium.isNone();
   const noGatedType = tournamentModel.gated_type.isNone();
 
-  // TODO: Handle approvals when entr fees are visible
+  const getEntryPremiumBalance = async () => {
+    if (tournamentModel.entry_premium.isSome()) {
+      const token = tournamentModel.entry_premium.Some?.token;
+      const premiumBalance = await getBalanceGeneral(token!);
+      setEntryPremiumBalance(premiumBalance);
+    }
+  };
+
+  useEffect(() => {
+    if (account && tournamentModel.entry_premium.isSome()) {
+      getEntryPremiumBalance();
+    }
+  }, [tournamentModel, account]);
+
+  const enoughPremiumBalance = useMemo(
+    () =>
+      !account ||
+      !tournamentModel.entry_premium.isSome() ||
+      entryPremiumBalance! >=
+        BigInt(tournamentModel.entry_premium.Some?.token_amount!),
+    [account, tournamentModel.entry_premium, entryPremiumBalance]
+  );
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       <div className="flex flex-col">
         <p className="text-4xl text-center uppercase">Enter Tournament</p>
         <div className="w-full bg-terminal-green/50 h-0.5" />
@@ -246,42 +273,59 @@ const EnterTournament = ({
           </div>
         </div>
         <div className="w-full bg-terminal-green/50 h-0.5" />
-        <div className="flex flex-row h-full items-center gap-20 p-5">
-          <div className="flex flex-row items-center gap-2">
-            <h3 className="text-xl uppercase text-terminal-green/75 no-text-shadow ">
-              My Entries
-            </h3>
-            {tournamentEntriesAddressModel ? (
-              <p className="uppercase text-2xl">
-                {BigInt(tournamentEntriesAddressModel?.entry_count).toString()}
-              </p>
-            ) : (
-              <p className="uppercase">You have no entries</p>
-            )}
+        {account ? (
+          <div className="flex flex-row h-full items-center justify-between p-5">
+            <div className="flex flex-row items-center gap-2">
+              <h3 className="text-xl uppercase text-terminal-green/75 no-text-shadow ">
+                My Entries
+              </h3>
+              {tournamentEntriesAddressModel ? (
+                <p className="uppercase text-2xl">
+                  {BigInt(
+                    tournamentEntriesAddressModel?.entry_count
+                  ).toString()}
+                </p>
+              ) : (
+                <p className="uppercase">You have no entries</p>
+              )}
+            </div>
+            <div className="flex flex-row gap-2 items-center justify-center">
+              {tournamentModel?.gated_type.Some?.activeVariant() == "token" && (
+                <div className="flex flex-row items-center gap-2">
+                  <span>Token ID</span>
+                  <input
+                    value={submittingTokenId?.toString()}
+                    onChange={(e) => setSubmittingTokenId(e.target.value)}
+                    className="text-lg p-1 w-16 h-8 bg-terminal-black border border-terminal-green"
+                  />
+                </div>
+              )}
+              {!enoughPremiumBalance && (
+                <p className="text-sm uppercase text-red-400 no-text-shadow">
+                  Insufficient entry fees
+                </p>
+              )}
+              <Button
+                onClick={handleEnterTournament}
+                size="md"
+                disabled={
+                  (tournamentModel?.gated_type.Some?.activeVariant() ==
+                    "token" &&
+                    !submittingTokenId) ||
+                  !enoughPremiumBalance
+                }
+              >
+                Enter Tournament
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-row gap-2 items-center justify-center">
-            {tournamentModel?.gated_type.Some?.activeVariant() == "token" && (
-              <div className="flex flex-row items-center gap-2">
-                <span>Token ID</span>
-                <input
-                  value={submittingTokenId?.toString()}
-                  onChange={(e) => setSubmittingTokenId(e.target.value)}
-                  className="text-lg p-1 w-16 h-8 bg-terminal-black border border-terminal-green"
-                />
-              </div>
-            )}
-            <Button
-              onClick={handleEnterTournament}
-              size="md"
-              disabled={
-                tournamentModel?.gated_type.Some?.activeVariant() == "token" &&
-                !submittingTokenId
-              }
-            >
-              Enter Tournament
-            </Button>
+        ) : (
+          <div className="flex h-full w-full items-center justify-center p-5">
+            <p className="text-xl uppercase text-terminal-yellow no-text-shadow">
+              To enter please connect your wallet
+            </p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

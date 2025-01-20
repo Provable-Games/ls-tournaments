@@ -212,10 +212,14 @@ const RegisterToken = () => {
           standard="erc721"
           balance={Number(tokenBalance["erc721"])}
           onMint={async () => {
-            await mintErc721(account?.address!, { low: 1n, high: 0n });
+            await mintErc721(account?.address!, {
+              low: BigInt(Number(tokenBalance["erc721"]) + 1),
+              high: 0n,
+            });
           }}
           onCopy={handleCopyAddress}
           isCopied={copiedStates["erc721"]}
+          variant="erc721"
         />
       </div>
       <h1 className="text-4xl text-center uppercase">Registered Tokens</h1>

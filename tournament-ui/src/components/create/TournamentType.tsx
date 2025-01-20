@@ -291,6 +291,27 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                 >
                   10
                 </Button>
+                <Button
+                  variant={
+                    createTournamentData.scoreboardSize === 20
+                      ? "default"
+                      : "token"
+                  }
+                  onClick={() =>
+                    setCreateTournamentData({
+                      ...createTournamentData,
+                      scoreboardSize: 20,
+                    })
+                  }
+                  className={`border-terminal-green/75 ${
+                    createTournamentData.scoreboardSize === 20
+                      ? "text-terminal-black"
+                      : "text-terminal-green/75"
+                  }`}
+                  disabled={sectionDisabled}
+                >
+                  20
+                </Button>
                 {createTournamentData.scoreboardSize > 0 && (
                   <span className="flex flex-row items-center gap-2">
                     <span className="w-5 h-5 text-terminal-green">

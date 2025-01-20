@@ -16,6 +16,7 @@ import {
   CairoOption,
   CallData,
   Uint256,
+  addAddressPadding,
 } from "starknet";
 import { useToast } from "@/hooks/useToast";
 import { useOptimisticUpdates } from "@/hooks/useOptimisticUpdates";
@@ -209,7 +210,7 @@ export const useSystemCalls = () => {
     const { wait, revert, confirm } = applyTournamentStartUpdate(
       tournamentId,
       newAddressStartCount,
-      account?.address
+      addAddressPadding(account?.address ?? "0x0")
     );
 
     try {
@@ -238,6 +239,71 @@ export const useSystemCalls = () => {
             weapon,
             name
           );
+
+      await wait();
+
+      if (tx) {
+        toast({
+          title: "Started Tournament!",
+          description: `Started tournament ${tournamentName}`,
+        });
+      }
+    } catch (error) {
+      revert();
+      console.error("Error executing create tournament:", error);
+      throw error;
+    } finally {
+      confirm();
+    }
+  };
+
+  const startTournamentAndApproveTokens = async (
+    approvalCalls: any[],
+    tournamentId: BigNumberish,
+    tournamentName: string,
+    startAll: boolean,
+    startCount: CairoOption<number>,
+    usableGoldenTokens: any[],
+    usableBlobertTokens: any[],
+    newAddressStartCount: BigNumberish,
+    weapon: BigNumberish,
+    name: BigNumberish
+  ) => {
+    const randomInt = getRandomInt(
+      0,
+      (selectedChainConfig?.clientRewardAddress?.length ?? 1) - 1
+    );
+    const selectedRevenueAddress =
+      selectedChainConfig?.clientRewardAddress?.[randomInt];
+
+    const { wait, revert, confirm } = applyTournamentStartUpdate(
+      tournamentId,
+      newAddressStartCount,
+      addAddressPadding(account?.address ?? "0x0")
+    );
+
+    const totalCalls = [
+      ...approvalCalls,
+      {
+        contractAddress: tournament,
+        entrypoint: "start_tournament",
+        calldata: CallData.compile([
+          tournamentId,
+          startAll,
+          startCount,
+          selectedRevenueAddress!,
+          usableGoldenTokens,
+          usableBlobertTokens,
+          weapon,
+          name,
+        ]),
+      },
+    ];
+
+    try {
+      const tx = isMainnet
+        ? await (account as Account)?.execute(totalCalls)
+        : (account as Account)?.execute(totalCalls);
 
       await wait();
 
@@ -609,7 +675,6 @@ export const useSystemCalls = () => {
       entrypoint,
       calldata,
     }));
-
     console.log(summedCalls);
     await (account as Account)?.execute(summedCalls);
   };
@@ -628,10 +693,27 @@ export const useSystemCalls = () => {
     ]);
   };
 
+  const approveERC721Multiple = async (tokens: Token[]) => {
+    let calls = [];
+    for (const token of tokens) {
+      calls.push({
+        contractAddress: token.token,
+        entrypoint: "approve",
+        calldata: CallData.compile([
+          tournament,
+          token.tokenDataType.variant.erc721?.token_id!,
+          "0",
+        ]),
+      });
+    }
+    await (account as Account)?.execute(calls);
+  };
+
   return {
     createTournament,
     enterTournament,
     startTournament,
+    startTournamentAndApproveTokens,
     submitScores,
     registerTokens,
     addPrize,
@@ -657,5 +739,6 @@ export const useSystemCalls = () => {
     approveERC20General,
     approveERC20Multiple,
     approveERC721General,
+    approveERC721Multiple,
   };
 };

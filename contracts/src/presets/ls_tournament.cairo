@@ -15,7 +15,7 @@ pub trait ILSTournament<TState> {
     fn top_scores(self: @TState, tournament_id: u64) -> Array<u64>;
     fn is_token_registered(self: @TState, token: ContractAddress) -> bool;
     // TODO: add for V2 (only ERC721 tokens)
-    // fn register_tokens(ref self: TState, tokens: Array<Token>);
+    fn register_token(ref self: TState, token: ContractAddress, token_data_type: TokenDataType);
     fn create_tournament(
         ref self: TState,
         name: felt252,

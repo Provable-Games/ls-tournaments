@@ -3,28 +3,64 @@ import Pagination from "@/components/table/Pagination";
 import ScoreRow from "@/components/tournament/ScoreRow";
 import { useDojo } from "@/DojoContext";
 import { ChainId } from "@/config";
+import { useLSQuery } from "@/hooks/useLSQuery";
+import { getAdventurersInList } from "@/hooks/graphql/queries.ts";
 
 interface ScoreTableProps {
   tournamentScores: any;
   adventurersData: any;
+  prizes: Record<
+    string,
+    {
+      payout_position: string;
+      tokens: Record<
+        string,
+        {
+          type: "erc20" | "erc721";
+          values: string[];
+        }
+      >;
+    }
+  >;
 }
 
-const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
+const ScoreTable = ({
+  tournamentScores,
+  adventurersData,
+  prizes,
+}: ScoreTableProps) => {
   const { selectedChainConfig, nameSpace } = useDojo();
   const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
     if (!tournamentScores) return 0;
-    return Math.ceil(tournamentScores.top_score_ids.length / 10);
+    return Math.ceil(tournamentScores.top_score_ids.length / 5);
   }, [tournamentScores]);
 
   const pagedScores = useMemo(() => {
     if (!tournamentScores) return [];
     return tournamentScores.top_score_ids.slice(
-      (currentPage - 1) * 10,
-      currentPage * 10
+      (currentPage - 1) * 5,
+      currentPage * 5
     );
   }, [tournamentScores, currentPage]);
+
+  const adventurersListVariables = useMemo(() => {
+    return {
+      ids: pagedScores,
+    };
+  }, [tournamentScores]);
+
+  const { data: adventurersMainData } = useLSQuery(
+    getAdventurersInList,
+    adventurersListVariables
+  );
+
+  const adventurersMain = adventurersMainData
+    ? adventurersMainData.adventurers
+    : [];
+
+  console.log(tournamentScores);
 
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
@@ -34,7 +70,7 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
             <div className="w-1/4"></div>
             <p className="w-1/2 text-4xl text-center uppercase">Scores</p>
             <div className="w-1/4 flex justify-end">
-              {tournamentScores && tournamentScores.length > 10 && (
+              {tournamentScores && tournamentScores.length > 5 && (
                 <Pagination
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
@@ -46,7 +82,8 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
           <table className="w-full">
             <thead className="bg-terminal-green/75 text-terminal-black text-lg h-10 uppercase">
               <tr>
-                <th className="text-center">Name</th>
+                <th className="text-center">Rank</th>
+                <th className="text-left">Name</th>
                 <th className="text-left">Address</th>
                 <th className="text-left">ID</th>
                 <th className="text-left">Level</th>
@@ -59,19 +96,25 @@ const ScoreTable = ({ tournamentScores, adventurersData }: ScoreTableProps) => {
                 tournamentScores.top_score_ids.length > 0 &&
                 pagedScores.map((gameId: any, index: any) => {
                   const adventurer = isMainnet
-                    ? adventurersData?.find(
+                    ? adventurersMain?.find(
                         (adventurer: any) => adventurer.id === gameId
                       )
                     : adventurersData.find(
                         (entity: any) =>
-                          entity.models[nameSpace].AdventurerModel
-                            .adventurer_id === gameId
+                          Number(
+                            entity.models[nameSpace].AdventurerModel
+                              .adventurer_id
+                          ) === gameId
                       );
+                  const prizesForPosition = Object.values(prizes).find(
+                    (prize) => prize.payout_position === String(index + 1)
+                  );
                   return (
                     <ScoreRow
                       key={index}
-                      rank={index + 1}
+                      rank={index + (currentPage - 1) * 5 + 1}
                       adventurer={adventurer}
+                      prizes={prizesForPosition}
                     />
                   );
                 })}
