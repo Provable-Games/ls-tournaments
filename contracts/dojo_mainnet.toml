@@ -2,7 +2,7 @@
 name = "LS Tournaments V0"
 description = "Loot Survivor Tournaments Version 0"
 website = "https://github.com/Provable-Games/ls-tournaments"
-seed = "ls_tournaments"
+seed = "ls_tournaments_v0"
 
 [world.socials]
 x = "https://x.com/provablegames"
@@ -14,8 +14,8 @@ default = "ls_tournaments_v0"
 [env]
 chain_id = "SN_MAINNET"
 rpc_url = "https://api.cartridge.gg/x/starknet/mainnet"
-world_address = "0x01b069be8278b3197d8eadd861adcfb57f3572793d1ca155e5f57094de641f0f"
-world_block = 1084132
+world_address = "0x06a9e4c6f0799160ea8ddc43ff982a5f83d7f633e9732ce42701de1288ff705f"
+world_block = 948010
 
 [writers]
 "ls_tournaments_v0-Tournament" = ["ls_tournaments_v0-LSTournament"]
