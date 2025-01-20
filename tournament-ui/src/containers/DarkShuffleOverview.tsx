@@ -33,23 +33,30 @@ const DarkShuffleOverview = () => {
           <div className="flex flex-row justify-center gap-40">
             <div className="flex flex-col items-center w-1/4">
               <span className="text-4xl uppercase">Prizes</span>
-              <div className="flex flex-col gap-2 items-center justify-center border border-terminal-green w-full h-40 p-2">
+              <div className="flex flex-col gap-2 items-center justify-center border border-terminal-green w-full h-40 p-5">
                 <div className="flex flex-col items-center">
-                  <span className="text-2xl">
+                  <span className="text-xl">
                     1<sup className="text-sm">st</sup> - 3
                     <sup className="text-sm">rd</sup>
                   </span>
-                  <span className="text-2xl uppercase">Premium Prize pool</span>
+                  <div className="flex flex-row items-center gap-2">
+                    <span className="text-xl uppercase">
+                      Premium Prize pool
+                    </span>
+                    <span className="text-sm">(50%:30%:20%)</span>
+                  </div>
                 </div>
                 <div className="flex flex-col items-center text-terminal-yellow">
-                  <span className="text-2xl">
+                  <span className="text-xl">
                     1<sup className="text-sm">st</sup> - 20
                     <sup className="text-sm">th</sup>
                   </span>
-                  <span className="text-2xl uppercase">
-                    5 Dark Shuffle Games
-                  </span>
-                  <span>Each</span>
+                  <div className="flex flex-row items-center gap-2">
+                    <span className="text-xl uppercase">
+                      5 Dark Shuffle Games
+                    </span>
+                    <span className="text-sm">(Each)</span>
+                  </div>
                 </div>
               </div>
             </div>
