@@ -63,7 +63,7 @@ export const makeControllerConnector = (
     // namespace,
     slot:
       defaultChainId == ChainId.SN_MAIN
-        ? "ls-tournaments"
+        ? "ls-tournament-tokens"
         : "ls-tournaments-katana",
     tokens: {
       erc20: [dojoChainConfig.lordsAddress!],

@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x45575a88cc5cef1e444c77ce60b7b4c9e73a01cbbe20926d5a4c72a94011410",
-    "address": "0x6a9e4c6f0799160ea8ddc43ff982a5f83d7f633e9732ce42701de1288ff705f",
-    "seed": "ls_tournaments_v0",
+    "address": "0x1b069be8278b3197d8eadd861adcfb57f3572793d1ca155e5f57094de641f0f",
+    "seed": "ls_tournaments",
     "name": "LS Tournaments V0",
     "entrypoints": [
       "uuid",
@@ -1252,8 +1252,8 @@
   },
   "contracts": [
     {
-      "address": "0x497bc529e17e59e0924c0a1f9671c7a66208508b731a79373eacfb17ecc7c08",
-      "class_hash": "0x554a1082ed36a7ecec11ad1b7a4ea7e51ca40f7869835e4452a5406fa6c1082",
+      "address": "0x3347382d530ff6acb9283ac1d78471187aae8a4690e9316bb4e3c3365ff7a86",
+      "class_hash": "0x697f1b88f50e938ebe1372ba7c237f195d868ddc953012c7a998e3e43582e57",
       "abi": [
         {
           "type": "impl",
@@ -1601,6 +1601,40 @@
         },
         {
           "type": "struct",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::ERC20Data",
+          "members": [
+            {
+              "name": "token_amount",
+              "type": "core::integer::u128"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::ERC721Data",
+          "members": [
+            {
+              "name": "token_id",
+              "type": "core::integer::u128"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "ls_tournaments_v0::ls15_components::models::tournament::TokenDataType",
+          "variants": [
+            {
+              "name": "erc20",
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::ERC20Data"
+            },
+            {
+              "name": "erc721",
+              "type": "ls_tournaments_v0::ls15_components::models::tournament::ERC721Data"
+            }
+          ]
+        },
+        {
+          "type": "struct",
           "name": "core::integer::u256",
           "members": [
             {
@@ -1672,40 +1706,6 @@
             {
               "name": "snapshot",
               "type": "@core::array::Array::<core::integer::u256>"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "ls_tournaments_v0::ls15_components::models::tournament::ERC20Data",
-          "members": [
-            {
-              "name": "token_amount",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "struct",
-          "name": "ls_tournaments_v0::ls15_components::models::tournament::ERC721Data",
-          "members": [
-            {
-              "name": "token_id",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "ls_tournaments_v0::ls15_components::models::tournament::TokenDataType",
-          "variants": [
-            {
-              "name": "erc20",
-              "type": "ls_tournaments_v0::ls15_components::models::tournament::ERC20Data"
-            },
-            {
-              "name": "erc721",
-              "type": "ls_tournaments_v0::ls15_components::models::tournament::ERC721Data"
             }
           ]
         },
@@ -1787,6 +1787,22 @@
                 }
               ],
               "state_mutability": "view"
+            },
+            {
+              "type": "function",
+              "name": "register_token",
+              "inputs": [
+                {
+                  "name": "token",
+                  "type": "core::starknet::contract_address::ContractAddress"
+                },
+                {
+                  "name": "token_data_type",
+                  "type": "ls_tournaments_v0::ls15_components::models::tournament::TokenDataType"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
             },
             {
               "type": "function",
@@ -2027,6 +2043,7 @@
       "systems": [
         "dojo_init",
         "upgrade",
+        "register_token",
         "create_tournament",
         "enter_tournament",
         "start_tournament",

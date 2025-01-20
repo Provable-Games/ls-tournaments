@@ -149,6 +149,27 @@ const TournamentType = ({ testMode }: TournamentTypeProps) => {
                 <div className="flex flex-row items-center gap-2">
                   <Button
                     variant={
+                      createTournamentData.submissionPeriod === 3600
+                        ? "default"
+                        : "token"
+                    }
+                    onClick={() =>
+                      setCreateTournamentData({
+                        ...createTournamentData,
+                        submissionPeriod: 3600,
+                      })
+                    }
+                    className={`border-terminal-green/75 w-14 !p-2 ${
+                      createTournamentData.submissionPeriod === 3600
+                        ? "text-terminal-black"
+                        : "text-terminal-green/75"
+                    }`}
+                    disabled={sectionDisabled}
+                  >
+                    <p>1 HOUR</p>
+                  </Button>
+                  <Button
+                    variant={
                       createTournamentData.submissionPeriod === 86400
                         ? "default"
                         : "token"

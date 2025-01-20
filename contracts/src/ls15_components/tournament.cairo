@@ -139,6 +139,7 @@ pub mod tournament_component {
         pub const TOKEN_SUPPLY_TOO_LARGE: felt252 = 'token supply too large';
         pub const INVALID_TOKEN_APPROVALS: felt252 = 'invalid token approvals';
         pub const INVALID_TOKEN_OWNER: felt252 = 'invalid token owner';
+        pub const CANNOT_REGISTER_IN_SAFE_MODE: felt252 = 'cannot register in safe mode';
         pub const INVALID_TOKEN_FOR_SAFE_MODE: felt252 = 'invalid token for safe mode';
         //
         // Enter Tournament
@@ -1545,11 +1546,9 @@ pub mod tournament_component {
         ) {
             let safe_mode = store.get_tournament_config(get_contract_address()).safe_mode;
 
-            assert(!self._is_token_registered(store, token), Errors::TOKEN_ALREADY_REGISTERED);
+            assert(!safe_mode, Errors::CANNOT_REGISTER_IN_SAFE_MODE);
 
-            if (safe_mode) {
-                assert(token == DARK_SHUFFLE_ADDRESS(), Errors::INVALID_TOKEN_FOR_SAFE_MODE);
-            }
+            assert(!self._is_token_registered(store, token), Errors::TOKEN_ALREADY_REGISTERED);
 
             let mut name = "";
             let mut symbol = "";
@@ -1928,7 +1927,8 @@ pub mod tournament_component {
                     token == ETHEREUM_ADDRESS()
                         || token == LORDS_ADDRESS()
                         || token == SURVIVORS_ADDRESS()
-                        || token == BEASTS_ADDRESS(),
+                        || token == BEASTS_ADDRESS()
+                        || token == DARK_SHUFFLE_ADDRESS(),
                     Errors::INVALID_TOKEN_FOR_SAFE_MODE
                 );
             }

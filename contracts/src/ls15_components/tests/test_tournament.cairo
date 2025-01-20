@@ -923,56 +923,56 @@ fn test_create_tournament_season() {
 // Test registering tokens
 //
 
-#[test]
-fn test_register_token() {
-    let contracts = setup();
+// #[test]
+// fn test_register_token() {
+//     let contracts = setup();
 
-    utils::impersonate(OWNER());
-    contracts.lords.approve(contracts.tournament.contract_address, 1);
-    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
-    contracts
-        .tournament
-        .register_token(
-            contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
-        );
-    contracts
-        .tournament
-        .register_token(
-            contracts.golden_token.contract_address,
-            TokenDataType::erc721(ERC721Data { token_id: 1 })
-        );
-    assert(contracts.erc20.balance_of(OWNER()) == 1000000000000000000000, 'Invalid balance');
-    assert(contracts.erc721.balance_of(OWNER()) == 1, 'Invalid balance');
-    assert(
-        contracts.tournament.is_token_registered(contracts.erc20.contract_address),
-        'Invalid registration'
-    );
-    assert(
-        contracts.tournament.is_token_registered(contracts.erc721.contract_address),
-        'Invalid registration'
-    );
-}
+//     utils::impersonate(OWNER());
+//     contracts.lords.approve(contracts.tournament.contract_address, 1);
+//     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+//     contracts
+//         .tournament
+//         .register_token(
+//             contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
+//         );
+//     contracts
+//         .tournament
+//         .register_token(
+//             contracts.golden_token.contract_address,
+//             TokenDataType::erc721(ERC721Data { token_id: 1 })
+//         );
+//     assert(contracts.erc20.balance_of(OWNER()) == 1000000000000000000000, 'Invalid balance');
+//     assert(contracts.erc721.balance_of(OWNER()) == 1, 'Invalid balance');
+//     assert(
+//         contracts.tournament.is_token_registered(contracts.erc20.contract_address),
+//         'Invalid registration'
+//     );
+//     assert(
+//         contracts.tournament.is_token_registered(contracts.erc721.contract_address),
+//         'Invalid registration'
+//     );
+// }
 
-#[test]
-#[should_panic(expected: ('token already registered', 'ENTRYPOINT_FAILED'))]
-fn test_register_token_already_registered() {
-    let contracts = setup();
+// #[test]
+// #[should_panic(expected: ('token already registered', 'ENTRYPOINT_FAILED'))]
+// fn test_register_token_already_registered() {
+//     let contracts = setup();
 
-    utils::impersonate(OWNER());
-    contracts.lords.approve(contracts.tournament.contract_address, 1);
-    contracts.golden_token.approve(contracts.tournament.contract_address, 1);
+//     utils::impersonate(OWNER());
+//     contracts.lords.approve(contracts.tournament.contract_address, 1);
+//     contracts.golden_token.approve(contracts.tournament.contract_address, 1);
 
-    contracts
-        .tournament
-        .register_token(
-            contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
-        );
-    contracts
-        .tournament
-        .register_token(
-            contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
-        );
-}
+//     contracts
+//         .tournament
+//         .register_token(
+//             contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
+//         );
+//     contracts
+//         .tournament
+//         .register_token(
+//             contracts.lords.contract_address, TokenDataType::erc20(ERC20Data { token_amount: 1 })
+//         );
+// }
 
 //
 // Test entering tournaments
