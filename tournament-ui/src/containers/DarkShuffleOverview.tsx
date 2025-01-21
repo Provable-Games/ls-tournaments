@@ -1,11 +1,19 @@
+import { useState } from "react";
 import { LS_SEAL, DS_ICON, LORDS } from "@/components/Icons";
 import { Button } from "@/components/buttons/Button";
 import { useNavigate } from "react-router-dom";
 import { useLordsCost } from "@/hooks/useLordsCost";
+import { Countdown } from "@/components/Countdown.tsx";
 
 const DarkShuffleOverview = () => {
+  const [countDownExpired, setCountDownExpired] = useState(false);
   const navigate = useNavigate();
   const { lordsCost } = useLordsCost();
+
+  const tournamentStart = import.meta.env.VITE_DS_TOURNAMENT_START_TIME;
+
+  const startDate = new Date(Number(tournamentStart) * 1000);
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-row gap-5 w-full py-4 uppercase h-[525px]">
@@ -25,23 +33,30 @@ const DarkShuffleOverview = () => {
           <div className="flex flex-row justify-center gap-40">
             <div className="flex flex-col items-center w-1/4">
               <span className="text-4xl uppercase">Prizes</span>
-              <div className="flex flex-col gap-2 items-center justify-center border border-terminal-green w-full h-40 p-2">
+              <div className="flex flex-col gap-2 items-center justify-center border border-terminal-green w-full h-40 p-5">
                 <div className="flex flex-col items-center">
-                  <span className="text-2xl">
+                  <span className="text-xl">
                     1<sup className="text-sm">st</sup> - 3
                     <sup className="text-sm">rd</sup>
                   </span>
-                  <span className="text-2xl uppercase">Premium Prize pool</span>
+                  <div className="flex flex-row items-center gap-2">
+                    <span className="text-xl uppercase">
+                      Premium Prize pool
+                    </span>
+                    <span className="text-sm">(50%:30%:20%)</span>
+                  </div>
                 </div>
                 <div className="flex flex-col items-center text-terminal-yellow">
-                  <span className="text-2xl">
+                  <span className="text-xl">
                     1<sup className="text-sm">st</sup> - 20
                     <sup className="text-sm">th</sup>
                   </span>
-                  <span className="text-2xl uppercase">
-                    5 Dark Shuffle Games
-                  </span>
-                  <span>Each</span>
+                  <div className="flex flex-row items-center gap-2">
+                    <span className="text-xl uppercase">
+                      5 Dark Shuffle Games
+                    </span>
+                    <span className="text-sm">(Each)</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -54,7 +69,7 @@ const DarkShuffleOverview = () => {
                 </div>
                 <div className="flex flex-row justify-between text-2xl">
                   <span className="uppercase">Starts:</span>
-                  <span>20/01</span>
+                  <span>{startDate.toLocaleString()}</span>
                 </div>
                 <div className="flex flex-row justify-between text-2xl">
                   <span className="uppercase">Entry Fee:</span>
@@ -76,9 +91,24 @@ const DarkShuffleOverview = () => {
                     </span>
                   </div>
                 </div>
-                <div className="flex flex-row justify-between text-2xl">
+                <div className="flex flex-row justify-between items-center text-2xl">
                   <span className="uppercase">Registration Closes:</span>
-                  <span>20/01</span>
+                  <span className="!text-sm">
+                    {!countDownExpired ? (
+                      <>
+                        <Countdown
+                          targetTime={startDate.getTime()}
+                          countDownExpired={() => setCountDownExpired(true)}
+                          countClassName="!text-2xl"
+                          dateClassName="!text-base !top-[-10px]"
+                        />
+                      </>
+                    ) : (
+                      <h2 className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                        Registration Closed
+                      </h2>
+                    )}
+                  </span>
                 </div>
               </div>
             </div>

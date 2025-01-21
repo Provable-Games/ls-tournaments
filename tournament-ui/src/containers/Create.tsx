@@ -4,7 +4,7 @@ import { Tournament, Models } from "@/generated/models.gen";
 import useUIStore from "@/hooks/useUIStore";
 import { useSystemCalls } from "@/useSystemCalls";
 import { stringToFelt, bigintToHex } from "@/lib/utils";
-import { addAddressPadding } from "starknet";
+import { addAddressPadding, CairoCustomEnum } from "starknet";
 import {
   useSubscribeTournamentsQuery,
   useSubscribePrizesQuery,
@@ -18,6 +18,7 @@ import TournamentGating from "@/components/create/TournamentGating";
 import TournamentEntryFee from "@/components/create/TournamentEntryFee";
 import TournamentPrizes from "@/components/create/TournamentPrizes";
 import { useConfig } from "@/hooks/useConfig";
+import { TokenDataTypeEnum } from "@/generated/models.gen";
 
 const Create = () => {
   const { account } = useAccount();
@@ -41,6 +42,21 @@ const Create = () => {
     approveERC20Multiple,
     approveERC721Multiple,
   } = useSystemCalls();
+
+  const customTournamentPrizes = Array.from({ length: 100 }, (_, index) => ({
+    claimed: false,
+    payout_position: Math.min(Math.floor(index / 5) + 1, 20),
+    token: "0x01b069be8278b3197d8eadd861adcfb57f3572793d1ca155e5f57094de641f0f",
+    token_data_type: new CairoCustomEnum({
+      erc20: undefined,
+      erc721: {
+        token_id: 589 + index,
+      },
+    }) as TokenDataTypeEnum,
+    tournament_id: 1,
+  }));
+
+  console.log(customTournamentPrizes);
 
   const handleCreateTournament = async () => {
     const currentTime = Number(BigInt(new Date().getTime()) / 1000n + 60n);
