@@ -65,7 +65,7 @@ const DarkShuffleOverview = () => {
               <div className="flex flex-col border border-terminal-green w-full h-40 p-5">
                 <div className="flex flex-row justify-between text-2xl">
                   <span className="uppercase">Duration:</span>
-                  <span>24 Hours</span>
+                  <span>72 Hours</span>
                 </div>
                 <div className="flex flex-row justify-between text-2xl">
                   <span className="uppercase">Starts:</span>
