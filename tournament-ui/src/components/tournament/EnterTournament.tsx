@@ -160,7 +160,7 @@ const EnterTournament = ({
                     ) /
                       10 ** 18}
                   </span>
-                  <span>
+                  <span className="w-4 h-4 fill-current">
                     {TOKEN_ICONS[
                       getTokenKeyFromValue(
                         tournamentModel?.entry_premium?.Some?.token!
@@ -261,8 +261,26 @@ const EnterTournament = ({
                 {formatNumber(
                   lordsCost ? Number(lordsCost / BigInt(10) ** BigInt(18)) : 0
                 )}{" "}
-                LORDS
               </p>
+              <span className="w-4 h-4 fill-current">
+                {TOKEN_ICONS[
+                  getTokenKeyFromValue(
+                    tournamentModel?.entry_premium?.Some?.token!
+                  )!
+                ]
+                  ? React.createElement(
+                      TOKEN_ICONS[
+                        getTokenKeyFromValue(
+                          tournamentModel?.entry_premium?.Some?.token!
+                        )!
+                      ]
+                    )
+                  : tokens.find(
+                      (t) =>
+                        t.models[nameSpace].Token?.token ===
+                        tournamentModel?.entry_premium?.Some?.token!
+                    )?.models[nameSpace].Token?.symbol}
+              </span>
             </div>
             <div className="flex flex-row items-center gap-2">
               <p className="text-xl uppercase text-terminal-green/75 no-text-shadow">

@@ -384,7 +384,9 @@ const Tournament = () => {
               <p className="text-xl text-terminal-green/75 no-text-shadow uppercase">
                 Description
               </p>
-              <p className="text-lg h-10">{tournamentModel?.description}</p>
+              <p className="text-lg h-10 overflow-scroll item-scroll">
+                {tournamentModel?.description}
+              </p>
             </div>
             <div className="flex flex-row items-center gap-2">
               <p className="text-xl text-terminal-green/75 no-text-shadow uppercase">
