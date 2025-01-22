@@ -32,8 +32,6 @@ const EntriesTable = ({ tournamentEntires }: EntriesTableProps) => {
 
   const { usernames } = useGetUsernames(addresses);
 
-  console.log(usernames?.get(indexAddress("0x0")));
-
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
       {tournamentEntires && tournamentEntires.length > 0 ? (
