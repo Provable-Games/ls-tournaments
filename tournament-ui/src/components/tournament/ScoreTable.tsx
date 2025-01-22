@@ -70,13 +70,14 @@ const ScoreTable = ({
             <div className="w-1/4"></div>
             <p className="w-1/2 text-4xl text-center uppercase">Scores</p>
             <div className="w-1/4 flex justify-end">
-              {tournamentScores && tournamentScores.length > 5 && (
-                <Pagination
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                  totalPages={totalPages}
-                />
-              )}
+              {tournamentScores &&
+                tournamentScores.top_score_ids.length > 5 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    totalPages={totalPages}
+                  />
+                )}
             </div>
           </div>
           <table className="w-full">
