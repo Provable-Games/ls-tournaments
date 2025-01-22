@@ -37,8 +37,7 @@ const EnterTournament = ({
 }: EnterTournamentProps) => {
   const { account } = useAccount();
   const { lordsCost } = useLordsCost();
-  const { enterTournament, approveERC20General, getBalanceGeneral } =
-    useSystemCalls();
+  const { getBalanceGeneral, approveAndEnterTournament } = useSystemCalls();
   const { nameSpace } = useDojo();
   const state = useDojoStore();
   const { setInputDialog } = useUIStore();
@@ -76,20 +75,8 @@ const EnterTournament = ({
         );
       }
     }
-    // handle entry premiums
-    if (tournamentModel?.entry_premium.isSome()) {
-      const token = {
-        token: tournamentModel?.entry_premium?.Some?.token!,
-        tokenDataType: new CairoCustomEnum({
-          erc20: {
-            token_amount: tournamentModel?.entry_premium?.Some?.token_amount!,
-          },
-          erc721: undefined,
-        }),
-      };
-      await approveERC20General(token);
-    }
-    await enterTournament(
+    await approveAndEnterTournament(
+      tournamentModel?.entry_premium,
       tournamentModel?.tournament_id!,
       feltToString(tournamentModel?.name!),
       addAddressPadding(bigintToHex(BigInt(entryCount) + 1n)),

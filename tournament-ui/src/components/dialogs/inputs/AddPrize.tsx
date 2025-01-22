@@ -18,33 +18,17 @@ const AddPrizeDialog = ({
   currentPrizeCount,
 }: AddPrizeDialogProps) => {
   const { setInputDialog } = useUIStore();
-  const { addPrize, approveERC20General, approveERC721General } =
-    useSystemCalls();
+  const { approveAndAddPrize } = useSystemCalls();
 
-  const handleSubmit = async (prizes: TournamentPrize[]) => {
+  const handleSubmit = async (prize: TournamentPrize) => {
     let prizeKey = currentPrizeCount;
-    for (const prize of prizes) {
-      // approve tokens to be added
-      if (prize.token_data_type.activeVariant() === "erc20") {
-        await approveERC20General({
-          token: prize.token,
-          tokenDataType: prize.token_data_type,
-        });
-      } else {
-        await approveERC721General({
-          token: prize.token,
-          tokenDataType: prize.token_data_type,
-        });
-      }
-      await addPrize(
-        tournamentId,
-        tournamentName,
-        prize,
-        addAddressPadding(bigintToHex(prizeKey)),
-        true
-      );
-      prizeKey++;
-    }
+    await approveAndAddPrize(
+      tournamentId,
+      tournamentName,
+      prize,
+      addAddressPadding(bigintToHex(prizeKey)),
+      true
+    );
     setInputDialog(null);
   };
 

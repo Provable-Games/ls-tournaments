@@ -58,11 +58,11 @@ const PrizesDisplay = ({ prizes }: PrizesDisplayProps) => {
                   }
                 </span>
                 <span className="text-terminal-green">{tokenSymbol}</span>
-                {tokenData.type === "erc721" && (
+                {/* {tokenData.type === "erc721" && (
                   <span className="text-sm text-terminal-green/75">
                     {tokenData.values.join(",")}
                   </span>
-                )}
+                )} */}
               </div>
             )
           )}

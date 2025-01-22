@@ -189,6 +189,59 @@ export const useSystemCalls = () => {
     }
   };
 
+  const approveAndEnterTournament = async (
+    entryFeeToken: CairoOption<Premium>,
+    tournamentId: BigNumberish,
+    tournamentName: string,
+    newEntryCount: BigNumberish,
+    newEntryAddressCount: BigNumberish,
+    gatedSubmissionType: CairoOption<GatedEntryTypeEnum>
+  ) => {
+    const { wait, revert, confirm } = applyTournamentEntryUpdate(
+      tournamentId,
+      newEntryCount,
+      newEntryAddressCount,
+      account?.address
+    );
+
+    try {
+      let calls = [];
+      if (entryFeeToken.isSome()) {
+        calls.push({
+          contractAddress: entryFeeToken.Some?.token!,
+          entrypoint: "approve",
+          calldata: CallData.compile([
+            tournament,
+            entryFeeToken.Some?.token_amount!,
+            "0",
+          ]),
+        });
+      }
+      calls.push({
+        contractAddress: tournament,
+        entrypoint: "enter_tournament",
+        calldata: CallData.compile([tournamentId, gatedSubmissionType]),
+      });
+
+      const tx = await (account as Account)?.execute(calls);
+
+      await wait();
+
+      if (tx) {
+        toast({
+          title: "Entered Tournament!",
+          description: `Entered tournament ${tournamentName}`,
+        });
+      }
+    } catch (error) {
+      revert();
+      console.error("Error executing enter tournament:", error);
+      throw error;
+    } finally {
+      confirm();
+    }
+  };
+
   const startTournament = async (
     tournamentId: BigNumberish,
     tournamentName: string,
@@ -394,6 +447,69 @@ export const useSystemCalls = () => {
             prize.token_data_type,
             prize.payout_position
           );
+
+      await wait();
+
+      if (showToast && tx) {
+        toast({
+          title: "Added Prize!",
+          description: `Added prize for tournament ${tournamentName}`,
+        });
+      }
+    } catch (error) {
+      revert();
+      console.error("Error executing add prize:", error);
+      throw error;
+    } finally {
+      confirm();
+    }
+  };
+
+  const approveAndAddPrize = async (
+    tournamentId: BigNumberish,
+    tournamentName: string,
+    prize: TournamentPrize,
+    prizeKey: BigNumberish,
+    showToast: boolean
+  ) => {
+    toast({
+      title: "Adding Prize...",
+      description: `Adding prize for tournament ${tournamentName}`,
+    });
+
+    const { wait, revert, confirm } = applyTournamentPrizeUpdate(
+      tournamentId,
+      prizeKey,
+      prize.token,
+      prize.token_data_type,
+      prize.payout_position
+    );
+
+    try {
+      let calls = [];
+      calls.push({
+        contractAddress: prize.token,
+        entrypoint: "approve",
+        calldata: CallData.compile([
+          tournament,
+          prize.token_data_type.activeVariant() === "erc20"
+            ? prize.token_data_type.variant.erc20?.token_amount!
+            : prize.token_data_type.variant.erc721?.token_id!,
+          "0",
+        ]),
+      });
+      calls.push({
+        contractAddress: tournament,
+        entrypoint: "add_prize",
+        calldata: CallData.compile([
+          tournamentId,
+          prize.token,
+          prize.token_data_type,
+          prize.payout_position,
+        ]),
+      });
+
+      const tx = await (account as Account)?.execute(calls);
 
       await wait();
 
@@ -712,11 +828,13 @@ export const useSystemCalls = () => {
   return {
     createTournament,
     enterTournament,
+    approveAndEnterTournament,
     startTournament,
     startTournamentAndApproveTokens,
     submitScores,
     registerTokens,
     addPrize,
+    approveAndAddPrize,
     createTournamentAndAddPrizes,
     distributePrizes,
     setAdventurer,

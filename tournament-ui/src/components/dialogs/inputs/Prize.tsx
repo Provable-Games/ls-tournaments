@@ -1,75 +1,114 @@
 import { useState } from "react";
 import { Button } from "@/components/buttons/Button";
-import { PlusIcon } from "@/components/Icons";
-import { Distribution } from "@/lib/types";
 import { CairoCustomEnum } from "starknet";
 import { useDojoStore } from "@/hooks/useDojoStore";
 import { displayAddress } from "@/lib/utils";
-import { TokenDataTypeEnum, TournamentPrize } from "@/generated/models.gen";
+import {
+  TokenDataTypeEnum,
+  TournamentPrize,
+  Token,
+} from "@/generated/models.gen";
 import { useDojo } from "@/DojoContext";
-import { getOrdinalSuffix } from "@/lib/utils";
 
 interface PrizeProps {
-  onSubmit: (prizes: TournamentPrize[]) => void;
+  onSubmit: (prize: TournamentPrize) => void;
 }
 
 const Prizes = ({ onSubmit }: PrizeProps) => {
   const state = useDojoStore((state) => state);
   const { nameSpace } = useDojo();
+  const [selectedType, setSelectedType] = useState<"erc20" | "erc721">("erc20");
 
-  const [totalAmount, setTotalAmount] = useState<number>(0);
-  const [distributions, setDistributions] = useState<Distribution[]>([
-    { position: 0, percentage: 0 },
-  ]);
-  const [selectedToken, setSelectedToken] = useState<string>("Lords");
+  const [prize, setPrize] = useState<TournamentPrize>({
+    tournament_id: 1,
+    token: "",
+    payout_position: 0,
+    token_data_type: new CairoCustomEnum({
+      erc20: {
+        token_amount: 0,
+      },
+      erc721: undefined,
+    }) as TokenDataTypeEnum,
+    prize_key: "",
+    claimed: false,
+  });
 
-  const updatePosition = (index: number, newPosition: number) => {
-    const newDistributions = [...distributions];
-    newDistributions[index].position = newPosition;
-    setDistributions(newDistributions);
+  const updatePosition = (newPosition: number) => {
+    setPrize({
+      ...prize,
+      payout_position: newPosition,
+    });
   };
 
-  const updatePercentage = (index: number, newPercentage: number) => {
-    const newDistributions = [...distributions];
-    newDistributions[index].percentage = newPercentage;
-    setDistributions(newDistributions);
-  };
-
-  const handleChangeAmout = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTotalAmount(parseInt(e.target.value));
+  const updateTokenData = (token_data: number) => {
+    if (selectedType === "erc20") {
+      let token_data_type = new CairoCustomEnum({
+        erc20: {
+          token_amount: token_data * 10 ** 18,
+        },
+        erc721: undefined,
+      }) as TokenDataTypeEnum;
+      setPrize({
+        ...prize,
+        token_data_type: token_data_type,
+      });
+    } else {
+      let token_data_type = new CairoCustomEnum({
+        erc20: undefined,
+        erc721: {
+          token_id: token_data,
+        },
+      }) as TokenDataTypeEnum;
+      setPrize({
+        ...prize,
+        token_data_type: token_data_type,
+      });
+    }
   };
 
   const tokens = state.getEntitiesByModel(nameSpace, "Token");
 
-  const prizes: TournamentPrize[] = distributions
-    .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
-    .map((dist) => {
-      const tokenDataType = new CairoCustomEnum({
-        erc20: {
-          token_amount: (totalAmount * dist.percentage) / 100,
-        },
-        erc721: undefined,
-      }) as TokenDataTypeEnum; // Type assertion here
+  const filteredTokens = tokens.filter((token) => {
+    if (selectedType) {
+      return (
+        (
+          token.models[nameSpace].Token as unknown as Token
+        ).token_data_type?.activeVariant() === selectedType
+      );
+    }
+    return true;
+  });
 
-      return {
-        tournament_id: 1,
-        token: selectedToken,
-        payout_position: dist.position,
-        token_data_type: tokenDataType,
-        prize_key: "",
-        claimed: false,
-      };
-    });
+  const token_data =
+    prize.token_data_type.activeVariant() === "erc20"
+      ? prize.token_data_type.variant.erc20.token_amount / 10 ** 18
+      : prize.token_data_type.variant.erc721.token_id;
 
-  const totalPercentage = distributions
-    .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
-    .reduce((sum, dist) => sum + dist.percentage, 0);
+  console.log(prize);
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="flex flex-row w-full items-center bg-terminal-green text-terminal-black h-10 px-5 justify-between">
+      <div className="flex flex-row w-full items-center bg-terminal-green/50 text-terminal-black h-10 px-5 justify-between">
         <div className="flex flex-row items-center gap-5">
           <p className="text-2xl uppercase">Select Token</p>
+          <div className="flex flex-row items-center gap-5">
+            <Button
+              className={selectedType === "erc20" ? "bg-terminal-green/75" : ""}
+              variant={selectedType === "erc20" ? "default" : "token"}
+              onClick={() => setSelectedType("erc20")}
+            >
+              ERC20
+            </Button>
+            <Button
+              className={
+                selectedType === "erc721" ? "bg-terminal-green/75" : ""
+              }
+              variant={selectedType === "erc721" ? "default" : "token"}
+              onClick={() => setSelectedType("erc721")}
+            >
+              ERC721
+            </Button>
+          </div>
         </div>
         <div className="flex flex-row items-center gap-5">
           <p>Token not displaying?</p>
@@ -79,15 +118,18 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
         </div>
       </div>
       <div className="h-20 px-10 w-full flex flex-row items-center gap-5 overflow-auto">
-        {tokens.map((token) => {
-          const tokenModel = token.models[nameSpace].Token;
+        {filteredTokens.map((token) => {
+          const tokenModel = token.models[nameSpace].Token as unknown as Token;
           return (
             <Button
               key={token.entityId}
-              variant={
-                selectedToken === tokenModel?.token ? "default" : "token"
-              }
-              onClick={() => setSelectedToken(tokenModel?.token!)}
+              variant={prize.token === tokenModel?.token ? "default" : "token"}
+              onClick={() => {
+                setPrize({
+                  ...prize,
+                  token: tokenModel?.token!,
+                });
+              }}
               className="relative w-20 !p-2"
             >
               <span className="text-xs uppercase whitespace-nowrap text-ellipsis overflow-hidden w-full">
@@ -95,16 +137,16 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
               </span>
               <span
                 className={`absolute top-0 text-xs uppercase ${
-                  selectedToken === tokenModel?.token
+                  prize.token === tokenModel?.token
                     ? "default text-terminal-black"
                     : "token text-terminal-green/75"
                 }`}
               >
-                {(tokenModel?.token_data_type as unknown as string).toString()}
+                {tokenModel?.token_data_type?.activeVariant() as string}
               </span>
               <span
                 className={`w-full absolute bottom-0 text-xs uppercase ${
-                  selectedToken === tokenModel?.token
+                  prize.token === tokenModel?.token
                     ? "default text-terminal-black"
                     : "token text-terminal-green/75"
                 }`}
@@ -116,41 +158,45 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
         })}
       </div>
       <div className="flex flex-row w-full items-center bg-terminal-green text-terminal-black h-10 px-5 justify-between">
-        <p className="text-2xl uppercase">Add Amount</p>
+        <p className="text-2xl uppercase">
+          {selectedType === "erc20" ? "Enter Amount" : "Enter Token ID"}
+        </p>
         <p className="text-2xl font-bold">
-          {isNaN(totalAmount) ? "" : totalAmount}
+          {prize.token_data_type.activeVariant() === "erc20"
+            ? prize.token_data_type.variant.erc20.token_amount
+            : prize.token_data_type.variant.erc721.token_id}
         </p>
       </div>
       <div className="h-20 px-10 w-full flex flex-row items-center justify-center gap-5">
         <div className="flex flex-row items-center gap-5">
           <Button
-            variant={totalAmount === 1 ? "default" : "token"}
+            variant={token_data === 1 ? "default" : "token"}
             onClick={() => {
-              setTotalAmount(1);
+              updateTokenData(1);
             }}
           >
             1
           </Button>
           <Button
-            variant={totalAmount === 5 ? "default" : "token"}
+            variant={token_data === 5 ? "default" : "token"}
             onClick={() => {
-              setTotalAmount(5);
+              updateTokenData(5);
             }}
           >
             5
           </Button>
           <Button
-            variant={totalAmount === 10 ? "default" : "token"}
+            variant={token_data === 10 ? "default" : "token"}
             onClick={() => {
-              setTotalAmount(10);
+              updateTokenData(10);
             }}
           >
             10
           </Button>
           <Button
-            variant={totalAmount === 100 ? "default" : "token"}
+            variant={token_data === 100 ? "default" : "token"}
             onClick={() => {
-              setTotalAmount(100);
+              updateTokenData(100);
             }}
           >
             100
@@ -160,178 +206,80 @@ const Prizes = ({ onSubmit }: PrizeProps) => {
             <input
               type="number"
               name="position"
-              onChange={handleChangeAmout}
+              onChange={(e) => {
+                updateTokenData(parseInt(e.target.value));
+              }}
               className="p-1 m-2 w-20 h-8 2xl:text-2xl bg-terminal-black border border-terminal-green"
             />
           </div>
         </div>
       </div>
       <div className="flex flex-row w-full items-center bg-terminal-green text-terminal-black h-10 px-5 justify-between">
-        <p className="text-2xl uppercase">Add Distribution</p>
+        <p className="text-2xl uppercase">Enter Payout Position</p>
         <div className="flex flex-row gap-2">
-          {distributions
-            .filter((dist) => dist.position !== 0 && dist.percentage !== 0)
-            .sort((a, b) => a.position - b.position) // Add this line to sort by position
-            .map((distribution, index) => {
-              return (
-                <p key={index} className="text-lg uppercase font-bold">
-                  {isNaN(distribution.percentage)
-                    ? ""
-                    : `${distribution.position}${getOrdinalSuffix(
-                        distribution.position
-                      )}: ${distribution.percentage}%,`}
-                </p>
-              );
-            })}
-          <p className="text-lg uppercase font-bold">{`Total: ${totalPercentage}%`}</p>
+          <p className="text-lg uppercase font-bold">{`Position: ${prize.payout_position}`}</p>
         </div>
       </div>
       <div className="py-5 w-full flex flex-col items-center h-[200px] overflow-y-scroll">
-        {distributions.map((distribution, index) => (
-          <div key={index} className="flex flex-row gap-20">
-            <div className="flex flex-col w-1/2">
-              <p className="uppercase font-bold">Position</p>
-              <div className="flex flex-row items-center gap-5">
-                <Button
-                  variant={distribution.position === 1 ? "default" : "token"}
-                  onClick={() => {
-                    updatePosition(index, 1);
-                  }}
-                >
-                  1st
-                </Button>
-                <Button
-                  variant={distribution.position === 2 ? "default" : "token"}
-                  onClick={() => {
-                    updatePosition(index, 2);
-                  }}
-                >
-                  2nd
-                </Button>
-                <Button
-                  variant={distribution.position === 3 ? "default" : "token"}
-                  onClick={() => {
-                    updatePosition(index, 3);
-                  }}
-                >
-                  3rd
-                </Button>
+        <div className="flex flex-row gap-20">
+          <div className="flex flex-col w-1/2">
+            <div className="flex flex-row items-center gap-5">
+              <Button
+                variant={prize.payout_position === 1 ? "default" : "token"}
+                onClick={() => {
+                  updatePosition(1);
+                }}
+              >
+                1st
+              </Button>
+              <Button
+                variant={prize.payout_position === 2 ? "default" : "token"}
+                onClick={() => {
+                  updatePosition(2);
+                }}
+              >
+                2nd
+              </Button>
+              <Button
+                variant={prize.payout_position === 3 ? "default" : "token"}
+                onClick={() => {
+                  updatePosition(3);
+                }}
+              >
+                3rd
+              </Button>
+              <div className="flex flex-row items-center gap-2">
+                <p className="uppercase">Custom:</p>
                 <input
                   type="number"
                   name="position"
                   onChange={(e) => {
-                    updatePosition(index, parseInt(e.target.value));
+                    updatePosition(parseInt(e.target.value));
                   }}
                   className="p-1 m-2 w-20 h-8 2xl:text-2xl bg-terminal-black border border-terminal-green"
-                  placeholder="POS"
-                />
-              </div>
-            </div>
-            <div
-              className={`flex flex-col w-1/2 ${
-                distribution.position === 0
-                  ? "text-gray-500 no-text-shadow"
-                  : ""
-              }`}
-            >
-              <p className="uppercase font-bold">Share %</p>
-              <div className="flex flex-row items-center gap-5">
-                <Button
-                  variant={
-                    distribution.position
-                      ? distribution.percentage === 1
-                        ? "default"
-                        : "token"
-                      : "disabled"
-                  }
-                  onClick={() => {
-                    if (distribution.position !== 0) {
-                      updatePercentage(index, 1);
-                    }
-                  }}
-                >
-                  1%
-                </Button>
-                <Button
-                  variant={
-                    distribution.position
-                      ? distribution.percentage === 5
-                        ? "default"
-                        : "token"
-                      : "disabled"
-                  }
-                  onClick={() => {
-                    if (distribution.position !== 0) {
-                      updatePercentage(index, 5);
-                    }
-                  }}
-                >
-                  5%
-                </Button>
-                <Button
-                  variant={
-                    distribution.position
-                      ? distribution.percentage === 10
-                        ? "default"
-                        : "token"
-                      : "disabled"
-                  }
-                  onClick={() => {
-                    if (distribution.position !== 0) {
-                      updatePercentage(index, 10);
-                    }
-                  }}
-                >
-                  10%
-                </Button>
-                <input
-                  type="number"
-                  name="share"
-                  onChange={(e) => {
-                    if (distribution.position !== 0) {
-                      updatePercentage(index, parseInt(e.target.value));
-                    }
-                  }}
-                  className={`p-1 m-2 w-20 h-8 2xl:text-2xl bg-terminal-black ${
-                    distribution.position === 0
-                      ? "border border-gray-500"
-                      : "border border-terminal-green"
-                  }`}
-                  placeholder="SHARE"
-                  disabled={distribution.position === 0}
-                  max={100}
-                  min={0}
                 />
               </div>
             </div>
           </div>
-        ))}
-        <Button
-          className="m-5 w-20"
-          variant="token"
-          onClick={() => {
-            setDistributions([
-              ...distributions,
-              { position: 0, percentage: 0 },
-            ]);
-          }}
-        >
-          <span className="w-4 h-4">
-            <PlusIcon />
-          </span>
-        </Button>
+        </div>
       </div>
       <Button
         variant="token"
         size="lg"
         onClick={() => {
-          if (totalPercentage !== 100) {
-            alert("Prize distribution must total 100%");
-            return;
-          }
-          onSubmit(prizes);
+          onSubmit(prize);
         }}
-        disabled={totalPercentage !== 100}
+        disabled={
+          prize.payout_position === 0 ||
+          prize.token === "" ||
+          prize.token_data_type ===
+            new CairoCustomEnum({
+              erc20: {
+                token_amount: 0,
+              },
+              erc721: undefined,
+            })
+        }
       >
         Add Prize
       </Button>
