@@ -16,13 +16,16 @@ const ClaimPrizes = ({
   const { distributePrizes } = useSystemCalls();
 
   const handleDistributeAllPrizes = async () => {
-    const prizeKeys = tournamentPrizes?.map((prize: any) => prize.prize_key);
+    // const prizeKeys = tournamentPrizes?.map((prize: any) => prize.prize_key);
+    const prizeKeys = [1, 2, 3, 4, 5, 6, 7];
     await distributePrizes(
       tournamentModel?.tournament_id!,
       feltToString(tournamentModel?.name!),
       prizeKeys
     );
   };
+
+  console.log(tournamentPrizes);
 
   const unclaimedPrizes = useMemo<TournamentPrize[]>(() => {
     return tournamentPrizes?.filter((prize: any) => {
