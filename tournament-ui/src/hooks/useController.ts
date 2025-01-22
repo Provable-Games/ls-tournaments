@@ -153,7 +153,7 @@ export const useControllerUsername = () => {
 
   useEffect(() => {
     getUsername();
-  }, []);
+  }, [connector]);
 
   return {
     username,
