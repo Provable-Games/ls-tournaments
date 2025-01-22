@@ -244,6 +244,7 @@ const Tournament = () => {
               {
                 type: "erc20" | "erc721";
                 values: string[];
+                address: string;
               }
             >,
           };
@@ -258,6 +259,7 @@ const Tournament = () => {
           acc[position].tokens[tokenSymbol] = {
             type: prize.token_data_type.variant.erc721 ? "erc721" : "erc20",
             values: [],
+            address: prize.token,
           };
         }
 
@@ -287,6 +289,7 @@ const Tournament = () => {
             {
               type: "erc20" | "erc721";
               values: string[];
+              address: string;
             }
           >;
         }

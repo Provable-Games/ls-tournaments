@@ -166,6 +166,7 @@ export type DojoChainConfig = {
   toriiUrl?: string;
   relayUrl?: string;
   blastRpc?: string;
+  blockExplorerUrl?: string;
   masterAddress?: string;
   masterPrivateKey?: string;
   accountClassHash?: string;
@@ -188,6 +189,7 @@ const localKatanaConfig: DojoChainConfig = {
   toriiUrl: "http://0.0.0.0:8080", //LOCAL_TORII,
   relayUrl: LOCAL_RELAY,
   blastRpc: undefined,
+  blockExplorerUrl: undefined,
   // masterAddress: KATANA_PREFUNDED_ADDRESS,
   // masterPrivateKey: KATANA_PREFUNDED_PRIVATE_KEY,
   masterAddress:
@@ -214,6 +216,7 @@ const slotKatanaConfig: DojoChainConfig = {
   toriiUrl: "https://api.cartridge.gg/x/ls-tournaments-katana/torii",
   relayUrl: undefined,
   blastRpc: undefined,
+  blockExplorerUrl: undefined,
   // masterAddress: KATANA_PREFUNDED_ADDRESS,
   // masterPrivateKey: KATANA_PREFUNDED_PRIVATE_KEY,
   masterAddress:
@@ -241,6 +244,7 @@ const snMainnetConfig: DojoChainConfig = {
   relayUrl: undefined,
   blastRpc:
     "https://starknet-mainnet.blastapi.io/5ef61753-e7c1-4593-bc62-97fdf96f8de5",
+  blockExplorerUrl: "https://voyager.online/",
   masterAddress: undefined,
   masterPrivateKey: undefined,
   accountClassHash: undefined,
