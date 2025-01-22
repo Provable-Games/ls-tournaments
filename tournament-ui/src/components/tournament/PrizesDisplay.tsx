@@ -12,6 +12,7 @@ interface PrizesDisplayProps {
         {
           type: "erc20" | "erc721";
           values: string[];
+          address: string;
         }
       >;
     }
@@ -63,7 +64,9 @@ const PrizesDisplay = ({ prizes }: PrizesDisplayProps) => {
                   className="text-terminal-green cursor-pointer"
                   onClick={() => {
                     window.open(
-                      `${selectedChainConfig.blockExplorerUrl}/nft-contract/${tokenData.values[0]}`,
+                      `${selectedChainConfig.blockExplorerUrl}${
+                        tokenData.type === "erc20" ? "token" : "nft-contract"
+                      }/${tokenData.address}`,
                       "_blank"
                     );
                   }}
