@@ -226,6 +226,7 @@ function App() {
           </Route>
           <Route path="/guide" element={<Guide />} />
           <Route path="/loot-survivor" element={<LootSurvivor />} />
+          <Route path="*" element={<Overview />} />
         </Routes>
         {inputDialog && <InputDialog />}
         {showLoginDialog && <LoginDialog />}
