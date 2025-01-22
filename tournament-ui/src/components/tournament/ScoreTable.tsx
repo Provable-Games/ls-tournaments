@@ -18,6 +18,7 @@ interface ScoreTableProps {
         {
           type: "erc20" | "erc721";
           values: string[];
+          address: string;
         }
       >;
     }

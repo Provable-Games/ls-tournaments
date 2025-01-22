@@ -1,5 +1,6 @@
 import { TrophyIcon } from "@/components/Icons";
 import { getOrdinalSuffix } from "@/lib/utils";
+import { useDojo } from "@/DojoContext";
 
 interface PrizesDisplayProps {
   prizes: Record<
@@ -11,6 +12,7 @@ interface PrizesDisplayProps {
         {
           type: "erc20" | "erc721";
           values: string[];
+          address: string;
         }
       >;
     }
@@ -18,6 +20,7 @@ interface PrizesDisplayProps {
 }
 
 const PrizesDisplay = ({ prizes }: PrizesDisplayProps) => {
+  const { selectedChainConfig } = useDojo();
   return (
     <div className="flex flex-col gap-2 h-full overflow-scroll item-scroll">
       {Object.entries(prizes).map(([position, prize], index) => (
@@ -57,7 +60,19 @@ const PrizesDisplay = ({ prizes }: PrizesDisplayProps) => {
                       : tokenData.values.length // For ERC721, show token IDs
                   }
                 </span>
-                <span className="text-terminal-green">{tokenSymbol}</span>
+                <span
+                  className="text-terminal-green cursor-pointer"
+                  onClick={() => {
+                    window.open(
+                      `${selectedChainConfig.blockExplorerUrl}${
+                        tokenData.type === "erc20" ? "token" : "nft-contract"
+                      }/${tokenData.address}`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  {tokenSymbol}
+                </span>
                 {/* {tokenData.type === "erc721" && (
                   <span className="text-sm text-terminal-green/75">
                     {tokenData.values.join(",")}
