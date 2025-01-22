@@ -305,10 +305,41 @@ const EnterTournament = ({
                   />
                 </div>
               )}
-              {!enoughPremiumBalance && (
+              {!enoughPremiumBalance ? (
                 <p className="text-sm uppercase text-red-400 no-text-shadow">
                   Insufficient entry fees
                 </p>
+              ) : !noEntryPremium ? (
+                <div className="flex flex-row gap-1 items-center text-lg">
+                  <span className="uppercase">Fee:</span>
+                  <span>
+                    {Number(
+                      tournamentModel?.entry_premium?.Some?.token_amount ?? 0n
+                    ) /
+                      10 ** 18}
+                  </span>
+                  <span className="w-4 h-4 fill-current">
+                    {TOKEN_ICONS[
+                      getTokenKeyFromValue(
+                        tournamentModel?.entry_premium?.Some?.token!
+                      )!
+                    ]
+                      ? React.createElement(
+                          TOKEN_ICONS[
+                            getTokenKeyFromValue(
+                              tournamentModel?.entry_premium?.Some?.token!
+                            )!
+                          ]
+                        )
+                      : tokens.find(
+                          (t) =>
+                            t.models[nameSpace].Token?.token ===
+                            tournamentModel?.entry_premium?.Some?.token!
+                        )?.models[nameSpace].Token?.symbol}
+                  </span>
+                </div>
+              ) : (
+                <></>
               )}
               <Button
                 onClick={handleEnterTournament}

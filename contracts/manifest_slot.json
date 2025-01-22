@@ -4958,8 +4958,8 @@
       ]
     },
     {
-      "address": "0x2f78c7becfea6890893c6215bd8719d5013460fed490385809da167d6b25283",
-      "class_hash": "0x6170952131fbf77f2bc6b047800566d0602a3ed6c6c9bb6e0d8dea5a06fa893",
+      "address": "0x13beaae46803a7ec1783b9d2231c91fac33d185913799b2dfe88f5a3886ac4",
+      "class_hash": "0x8de4f98b28f15a32c362354bc51280235172a115a9a47e5834bdd5e8c7de0b",
       "abi": [
         {
           "type": "impl",
