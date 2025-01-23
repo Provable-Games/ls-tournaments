@@ -33,7 +33,7 @@ import { ChainId } from "@/config";
 
 const Tournament = () => {
   const { id } = useParams<{ id: string }>();
-  const { account } = useAccount();
+  const { address } = useAccount();
   const { nameSpace, selectedChainConfig } = useDojo();
   const { setInputDialog } = useUIStore();
 
@@ -50,9 +50,9 @@ const Tournament = () => {
   useSubscribeTournamentDetailsQuery(addAddressPadding(bigintToHex(id!)));
   useSubscribeTournamentDetailsAddressQuery(
     addAddressPadding(bigintToHex(id!)),
-    addAddressPadding(account?.address ?? "0x0")
+    addAddressPadding(address ?? "0x0")
   );
-  useGetAdventurersQuery(account?.address ?? "0x0");
+  useGetAdventurersQuery(address ?? "0x0");
 
   // Get states
   const contractEntityId = useMemo(
@@ -64,8 +64,8 @@ const Tournament = () => {
     [id]
   );
   const tournamentAddressEntityId = useMemo(
-    () => getEntityIdFromKeys([BigInt(id!), BigInt(account?.address ?? "0x0")]),
-    [id, account?.address]
+    () => getEntityIdFromKeys([BigInt(id!), BigInt(address ?? "0x0")]),
+    [id, address]
   );
   const totalsModel = useModel(contractEntityId, Models.TournamentTotals);
   const tournamentModel = useModel(tournamentEntityId, Models.Tournament);

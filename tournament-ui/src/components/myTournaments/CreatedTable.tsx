@@ -8,14 +8,14 @@ import { Premium } from "@/generated/models.gen";
 
 const CreatedTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const { account } = useAccount();
-  const address = useMemo(
-    () => addAddressPadding(account?.address ?? "0x0"),
-    [account]
+  const { address } = useAccount();
+  const formattedAddress = useMemo(
+    () => addAddressPadding(address ?? "0x0"),
+    [address]
   );
 
   const { entities: tournaments } = useGetAccountCreatedTournamentsQuery(
-    address,
+    formattedAddress,
     5,
     (currentPage - 1) * 5
   );

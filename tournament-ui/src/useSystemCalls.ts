@@ -32,7 +32,7 @@ export const useSystemCalls = () => {
   const state = useDojoStore((state) => state);
 
   const { client, selectedChainConfig } = useDojo();
-  const { account } = useAccount();
+  const { account, address } = useAccount();
   const { toast } = useToast();
   const {
     applyRegisterTokensUpdate,
@@ -84,7 +84,7 @@ export const useSystemCalls = () => {
       tournamentId,
       tournament.name,
       tournament.description,
-      account?.address!,
+      address!,
       tournament.registration_start_time,
       tournament.registration_end_time,
       tournament.start_time,
@@ -154,7 +154,7 @@ export const useSystemCalls = () => {
       tournamentId,
       newEntryCount,
       newEntryAddressCount,
-      account?.address
+      address
     );
 
     try {
@@ -201,7 +201,7 @@ export const useSystemCalls = () => {
       tournamentId,
       newEntryCount,
       newEntryAddressCount,
-      account?.address
+      address
     );
 
     try {
@@ -263,7 +263,7 @@ export const useSystemCalls = () => {
     const { wait, revert, confirm } = applyTournamentStartUpdate(
       tournamentId,
       newAddressStartCount,
-      addAddressPadding(account?.address ?? "0x0")
+      addAddressPadding(address ?? "0x0")
     );
 
     try {
@@ -332,7 +332,7 @@ export const useSystemCalls = () => {
     const { wait, revert, confirm } = applyTournamentStartUpdate(
       tournamentId,
       newAddressStartCount,
-      addAddressPadding(account?.address ?? "0x0")
+      addAddressPadding(address ?? "0x0")
     );
 
     const totalCalls = [
@@ -537,7 +537,7 @@ export const useSystemCalls = () => {
       tournamentId,
       tournament.name,
       tournament.description,
-      account?.address!,
+      address!,
       tournament.registration_start_time,
       tournament.registration_end_time,
       tournament.start_time,
@@ -736,8 +736,9 @@ export const useSystemCalls = () => {
     const result = await (account as Account)?.callContract({
       contractAddress: tokenAddress,
       entrypoint: "balance_of",
-      calldata: [account?.address!],
+      calldata: [address!],
     });
+    console.log(result);
     return BigInt(result[0]);
   };
 

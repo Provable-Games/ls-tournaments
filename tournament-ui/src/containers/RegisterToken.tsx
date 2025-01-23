@@ -19,7 +19,7 @@ import { TokenDataTypeEnum, Token } from "@/generated/models.gen";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
 
 const RegisterToken = () => {
-  const { account } = useAccount();
+  const { address } = useAccount();
   const { nameSpace } = useDojo();
   const { eth, lords } = useTournamentContracts();
   const erc20_mock = useDojoSystem("erc20_mock").contractAddress ?? "0x0";
@@ -60,7 +60,7 @@ const RegisterToken = () => {
   };
 
   const getTestETHBalance = async () => {
-    const balance = await getEthBalance(account?.address!);
+    const balance = await getEthBalance(address!);
     if (balance !== undefined) {
       setTokenBalance((prev) => ({
         ...prev,
@@ -70,7 +70,7 @@ const RegisterToken = () => {
   };
 
   const getTestLordsBalance = async () => {
-    const balance = await getLordsBalance(account?.address!);
+    const balance = await getLordsBalance(address!);
     if (balance !== undefined) {
       setTokenBalance((prev) => ({
         ...prev,
@@ -80,7 +80,7 @@ const RegisterToken = () => {
   };
 
   const getTestERC20Balance = async () => {
-    const balance = await getERC20Balance(account?.address!);
+    const balance = await getERC20Balance(address!);
     if (balance !== undefined) {
       setTokenBalance((prev) => ({
         ...prev,
@@ -90,7 +90,7 @@ const RegisterToken = () => {
   };
 
   const getTestERC721Balance = async () => {
-    const balance = await getErc721Balance(account?.address!);
+    const balance = await getErc721Balance(address!);
     if (balance !== undefined) {
       setTokenBalance((prev) => ({
         ...prev,
@@ -100,13 +100,13 @@ const RegisterToken = () => {
   };
 
   useEffect(() => {
-    if (account) {
+    if (address) {
       getTestERC20Balance();
       getTestERC721Balance();
       getTestETHBalance();
       getTestLordsBalance();
     }
-  }, [account]);
+  }, [address]);
 
   const handleCopyAddress = (address: string, standard: string) => {
     copyToClipboard(padAddress(address));
@@ -169,7 +169,7 @@ const RegisterToken = () => {
           standard="eth"
           balance={formatBalance(tokenBalance["eth"])}
           onMint={async () => {
-            await mintEth(account?.address!, {
+            await mintEth(address!, {
               low: 100000000000000000000n,
               high: 0n,
             });
@@ -183,7 +183,7 @@ const RegisterToken = () => {
           standard="lords"
           balance={formatBalance(tokenBalance["lords"])}
           onMint={async () => {
-            await mintLords(account?.address!, {
+            await mintLords(address!, {
               low: 100000000000000000000n,
               high: 0n,
             });
@@ -197,7 +197,7 @@ const RegisterToken = () => {
           standard="erc20"
           balance={formatBalance(tokenBalance["erc20"])}
           onMint={async () => {
-            await mintErc20(account?.address!, {
+            await mintErc20(address!, {
               low: 100000000000000000000n,
               high: 0n,
             });
@@ -212,7 +212,7 @@ const RegisterToken = () => {
           standard="erc721"
           balance={Number(tokenBalance["erc721"])}
           onMint={async () => {
-            await mintErc721(account?.address!, {
+            await mintErc721(address!, {
               low: BigInt(Number(tokenBalance["erc721"]) + 1),
               high: 0n,
             });

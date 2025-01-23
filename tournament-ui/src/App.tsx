@@ -29,7 +29,7 @@ import { ChainId } from "./config";
 import LoginDialog from "@/components/dialogs/LoginDialog";
 
 function App() {
-  const { account } = useAccount();
+  const { account, address } = useAccount();
   const { selectedChainConfig } = useDojo();
   const { tournament, eth, lords, goldenToken, blobert } =
     useTournamentContracts();
@@ -172,7 +172,7 @@ function App() {
   }, [isMainnet]);
 
   const getBalances = useCallback(async () => {
-    if (!account?.address) return;
+    if (!address) return;
 
     const [ethBalance, lordsBalance, goldenTokenBalance, blobertBalance] =
       await Promise.all([
@@ -188,7 +188,7 @@ function App() {
       goldenToken: goldenTokenBalance as bigint,
       blobert: blobertBalance as bigint,
     });
-  }, [account?.address, getBalanceGeneral]);
+  }, [address, getBalanceGeneral]);
 
   useEffect(() => {
     if (account && eth && lords) {

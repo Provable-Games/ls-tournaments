@@ -25,7 +25,7 @@ const TokenBox = ({
   isCopied,
   variant,
 }: TokenBoxProps) => {
-  const { account } = useAccount();
+  const { address } = useAccount();
   const [tokenId, setTokenId] = useState(0);
   const { mintErc721 } = useSystemCalls();
   return (
@@ -57,7 +57,7 @@ const TokenBox = ({
             if (!variant) {
               onMint();
             } else {
-              await mintErc721(account?.address!, {
+              await mintErc721(address!, {
                 low: BigInt(tokenId),
                 high: 0n,
               });

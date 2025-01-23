@@ -28,10 +28,6 @@ export default function Header() {
 
   const checkCartridge = checkCartridgeConnector(connector);
 
-  console.log(isController);
-  console.log(account);
-  console.log(account?.address);
-
   return (
     <div className="flex flex-row justify-between px-1 h-10 ">
       <div className="flex flex-row items-center gap-2 sm:gap-5 fill-current w-24 md:w-32 xl:w-40 2xl:w-60 2xl:mb-5">

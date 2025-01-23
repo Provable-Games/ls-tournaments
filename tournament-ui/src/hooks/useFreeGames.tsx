@@ -10,7 +10,7 @@ import { ChainId } from "@/config";
 
 const useFreeGames = () => {
   const { selectedChainConfig } = useDojo();
-  const { account } = useAccount();
+  const { address } = useAccount();
   const { tokenBalance } = useUIStore();
   const { provider } = useProvider();
   const { goldenToken, blobert, lootSurvivor } = useTournamentContracts();
@@ -71,9 +71,9 @@ const useFreeGames = () => {
   const blobertTokenVariables = useMemo(() => {
     return {
       token: indexAddress(blobert ?? ""),
-      owner: indexAddress(account?.address ?? "").toLowerCase(),
+      owner: indexAddress(address ?? "").toLowerCase(),
     };
-  }, [account?.address]);
+  }, [address]);
 
   const { data: blobertsData } = useLSQuery(
     getOwnerTokens,
@@ -112,15 +112,13 @@ const useFreeGames = () => {
 
   useEffect(() => {
     if (isMainnet) {
-      if (account?.address && tokenBalance.goldenToken) {
-        getGoldenTokens(account.address, goldenToken).then(
-          getUsableGoldenToken
-        );
+      if (address && tokenBalance.goldenToken) {
+        getGoldenTokens(address, goldenToken).then(getUsableGoldenToken);
       }
     } else {
       setUsableGoldenTokens([]);
     }
-  }, [account?.address, tokenBalance.goldenToken, isMainnet]);
+  }, [address, tokenBalance.goldenToken, isMainnet]);
 
   useEffect(() => {
     if (isMainnet) {

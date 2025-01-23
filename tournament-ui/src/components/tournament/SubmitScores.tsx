@@ -35,7 +35,7 @@ const SubmitScores = ({
   tournamentGames,
   adventurersData,
 }: SubmitScoresProps) => {
-  const { account } = useAccount();
+  const { address } = useAccount();
   const { selectedChainConfig, nameSpace } = useDojo();
   const state = useDojoStore((state) => state);
   const navigate = useNavigate();
@@ -142,7 +142,7 @@ const SubmitScores = ({
 
   const addressGames = tournamentGames?.filter(
     (game: TournamentGame) =>
-      game.address === addAddressPadding(account?.address ?? "0x0")
+      game.address === addAddressPadding(address ?? "0x0")
   );
 
   const submittableGamesCount =
@@ -163,8 +163,7 @@ const SubmitScores = ({
 
   const addressGameIds = tournamentGames
     ?.filter(
-      (game: any) =>
-        game.address === addAddressPadding(account?.address ?? "0x0")
+      (game: any) => game.address === addAddressPadding(address ?? "0x0")
     )
     .map((game: any) => Number(game.game_id));
 
@@ -174,7 +173,7 @@ const SubmitScores = ({
         <p className="text-4xl text-center uppercase">Submit Scores</p>
         <div className="w-full bg-terminal-green/50 h-0.5" />
       </div>
-      {account ? (
+      {address ? (
         addressGameIds.length > 0 ? (
           <div className="flex flex-row p-5 h-full items-center justify-between">
             {tournamentEntriesAddress ? (

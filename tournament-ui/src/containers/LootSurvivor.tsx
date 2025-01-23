@@ -11,8 +11,8 @@ import { useDojo } from "@/DojoContext";
 const LootSurvivor = () => {
   const { nameSpace } = useDojo();
   const { setAdventurer } = useSystemCalls();
-  const { account } = useAccount();
-  useGetAdventurersQuery(account?.address ?? "0x0");
+  const { address } = useAccount();
+  useGetAdventurersQuery(address ?? "0x0");
   const state = useDojoStore((state) => state);
   const [scores, setScores] = useState<Record<string, number>>({});
 

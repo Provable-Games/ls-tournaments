@@ -21,7 +21,7 @@ import { useConfig } from "@/hooks/useConfig";
 import { TokenDataTypeEnum } from "@/generated/models.gen";
 
 const Create = () => {
-  const { account } = useAccount();
+  const { account, address } = useAccount();
   const { createTournamentData, resetCreateTournamentData } = useUIStore();
   const { testMode } = useConfig();
 
@@ -64,7 +64,7 @@ const Create = () => {
       tournament_id: addAddressPadding(
         bigintToHex(BigInt(tournamentCount) + 1n)
       ),
-      creator: addAddressPadding(account?.address!),
+      creator: addAddressPadding(address!),
       name: addAddressPadding(
         bigintToHex(stringToFelt(createTournamentData.tournamentName))
       ),

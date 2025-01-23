@@ -7,13 +7,13 @@ import Pagination from "@/components/table/Pagination";
 
 const EnteredTable = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const { account } = useAccount();
-  const address = useMemo(
-    () => addAddressPadding(account?.address ?? "0x0"),
-    [account]
+  const { address } = useAccount();
+  const formattedAddress = useMemo(
+    () => addAddressPadding(address ?? "0x0"),
+    [address]
   );
   const { entities: tournaments, isLoading } =
-    useGetAccountEnteredTournamentsQuery(address);
+    useGetAccountEnteredTournamentsQuery(formattedAddress);
   console.log(tournaments);
 
   // const { entities: tournaments, isLoading: tournamentsLoading } =
