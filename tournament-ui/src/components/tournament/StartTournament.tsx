@@ -261,7 +261,8 @@ const StartTournament = ({
           ) : (
             <div className="flex flex-col gap-5 items-center justify-center h-full">
               <p className="text-xl uppercase">
-                You have started the tournament!
+                You have started the tournament! Find your game in "Choose
+                Adventurer" in Loot Survivor.
               </p>
               <Button
                 className="animate-pulse"
