@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/buttons/Button";
 import { feltToString } from "@/lib/utils";
 import { useVRFCost } from "@/hooks/useVRFCost";
@@ -38,6 +38,7 @@ const StartTournament = ({
   const { lordsCost } = useLordsCost();
   const { tokenBalance, startTournamentData } = useUIStore();
   const navigate = useNavigate();
+  const [showPlay, setShowPlay] = useState(false);
 
   const { eth, lords, goldenToken, blobert, tournament } =
     useTournamentContracts();
@@ -49,11 +50,6 @@ const StartTournament = ({
   const hasFreeGame =
     usableBlobertTokens.length + usableGoldenTokens.length > 0;
 
-  // lords cost
-  const totalGamesAddressCost = lordsCost
-    ? lordsCost * (isSeason ? 1n : BigInt(entryAddressCount))
-    : 0n;
-
   const enoughLordsForStart = useMemo(() => {
     return tokenBalance.lords >= lordsCost!;
   }, [tokenBalance, lordsCost]);
@@ -63,8 +59,6 @@ const StartTournament = ({
       ? BigInt(dollarPrice) <= tokenBalance.eth
       : false;
   }, [tokenBalance, dollarPrice]);
-
-  console.log(usableGoldenTokens, usableBlobertTokens);
 
   const handleStartTournament = async () => {
     if (dollarPrice) {
@@ -124,22 +118,9 @@ const StartTournament = ({
         startTournamentData.weapon,
         startTournamentData.name
       );
+      setShowPlay(true);
     }
   };
-
-  const totalFreeGames = usableGoldenTokens.length + usableBlobertTokens.length;
-
-  console.log(totalGamesAddressCost);
-  console.log(
-    !tournamentEntriesAddressModel,
-    entryAddressCount === currentAddressStartCount,
-    !enoughEthForStart,
-    !enoughLordsForStart,
-    !startTournamentData.weapon,
-    !startTournamentData.name
-  );
-
-  console.log(tournamentEntriesAddressModel);
 
   return (
     <div className="flex flex-col h-full">
@@ -149,122 +130,152 @@ const StartTournament = ({
       </div>
       {tournamentEntriesAddressModel || isSeason ? (
         <div className="flex flex-col h-full">
-          <div className="w-full flex flex-row justify-center gap-5 p-1">
-            <div className="flex flex-col items-center w-1/3">
-              {!isSeason ? (
-                <>
-                  <p className="text-xl uppercase text-terminal-green/75 no-text-shadow text-left">
-                    My Games Played
-                  </p>
-                  <div className="flex flex-row items-center gap-2 px-5 uppercase text-2xl">
-                    <p className="uppercase text-2xl">
-                      {BigInt(currentAddressStartCount).toString()}
-                    </p>
-                    /<p> {BigInt(entryAddressCount).toString()}</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex flex-row items-center gap-2">
-                    <p className="whitespace-nowrap uppercase text-xl text-terminal-green/75 no-text-shadow">
-                      Entry Fee
-                    </p>
-                    <p className="text-lg">100 LORDS</p>
-                  </div>
-                  <div className="flex flex-row items-center gap-2">
-                    <p className="whitespace-nowrap text-terminal-green/75 no-text-shadow uppercase text-xl">
-                      Requirements
-                    </p>
-                    <p className="text-lg">1 LSVR</p>
-                  </div>
-                </>
-              )}
-            </div>
+          {!showPlay ? (
+            <>
+              <div className="w-full flex flex-row justify-center gap-5 p-1">
+                <div className="flex flex-col items-center w-1/3">
+                  {!isSeason ? (
+                    <>
+                      <p className="text-xl uppercase text-terminal-green/75 no-text-shadow text-left">
+                        My Games Played
+                      </p>
+                      <div className="flex flex-row items-center gap-2 px-5 uppercase text-2xl">
+                        <p className="uppercase text-2xl">
+                          {BigInt(currentAddressStartCount).toString()}
+                        </p>
+                        /<p> {BigInt(entryAddressCount).toString()}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex flex-row items-center gap-2">
+                        <p className="whitespace-nowrap uppercase text-xl text-terminal-green/75 no-text-shadow">
+                          Entry Fee
+                        </p>
+                        <p className="text-lg">100 LORDS</p>
+                      </div>
+                      <div className="flex flex-row items-center gap-2">
+                        <p className="whitespace-nowrap text-terminal-green/75 no-text-shadow uppercase text-xl">
+                          Requirements
+                        </p>
+                        <p className="text-lg">1 LSVR</p>
+                      </div>
+                    </>
+                  )}
+                </div>
 
-            <div className="flex flex-col items-center w-1/3">
-              <p className="text-xl uppercase text-terminal-green/75 no-text-shadow">
-                Game Cost
-              </p>
-              <div className="relative flex flex-row gap-5">
-                {hasFreeGame && (
-                  <p className="absolute top-[-20px] text-terminal-yellow uppercase">
-                    Free
+                <div className="flex flex-col items-center w-1/3">
+                  <p className="text-xl uppercase text-terminal-green/75 no-text-shadow">
+                    Game Cost
                   </p>
-                )}
-                <div className="flex flex-row gap-2 items-center">
-                  <p
-                    className={`uppercase text-xl ${
-                      hasFreeGame
-                        ? "line-through text-terminal-green/75 no-text-shadow"
-                        : ""
-                    }`}
-                  >
-                    {Number(
-                      lordsCost ? lordsCost / BigInt(10) ** BigInt(18) : 0
+                  <div className="relative flex flex-row gap-5">
+                    {hasFreeGame && (
+                      <p className="absolute top-[-20px] text-terminal-yellow uppercase">
+                        Free
+                      </p>
                     )}
-                  </p>
-                  <span className="flex h-5 w-5 fill-current">
-                    <LORDS />
-                  </span>
+                    <div className="flex flex-row gap-2 items-center">
+                      <p
+                        className={`uppercase text-xl ${
+                          hasFreeGame
+                            ? "line-through text-terminal-green/75 no-text-shadow"
+                            : ""
+                        }`}
+                      >
+                        {Number(
+                          lordsCost ? lordsCost / BigInt(10) ** BigInt(18) : 0
+                        )}
+                      </p>
+                      <span className="flex h-5 w-5 fill-current">
+                        <LORDS />
+                      </span>
+                    </div>
+                    <div className="flex flex-row gap-2 items-center">
+                      <p className="uppercase text-xl">
+                        {`$${Number(0.5).toFixed(2)}`}
+                      </p>
+                      <span className="flex h-5 w-5 fill-current">
+                        <ETH />
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex flex-row gap-2 items-center">
-                  <p className="uppercase text-xl">
-                    {`$${Number(0.5).toFixed(2)}`}
-                  </p>
-                  <span className="flex h-5 w-5 fill-current">
-                    <ETH />
-                  </span>
+                {(usableGoldenTokens.length > 0 ||
+                  usableBlobertTokens.length > 0) && (
+                  <div className="flex flex-col items-center w-1/3">
+                    <div className="flex flex-col items-center">
+                      <p className="uppercase">Using</p>
+                      {usableGoldenTokens.length > 0 && (
+                        <span className="relative h-5 w-5">
+                          <img src="/golden-token.png" alt="golden-token" />
+                        </span>
+                      )}
+                      {usableGoldenTokens.length === 0 &&
+                        usableBlobertTokens.length > 0 && (
+                          <span className="relative h-5 w-5">
+                            <img src="/blobert.png" alt="blobert" />
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="w-full bg-terminal-green/50 h-0.5" />
+              <div className="flex flex-col h-full">
+                <div className="flex flex-row">
+                  <WeaponSelect />
+                  <AdventurerName />
+                </div>
+                <div className="w-full flex flex-row items-center justify-center gap-2 p-2 h-full">
+                  {!enoughEthForStart ? (
+                    <p className="text-terminal-red uppercase">
+                      Not enough ETH
+                    </p>
+                  ) : !enoughLordsForStart ? (
+                    <p className="text-terminal-red uppercase">
+                      Not enough LORDS
+                    </p>
+                  ) : entryAddressCount === currentAddressStartCount ? (
+                    <p className="text-terminal-green uppercase">
+                      All games minted!
+                    </p>
+                  ) : (
+                    <></>
+                  )}
+                  <Button
+                    disabled={
+                      !tournamentEntriesAddressModel ||
+                      entryAddressCount === currentAddressStartCount ||
+                      !enoughEthForStart ||
+                      !enoughLordsForStart ||
+                      !startTournamentData.weapon ||
+                      !startTournamentData.name
+                    }
+                    onClick={() => handleStartTournament()}
+                  >
+                    Start
+                  </Button>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col items-center w-1/3">
-              <div className="flex flex-col items-center">
-                <div className="flex flex-row gap-1">
-                  <span className="relative h-5 w-5">
-                    <img src="/golden-token.png" alt="golden-token" />
-                  </span>
-                  <p className="text-xl">/</p>
-                  <span className="relative h-5 w-5">
-                    <img src="/blobert.png" alt="blobert" />
-                  </span>
-                </div>
-              </div>
-              <p className="text-2xl uppercase">{totalFreeGames}</p>
-            </div>
-          </div>
-          <div className="w-full bg-terminal-green/50 h-0.5" />
-          <div className="flex flex-col h-full">
-            <div className="flex flex-row">
-              <WeaponSelect />
-              <AdventurerName />
-            </div>
-            <div className="w-full flex flex-row items-center justify-center gap-2 p-2 h-full">
-              {!enoughEthForStart ? (
-                <p className="text-terminal-red uppercase">Not enough ETH</p>
-              ) : !enoughLordsForStart ? (
-                <p className="text-terminal-red uppercase">Not enough LORDS</p>
-              ) : entryAddressCount === currentAddressStartCount ? (
-                <p className="text-terminal-green uppercase">
-                  All games minted!
-                </p>
-              ) : (
-                <></>
-              )}
+            </>
+          ) : (
+            <div className="flex flex-col gap-5 items-center justify-center h-full">
+              <p className="text-xl uppercase">
+                You have started the tournament!
+              </p>
               <Button
-                disabled={
-                  !tournamentEntriesAddressModel ||
-                  entryAddressCount === currentAddressStartCount ||
-                  !enoughEthForStart ||
-                  !enoughLordsForStart ||
-                  !startTournamentData.weapon ||
-                  !startTournamentData.name
+                className="animate-pulse"
+                onClick={() =>
+                  window.open("https://lootsurvivor.io/", "_blank")
                 }
-                onClick={() => handleStartTournament()}
               >
-                Start
+                Play Here
+              </Button>
+              <Button variant="token" onClick={() => setShowPlay(false)}>
+                Start Another
               </Button>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         <div className="w-full h-full flex flex-col gap-5 items-center justify-center">
