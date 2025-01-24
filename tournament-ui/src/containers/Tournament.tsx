@@ -135,9 +135,15 @@ const Tournament = () => {
     refetch();
   }, [adventurersListVariables, refetch]);
 
+  const sortedAdventurersMain = useMemo(() => {
+    return adventurersMainData?.adventurers?.slice().sort((a: any, b: any) => {
+      return b.xp - a.xp;
+    });
+  }, [adventurersMainData]);
+
   // todo need to pull the data when tournament games is updated
   const adventurersData = isMainnet
-    ? adventurersMainData?.adventurers
+    ? sortedAdventurersMain
     : adventurersTestEntities;
 
   // Calculate dates

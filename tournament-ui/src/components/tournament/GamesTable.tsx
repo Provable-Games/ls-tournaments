@@ -1,8 +1,6 @@
 import { useMemo, useState } from "react";
 import Pagination from "@/components/table/Pagination";
 import GameRow from "@/components/tournament/GameRow";
-import { useDojo } from "@/DojoContext";
-import { ChainId } from "@/config";
 
 interface GamesTableProps {
   adventurersData: any;
@@ -10,8 +8,6 @@ interface GamesTableProps {
 }
 
 const GamesTable = ({ adventurersData, tournamentGames }: GamesTableProps) => {
-  const { selectedChainConfig, nameSpace } = useDojo();
-  const isMainnet = selectedChainConfig.chainId === ChainId.SN_MAIN;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => {
     if (!tournamentGames) return 0;
@@ -19,12 +15,9 @@ const GamesTable = ({ adventurersData, tournamentGames }: GamesTableProps) => {
   }, [tournamentGames]);
 
   const pagedAdventurers = useMemo(() => {
-    if (!tournamentGames) return [];
-    return tournamentGames.slice((currentPage - 1) * 5, currentPage * 5);
-  }, [tournamentGames, currentPage]);
-
-  console.log(tournamentGames);
-  console.log(adventurersData);
+    if (!adventurersData) return [];
+    return adventurersData.slice((currentPage - 1) * 5, currentPage * 5);
+  }, [adventurersData, currentPage]);
 
   return (
     <div className="w-1/2 flex flex-col border-4 border-terminal-green/75">
@@ -60,18 +53,7 @@ const GamesTable = ({ adventurersData, tournamentGames }: GamesTableProps) => {
             <tbody>
               {tournamentGames &&
                 tournamentGames.length > 0 &&
-                pagedAdventurers.map((data: any, index: any) => {
-                  const adventurer = isMainnet
-                    ? adventurersData?.find(
-                        (adventurer: any) => adventurer.id === data.game_id
-                      )
-                    : adventurersData.find(
-                        (entity: any) =>
-                          Number(
-                            entity.models[nameSpace].AdventurerModel
-                              .adventurer_id
-                          ) === data.game_id
-                      );
+                pagedAdventurers.map((adventurer: any, index: any) => {
                   return (
                     <GameRow
                       key={index}
