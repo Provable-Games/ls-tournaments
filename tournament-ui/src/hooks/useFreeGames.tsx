@@ -73,7 +73,7 @@ const useFreeGames = () => {
       token: indexAddress(blobert ?? ""),
       owner: indexAddress(address ?? "").toLowerCase(),
     };
-  }, [address]);
+  }, [blobert, address]);
 
   const { data: blobertsData } = useLSQuery(
     getOwnerTokens,
