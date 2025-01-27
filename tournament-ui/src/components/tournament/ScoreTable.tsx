@@ -107,7 +107,9 @@ const ScoreTable = ({
                           ) === gameId
                       );
                   const prizesForPosition = Object.values(prizes).find(
-                    (prize) => prize.payout_position === String(index + 1)
+                    (prize) =>
+                      prize.payout_position ===
+                      String(index + (currentPage - 1) * 5 + 1)
                   );
                   return (
                     <ScoreRow
