@@ -4,7 +4,10 @@ import { useAccount, useProvider } from "@starknet-react/core";
 import { indexAddress } from "@/lib/utils";
 import { useDojo } from "@/DojoContext";
 import { useTournamentContracts } from "@/hooks/useTournamentContracts";
-import { getOwnerTokens } from "@/hooks/graphql/queries";
+import {
+  getOwnerTokens,
+  getBlobertlaimedFreeGames,
+} from "@/hooks/graphql/queries";
 import { useLSQuery } from "@/hooks/useLSQuery";
 import { ChainId } from "@/config";
 
@@ -80,16 +83,38 @@ const useFreeGames = () => {
     blobertTokenVariables
   );
 
-  const getUsableBlobertToken = async (bloberts: any[]) => {
+  const blobertTokens = blobertsData?.tokens;
+  const blobertTokenIds: number[] = blobertTokens?.map((token: any) =>
+    Number(token.tokenId)
+  );
+
+  const claimedFreeGameVariables = useMemo(() => {
+    return {
+      tokenIds: blobertTokenIds,
+    };
+  }, [blobertTokenIds]);
+
+  const { data: claimedFreeGamesData } = useLSQuery(
+    getBlobertlaimedFreeGames,
+    claimedFreeGameVariables
+  );
+
+  const getUsableBlobertToken = async (tokenIds: number[]) => {
     const usableTokens: string[] = [];
-    for (let blobert of bloberts) {
-      const canPlay = await provider.callContract({
-        contractAddress: lootSurvivor,
-        entrypoint: "free_game_available",
-        calldata: ["1", blobert.tokenId.toString()],
-      });
-      if ((canPlay[0] as unknown as string) !== "0x0") {
-        usableTokens.push(blobert.tokenId.toString());
+    for (let tokenId of tokenIds) {
+      const hasParticipatedInLaunch =
+        claimedFreeGamesData?.claimedFreeGames?.some(
+          (freeGame: any) => freeGame.tokenId === tokenId
+        );
+      if (!hasParticipatedInLaunch) {
+        const canPlay = await provider.callContract({
+          contractAddress: lootSurvivor,
+          entrypoint: "free_game_available",
+          calldata: ["1", tokenId.toString()],
+        });
+        if ((canPlay[0] as unknown as string) !== "0x0") {
+          usableTokens.push(tokenId.toString());
+        }
       }
     }
     setUsableBlobertTokens(usableTokens);
@@ -123,7 +148,7 @@ const useFreeGames = () => {
   useEffect(() => {
     if (isMainnet) {
       if (blobertsData) {
-        getUsableBlobertToken(blobertsData.tokens);
+        getUsableBlobertToken(blobertTokenIds);
       }
     } else {
       setUsableBlobertTokens([]);
