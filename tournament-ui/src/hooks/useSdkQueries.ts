@@ -411,6 +411,7 @@ export const useGetTournamentDetailsQuery = (tournamentId: BigNumberish) => {
   );
   const { entities, isLoading, refetch } = useSdkGetEntities({
     query,
+    limit: 1000,
   });
   return { entities, isLoading, refetch };
 };

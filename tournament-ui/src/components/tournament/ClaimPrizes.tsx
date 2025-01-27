@@ -16,7 +16,7 @@ const ClaimPrizes = ({
   const { distributePrizes } = useSystemCalls();
 
   const handleDistributeAllPrizes = async () => {
-    const prizeKeys = tournamentPrizes?.map((prize: any) => prize.prize_key);
+    const prizeKeys = unclaimedPrizes?.map((prize: any) => prize.prize_key);
     await distributePrizes(
       tournamentModel?.tournament_id!,
       feltToString(tournamentModel?.name!),
