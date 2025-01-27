@@ -167,6 +167,9 @@ const SubmitScores = ({
     )
     .map((game: any) => Number(game.game_id));
 
+  const addressGameIdsInTopScores =
+    addressGameIds?.filter((id) => sortedTopGameIds.includes(id)).length ?? 0;
+
   return (
     <>
       <div className="flex flex-col">
@@ -191,7 +194,7 @@ const SubmitScores = ({
                     My Top Scores
                   </p>
                   <p className="no-text-shadow uppercase text-2xl">
-                    {sortedTopGameIds.length}
+                    {addressGameIdsInTopScores}
                   </p>
                 </div>
                 <div className="flex flex-row items-center gap-2">
