@@ -51,6 +51,7 @@ pub trait ILSTournament<TState> {
         position: u8
     );
     fn distribute_prizes(ref self: TState, tournament_id: u64, prize_keys: Array<u64>);
+    fn override_safe_mode(ref self: TState);
 }
 
 #[dojo::contract]

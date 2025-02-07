@@ -52,6 +52,7 @@ trait ITournament<TState> {
         position: u8
     );
     fn distribute_prizes(ref self: TState, tournament_id: u64, prize_keys: Array<u64>);
+    fn override_safe_mode(ref self: TState);
 }
 
 ///
@@ -710,6 +711,19 @@ pub mod tournament_component {
                         ref store, tournament_id, prize_keys, top_score_ids.span()
                     );
             };
+        }
+
+        fn override_safe_mode(ref self: ComponentState<TContractState>) {
+            let mut world = WorldTrait::storage(
+                self.get_contract().world_dispatcher(), DEFAULT_NS()
+            );
+            let mut store: Store = StoreTrait::new(world);
+
+            let mut tournament_config = store.get_tournament_config(get_contract_address());
+
+            tournament_config.safe_mode = false;
+
+            store.set_tournament_config(@tournament_config);
         }
     }
 

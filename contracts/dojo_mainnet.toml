@@ -32,7 +32,7 @@ world_block = 1084132
 
 [init_call_args]
 "ls_tournaments_v0-LSTournament" = [
-    "1", # safe_mode
+    "0", # safe_mode
     "0" # test_mode
 ]
 

@@ -1253,7 +1253,7 @@
   "contracts": [
     {
       "address": "0x3347382d530ff6acb9283ac1d78471187aae8a4690e9316bb4e3c3365ff7a86",
-      "class_hash": "0x697f1b88f50e938ebe1372ba7c237f195d868ddc953012c7a998e3e43582e57",
+      "class_hash": "0x307477a4c67b9ca7de4b0ab4a6ce40ec3420983891db4086e39d1fc2e3e21bf",
       "abi": [
         {
           "type": "impl",
@@ -1967,6 +1967,13 @@
               ],
               "outputs": [],
               "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "override_safe_mode",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
             }
           ]
         },
@@ -2035,7 +2042,7 @@
         }
       ],
       "init_calldata": [
-        "1",
+        "0",
         "0"
       ],
       "tag": "ls_tournaments_v0-LSTournament",
@@ -2049,7 +2056,8 @@
         "start_tournament",
         "submit_scores",
         "add_prize",
-        "distribute_prizes"
+        "distribute_prizes",
+        "override_safe_mode"
       ]
     }
   ],
